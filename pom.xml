@@ -85,7 +85,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <dbh2.version>1.4.191</dbh2.version>
-        <spring.version>4.3.13.RELEASE</spring.version>
+        <spring.version>5.3.18</spring.version>
     </properties>
 
     <dependencies>

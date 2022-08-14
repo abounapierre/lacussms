@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -22,7 +23,7 @@ public class EmptyPanel extends JPanel{
     
     public EmptyPanel(){
         try {
-            this.m_image = ImageIO.read(getClass().getResource("/images/logo-reg.png"));
+            this.m_image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/logo-reg.png")));
         
             JXLabel label = new JXLabel("");
             label.setFont(new Font("Bernard MT Condensed",Font.BOLD,65));

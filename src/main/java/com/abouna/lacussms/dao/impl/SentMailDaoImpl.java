@@ -9,14 +9,14 @@ package com.abouna.lacussms.dao.impl;
 import com.abouna.generic.dao.impl.GenericDao;
 import com.abouna.lacussms.dao.ISentMailDao;
 import com.abouna.lacussms.entities.SentMail;
-import com.abouna.lacussms.entities.SentMail_;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import org.springframework.stereotype.Repository;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import org.springframework.stereotype.Repository;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -31,7 +31,7 @@ public class SentMailDaoImpl extends GenericDao<SentMail, Integer> implements IS
         CriteriaQuery<SentMail> cq = builder.createQuery(SentMail.class);
         Root<SentMail> mailRoot = cq.from(SentMail.class);
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        cq.where(builder.equal(mailRoot.get(SentMail_.date2), format.format(d)));
+        cq.where(builder.equal(mailRoot.get("date2"), format.format(d)));
         cq.select(mailRoot);//.orderBy(builder.desc(bkEveRoot.get(SentMail_.sentDate)));
         return getManager().createQuery(cq).getResultList();
     }

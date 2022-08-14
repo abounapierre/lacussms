@@ -322,7 +322,7 @@ public class SmsProgrammingPanel extends JPanel{
                 }
                 dispose();
                 try {
-                    parentPanel.setContenu(new UrlParamPanel());
+                    parentPanel.setContent(new UrlParamPanel());
                 } catch (IOException ex) {
                     Logger.getLogger(UrlParamPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -331,7 +331,7 @@ public class SmsProgrammingPanel extends JPanel{
             annulerBtn.addActionListener((ActionEvent ae) -> {
                 dispose();
                 try {
-                    parentPanel.setContenu(new UrlParamPanel());
+                    parentPanel.setContent(new UrlParamPanel());
                 } catch (IOException ex) {
                     Logger.getLogger(UrlParamPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }

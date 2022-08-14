@@ -48,7 +48,6 @@ import javax.swing.table.DefaultTableModel;
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXSearchField;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  *
@@ -403,7 +402,7 @@ public class BkMadPanel extends JPanel{
                     }
                     dispose();
                     try {
-                        parentPanel.setContenu(new BkEvePanel());
+                        parentPanel.setContent(new BkEvePanel());
                     } catch (IOException ex) {
                         Logger.getLogger(BkEvePanel.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -413,7 +412,7 @@ public class BkMadPanel extends JPanel{
             annulerBtn.addActionListener((ActionEvent ae) -> {
                 dispose();
                 try {
-                    parentPanel.setContenu(new BkEvePanel());
+                    parentPanel.setContent(new BkEvePanel());
                 } catch (IOException ex) {
                     Logger.getLogger(BkEvePanel.class.getName()).log(Level.SEVERE, null, ex);
                 }

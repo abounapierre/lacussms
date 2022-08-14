@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.easymock.EasyMock;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -66,6 +67,7 @@ public class AppTest {
         ReflectionTestUtils.setField(App.class, "conn", conn);
     }
     
+    @Ignore
     @Test
     public void testServiceEvenement() throws SQLException, ParseException{
         new App();

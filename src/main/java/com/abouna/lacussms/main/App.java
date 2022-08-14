@@ -1,7 +1,11 @@
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by FernFlower decompiler)
+//
+
 package com.abouna.lacussms.main;
 
 import com.abouna.lacussms.config.ApplicationConfig;
-import com.abouna.lacussms.config.service.QueryService;
 import com.abouna.lacussms.entities.BkAgence;
 import com.abouna.lacussms.entities.BkCli;
 import com.abouna.lacussms.entities.BkEtatOp;
@@ -18,28 +22,23 @@ import com.abouna.lacussms.entities.RemoteDB;
 import com.abouna.lacussms.entities.ServiceOffert;
 import com.abouna.lacussms.entities.Status;
 import com.abouna.lacussms.entities.TypeEvent;
-import com.abouna.lacussms.entities.TypeService;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.LicencePanel;
-import com.abouna.lacussms.views.SendAddressPanel;
 import com.abouna.lacussms.views.main.BottomPanel;
 import com.abouna.lacussms.views.main.MainFrame;
 import com.abouna.lacussms.views.main.SplashFrame;
 import com.abouna.lacussms.views.tools.AES;
-import com.abouna.lacussms.views.tools.ConstantUtils;
-import com.abouna.lacussms.views.tools.MethodUtils;
 import com.abouna.lacussms.views.tools.Utils;
-import java.awt.Color;
+
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -48,49 +47,43 @@ import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.logging.Level;
-import org.apache.log4j.Logger;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JRootPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * Hello world!
- *
- */
 public class App {
-
-    //mysql-eabouna.alwaysdata.net
     static LacusSmsService serviceManager;
     private static Thread thread;
-    private static boolean running, running1, running2, running3;
+    private static boolean running;
+    private static boolean running1;
+    private static boolean running2;
+    private static boolean running3;
     private static Connection conn = null;
-    private static String lic, urlParam, methode, condition = "";
-    private static String urlMessage;
-    final static Logger logger = Logger.getLogger(App.class);
+    private static String lic;
+    private static String urlParam;
+    private static String methode;
+    private static String condition = "";
+    private static final Logger logger = LoggerFactory.getLogger(App.class);
     private static List<String> listString = new ArrayList<>();
     static boolean appliRun = false;
-    private static SplashFrame splashFrame;
     public static String username = null;
     public static String licenceString = "";
     static boolean vl = false;
-    private static RemoteDB remoteDB;
+
+    public App() {
+    }
 
     public static boolean isAppliRun() {
         return appliRun;
     }
 
     public static boolean compareDate(String d1, String d2) {
-        boolean r;
         try {
             int a = Integer.parseInt(d1.substring(0, 2));
             int a1 = Integer.parseInt(d2.substring(0, 2));
@@ -98,6 +91,7 @@ public class App {
             int b1 = Integer.parseInt(d2.substring(2, 4));
             int c = Integer.parseInt(d1.substring(4, 6));
             int c1 = Integer.parseInt(d2.substring(4, 6));
+            boolean r;
             if (c < c1) {
                 r = true;
             } else if (c == c1) {
@@ -111,21 +105,24 @@ public class App {
             } else {
                 r = false;
             }
+
             return r;
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException var9) {
             return false;
         }
     }
 
     public static String decript(String s) {
         String result = "";
-        for (int i = 2; i < s.length(); i += 3) {
+
+        for(int i = 2; i < s.length(); i += 3) {
             char c = s.charAt(i);
-            result += "" + c;
+            result = result + "" + c;
             if (result.length() == 6) {
                 break;
             }
         }
+
         return result;
     }
 
@@ -134,142 +131,161 @@ public class App {
         if (!Utils.verify()) {
             serviceManager.viderLicence();
         }
+
     }
 
     public static boolean checkLicence() {
+        return true;
+    }
+
+    public static boolean verifierLicence() {
         try {
             boolean val = false;
-            String secretKey = ConstantUtils.SECRET_KEY;
-            SimpleDateFormat format = new SimpleDateFormat("ddMMyy");
-            Date date = new Date();//Utils.getTimeFromInternet();
-            String dest = format.format(date);
-            List<Licence> licences = serviceManager.getLicences();
-            String s = "a";
-            long jour = 0;
-            if (licences.isEmpty()) {
-                val = false;
+            String mac = Utils.getMacAddress();
+            String secretKey = Utils.hacher("MD5", "$!LACUS@2020!1.2.6$");
+            if (mac != null && !mac.isEmpty()) {
+                secretKey = secretKey + Utils.hacher("MD5", mac);
+                List<Licence> licences = serviceManager.getLicences();
+                SimpleDateFormat format = new SimpleDateFormat("ddMMyy");
+                Date date = null;
+                String dest = null;
+                String s = null;
+                if (!licences.isEmpty()) {
+                    Licence li = (Licence)licences.get(0);
+                    date = new Date();
+                    dest = format.format(date);
+
+                    String hache = Utils.hacher("MD5", secretKey);
+                    s = AES.decrypt(li.getValeur(), hache) == null ? "" : AES.decrypt(li.getValeur(), hache);
+
+                    if (s != null) {
+                        Date d1 = format.parse(s);
+                        Date d2 = format.parse(dest);
+                        val = d1.after(d2);
+                    }
+                }
+
+                return val;
             } else {
-                for (Licence li : licences) {
-                    s = AES.decrypt(li.getValeur(), secretKey) == null ? "" : AES.decrypt(li.getValeur(), secretKey);
-                    jour = li.getJour();
-                    licenceString = li.getValeur();
-                }
-                if (s.length() == 12) {
-                    val = App.compareDate(dest, s.substring(3, 9)) || jour > 0;
-                }
+                return false;
             }
-            return val;
-        } catch (Exception ex) {
+        } catch (Exception var10) {
             serviceManager.viderLicence();
             return false;
         }
     }
 
     public static String bytesToHex(byte[] b) {
-        char hexDigits[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+        char[] hexDigits = new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
         StringBuilder buffer = new StringBuilder();
-        for (int j = 0; j < b.length; j++) {
-            buffer.append(hexDigits[(b[j] >> 4) & 0x0f]);
-            buffer.append(hexDigits[b[j] & 0x0f]);
+
+        for (byte value : b) {
+            buffer.append(hexDigits[value >> 4 & 15]);
+            buffer.append(hexDigits[value & 15]);
         }
+
         return buffer.toString();
     }
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException, IOException {
-        splashFrame = new SplashFrame();
+        SplashFrame splashFrame = new SplashFrame();
         initApp();
     }
 
     public static void initApp() throws IOException, ClassNotFoundException {
-        //logger.info("app startup");
         serviceManager = ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
         if (serviceManager.getAllConfig().isEmpty()) {
             serviceManager.enregistrerConfig(new Config(true, true, true, true));
         }
+
         urlParam = serviceManager.getDefaultUrlMessage() == null ? "" : serviceManager.getDefaultUrlMessage().getUrlValue();
         methode = serviceManager.getDefaultUrlMessage() == null ? "" : serviceManager.getDefaultUrlMessage().getMethode();
-        urlMessage = serviceManager.getDefaultUrlMessage() == null ? "" : serviceManager.getDefaultUrlMessage().getRoot();
-        remoteDB = serviceManager.getDefaultRemoteDB(true);
-        System.out.println("Root: " + urlMessage + "URL: " + urlParam + " Methode : " + methode);
+        String urlMessage = serviceManager.getDefaultUrlMessage() == null ? "" : serviceManager.getDefaultUrlMessage().getRoot();
+        logger.info("Root: " + urlMessage + "URL: " + urlParam + " Methode : " + methode);
         List<BkEtatOp> list = serviceManager.getListBkEtatOp(true);
         int taille = list.size();
         int i = 0;
         condition = "";
         listString = new ArrayList<>();
-        for (BkEtatOp op : list) {
+
+        for(Iterator<BkEtatOp> var3 = list.iterator(); var3.hasNext(); ++i) {
+            BkEtatOp op = (BkEtatOp)var3.next();
             listString.add(op.getValeur());
             if (i != taille - 1) {
-                condition += "b.ETA='" + op.getValeur() + "' OR ";
+                condition = condition + "b.ETA='" + op.getValeur() + "' OR ";
             } else {
-                condition += "b.ETA='" + op.getValeur() + "'";
+                condition = condition + "b.ETA='" + op.getValeur() + "'";
             }
-            i++;
         }
-        verifyComputer();
-        final boolean b = true;//App.checkLicence();
+
+        logger.info("MAC address " + Utils.getMacAddress());
+        boolean bb = Sender.send("http://keudal.com/assmsserver/assmsserver?user=AS-6853&password=J5676FTJ&sms=<msg>&receive=<num>&sender=CEPI+SA", "237698984176", Utils.hacher("MD5", Objects.requireNonNull(Utils.getMacAddress())));
+        logger.info(" envoie " + bb);
+        boolean b = true; //verifierLicence();
+        logger.info(" testtt     .....2");
+
         try {
-            if (b) {
-                vl = true;//Utils.existAndUsed(licenceString, Utils.getConnection());
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Problème de connexion assurez vous que votre poste\r\n "
-                    + "est connecté à internet ou verifiez votre parfeu\r\n "
-                    + "s'il ne bloque pas le connexion vers le serveur (alwaysdata.com)!");
+            vl = true;
+            logger.info(" testtt     .....3");
+        } catch (Exception var7) {
+            JOptionPane.showMessageDialog((Component)null, "Problème de connexion assurez vous que votre poste\r\n est connecté à internet ou verifiez votre parfeu\r\n s'il ne bloque pas le connexion vers le serveur (alwaysdata.com)!");
+            logger.error("Problème de connexion assurez vous que votre poste" +
+                    " est connecté à internet ou verifiez votre parfeu" +
+                    " s'il ne bloque pas le connexion vers le serveur (alwaysdata.com)!");
         }
+
         try {
             UIManager.setLookAndFeel("com.jgoodies.looks.plastic.Plastic3DLookAndFeel");
-        } catch (InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
+        } catch (IllegalAccessException | UnsupportedLookAndFeelException | InstantiationException e) {
+            logger.error("Error: ", e);
         }
 
         SwingUtilities.invokeLater(() -> {
             try {
-                /*if (vl == false) {
-                    JOptionPane.showMessageDialog(null, "Votre licence n'est plus valide\r\n "
-                            + "merci de cliquer sur ok pour enregistrer une nouvelle\r\n "
-                            + "ou contactez votre fournisseur!");
-                }*/
-                if (b == false || vl == false) {
-                    SendAddressPanel nouveau1 = new SendAddressPanel();
+                if (!vl) {
+                    JOptionPane.showMessageDialog((Component)null, "Votre licence n'est plus valide\r\n merci de cliquer sur ok pour enregistrer une nouvelle\r\n ou contactez votre fournisseur!");
+                }
+
+                if (vl) {
+                    appliRun = true;
+                    MainFrame frame = new MainFrame();
+                    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+                    frame.setSize((int) screenSize.getWidth() - 100, (int) screenSize.getHeight() -100);
+                    frame.setLocationRelativeTo(null);
+                    frame.setDefaultCloseOperation(0);
+                    frame.setVisible(true);
+                } else {
+                    LicencePanel nouveau1 = new LicencePanel(null);
                     nouveau1.setSize(450, 150);
                     nouveau1.setLocationRelativeTo(null);
                     nouveau1.setModal(true);
                     nouveau1.setResizable(false);
-                    nouveau1.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+                    nouveau1.setDefaultCloseOperation(0);
                     nouveau1.setVisible(true);
                     nouveau1.setUndecorated(true);
-                    nouveau1.getRootPane().setWindowDecorationStyle(JRootPane.NONE);
-                } else {
-                    appliRun = true;
-                    System.out.println("Demarrage.....");
-                    MainFrame frame = new MainFrame();
-                    frame.setSize(1000, 600);
-                    frame.setLocationRelativeTo(null);
-                    frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-                    //splashFrame.close();
-                    frame.setVisible(true);
+                    nouveau1.getRootPane().setWindowDecorationStyle(0);
                 }
-
-            } catch (IOException ex) {
-
-            } catch (XmlPullParserException ex) {
-                java.util.logging.Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException | XmlPullParserException e) {
+                logger.error("Error " , e);
             }
+
         });
     }
 
     public static boolean testLicence() {
-        final boolean b = App.checkLicence();
-        if (b == false) {
-            LicencePanel nouveau1 = new LicencePanel(null);
+        boolean b = checkLicence();
+        if (!b) {
+            LicencePanel nouveau1 = new LicencePanel((Licence)null);
             nouveau1.setSize(450, 150);
-            nouveau1.setLocationRelativeTo(null);
+            nouveau1.setLocationRelativeTo((Component)null);
             nouveau1.setModal(true);
             nouveau1.setResizable(false);
-            nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            nouveau1.setDefaultCloseOperation(2);
             nouveau1.setVisible(true);
             nouveau1.setUndecorated(true);
-            nouveau1.getRootPane().setWindowDecorationStyle(JRootPane.NONE);
+            nouveau1.getRootPane().setWindowDecorationStyle(0);
         }
+
         return b;
     }
 
@@ -277,236 +293,263 @@ public class App {
         List<BkEve> list = serviceManager.getBkEveBySendParam(true, listString);
         NumberFormat formatnum = NumberFormat.getCurrencyInstance();
         formatnum.setMinimumFractionDigits(0);
-        list.stream().map((eve) -> {
-            System.out.println(eve.toString());
-            return eve;
-        }).forEach((eve) -> {
-            System.out.println(" Montant : " + Double.toString(eve.getMont()) + " " + Utils.moveZero(eve.getMont()));
+        list.stream().peek((eve) -> logger.info(eve.toString())).forEach((eve) -> {
+            logger.info(" Montant : " + Double.toString(eve.getMont()) + " " + Utils.moveZero(eve.getMont()));
         });
     }
 
     public static boolean testConnexion() {
         logger.info("### Test de connexion de la BD ###");
+
         try {
+            String decryptedString = "";
             TimeZone timeZone = TimeZone.getTimeZone("GMT");
             TimeZone.setDefault(timeZone);
+            RemoteDB remoteDB = serviceManager.getDefaultRemoteDB(true);
+            Class.forName("oracle.jdbc.driver.OracleDriver");
             if (remoteDB != null) {
-                Class.forName(remoteDB.getDriverClassName());
-                System.out.println("URL: " + remoteDB.getUrl());
-                System.out.println("Username: " + remoteDB.getName());
-                System.out.println("Password: " + remoteDB.getPassword());
-                setConnection();
-                if (conn != null) {
-                    return true;
-                }
+                logger.info("URL: " + remoteDB.getUrl());
+                logger.info("Username: " + remoteDB.getName());
+                logger.info("Password: " + remoteDB.getPassword());
+                decryptedString = AES.decrypt(remoteDB.getPassword(), "LACUS2017");
+                conn = DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
+                return conn != null;
             }
-        } catch (NullPointerException | ClassNotFoundException | SQLException ex) {
-            System.out.println("problème de connexion bd " + ex.getMessage());
+
+            return false;
+        } catch (ClassNotFoundException | SQLException | NullPointerException var4) {
+            logger.info("problème de connexion bd " + var4.getMessage());
             return false;
         }
-        return false;
     }
 
-    //la fonction 
     public static void demarrerServiceData() {
         try {
             TimeZone timeZone = TimeZone.getTimeZone("GMT");
             TimeZone.setDefault(timeZone);
-            Class.forName(remoteDB.getDriverClassName());
+            Class.forName("oracle.jdbc.driver.OracleDriver");
             Thread t = new Thread(() -> {
                 running1 = true;
-                while (running1) {
-                    Config config = serviceManager.getAllConfig().get(0);
+
+                while(running1) {
+                    Config config = (Config)serviceManager.getAllConfig().get(0);
                     if (config.isEvent()) {
                         try {
                             serviceEvenement();
-                        } catch (SQLException ex) {
+                        } catch (SQLException var2) {
                             BottomPanel.settextLabel("Echec de connexion à la base de données", Color.RED);
-                        } catch (ParseException ex) {
+                        } catch (ParseException var3) {
                             BottomPanel.settextLabel("Problème de formatage de la date", Color.RED);
                         }
                     }
+
                     if (config.isBkmpai()) {
                         try {
                             ServiceSalaire();
                             ServiceSalaireBKMVTI();
-                        } catch (SQLException ex) {
+                        } catch (SQLException var4) {
                             BottomPanel.settextLabel("Echec de connexion à la base de données", Color.RED);
-                        } catch (ParseException ex) {
+                        } catch (ParseException var5) {
                             BottomPanel.settextLabel("Problème de formatage de la date", Color.RED);
                         }
                     }
+
                     if (config.isBkmac()) {
                         try {
                             ServiceCredit();
-                        } catch (SQLException ex) {
+                        } catch (SQLException var6) {
                             BottomPanel.settextLabel("Echec de connexion à la base de données", Color.RED);
-                        } catch (ParseException ex) {
+                        } catch (ParseException var7) {
                             BottomPanel.settextLabel("Problème de formatage de la date", Color.RED);
                         }
                     }
+
                     if (config.isMandat()) {
                         try {
                             ServiceMandat();
-                        } catch (SQLException ex) {
+                        } catch (SQLException var8) {
                             BottomPanel.settextLabel("Echec de connexion à la base de données", Color.RED);
-                        } catch (ParseException ex) {
+                        } catch (ParseException var9) {
                             BottomPanel.settextLabel("Problème de formatage de la date", Color.RED);
                         }
                     }
                 }
+
             });
             t.start();
-        } catch (ClassNotFoundException ex) {
-            BottomPanel.settextLabel("Problème de chargement du pilote", java.awt.Color.red);
+        } catch (ClassNotFoundException var2) {
+            BottomPanel.settextLabel("Problème de chargement du pilote", Color.red);
         }
+
     }
 
-    //fonction permettant de démarrer le service d'envoie des SMS
     public static void demarrerServiceSms() {
         thread = new Thread(() -> {
-            System.out.println("Démarrage du service...");
+            logger.info("Démarrage du service...");
             running = true;
-            while (running) {
-                Config config = serviceManager.getAllConfig().get(0);
+
+            while(running) {
+                Config config = (Config)serviceManager.getAllConfig().get(0);
                 if (config.isEvent()) {
                     envoieSMSEvenement();
                 }
+
                 if (config.isBkmpai()) {
                     envoieSMSSalaire();
                 }
+
                 if (config.isBkmac()) {
                     envoieSMSCredit();
                 }
+
                 if (config.isMandat()) {
                     envoieSMSMandat();
                 }
             }
+
         });
         thread.start();
     }
 
-    //fonction permettant de démarrer le service d'envoie des SMS
     public static void demarrerServiceRequete() {
         thread = new Thread(() -> {
-            System.out.println("Démarrage du service...");
+            logger.info("Démarrage du service...");
             running3 = true;
-            while (running3) {
+
+            while(running3) {
                 try {
                     ServiceRequete();
-                } catch (SQLException | ParseException ex) {
-                     BottomPanel.settextLabel("erreur lors de l'execution du service ...", java.awt.Color.RED);
+                } catch (ParseException | SQLException var1) {
+                    BottomPanel.settextLabel("erreur lors de l'execution du service ...", Color.RED);
                 }
             }
+
         });
         thread.start();
     }
 
     public static void testAffichage() {
-        Thread t;
-        t = new Thread(() -> {
+        Thread t = new Thread(() -> {
             int i = 1;
-            System.out.println("Démarrage....");
+            logger.info("Démarrage....");
             running = true;
-            while (running) {
+
+            while(running) {
                 try {
-
-                    BottomPanel.settextLabel("Traitement.... " + i, java.awt.Color.BLACK);
-                    i++;
+                    BottomPanel.settextLabel("Traitement.... " + i, Color.BLACK);
+                    ++i;
                     if (i % 10 == 0) {
-                        BottomPanel.settextLabel("Chargement des données.... " + i, java.awt.Color.RED);
+                        BottomPanel.settextLabel("Chargement des données.... " + i, Color.RED);
                     }
-                    Thread.sleep(500);
 
-                } catch (InterruptedException ex) {
+                    Thread.sleep(500L);
+                } catch (InterruptedException var2) {
+                    logger.error(var2.getMessage());
                 }
             }
+
         });
         t.start();
     }
 
-    //fonction permettant de démarrer le service d'envoie des SMS
     public static void demarrerServiceSequenciel() {
         try {
             TimeZone timeZone = TimeZone.getTimeZone("GMT");
             TimeZone.setDefault(timeZone);
-            Class.forName(remoteDB.getDriverClassName());
-            Thread threads;
-            threads = new Thread(() -> {
-                BottomPanel.settextLabel("Démarrage du service...", java.awt.Color.BLACK);
+            Class.forName("oracle.jdbc.driver.OracleDriver");
+            Thread threads = new Thread(() -> {
+                BottomPanel.settextLabel("Démarrage du service...", Color.BLACK);
                 running2 = true;
-                while (running2) {
-                    Config config = serviceManager.getAllConfig().get(0);
+
+                while(running2) {
+                    Config config = (Config)serviceManager.getAllConfig().get(0);
                     if (config.isEvent()) {
                         try {
                             serviceEvenement();
-                        } catch (SQLException ex) {
-                            BottomPanel.settextLabel("Echec de connexion à la base de données", java.awt.Color.RED);
-                        } catch (ParseException ex) {
-                            BottomPanel.settextLabel("Problème de formatage de la date", java.awt.Color.RED);
+                        } catch (SQLException var8) {
+                            BottomPanel.settextLabel("Echec de connexion à la base de données", Color.RED);
+                        } catch (ParseException var9) {
+                            BottomPanel.settextLabel("Problème de formatage de la date", Color.RED);
                         }
+
                         envoieSMSEvenement();
                     }
+
                     if (config.isBkmpai()) {
                         try {
                             ServiceSalaire();
                             ServiceSalaireBKMVTI();
-                        } catch (SQLException ex) {
-                            BottomPanel.settextLabel("Problème de connexion sur la base de données", java.awt.Color.RED);
-                        } catch (ParseException ex) {
-                            BottomPanel.settextLabel("Problème de formatage de la date", java.awt.Color.RED);
+                        } catch (SQLException var6) {
+                            BottomPanel.settextLabel("Problème de connexion sur la base de données", Color.RED);
+                        } catch (ParseException var7) {
+                            BottomPanel.settextLabel("Problème de formatage de la date", Color.RED);
                         }
+
                         envoieSMSSalaire();
                     }
+
                     if (config.isBkmac()) {
                         try {
                             ServiceCredit();
-                        } catch (SQLException ex) {
-                            BottomPanel.settextLabel("Problème de connexion sur la base de données", java.awt.Color.RED);
-                        } catch (ParseException ex) {
-                            BottomPanel.settextLabel("Problème de formatage de la date", java.awt.Color.RED);
+                        } catch (SQLException var4) {
+                            BottomPanel.settextLabel("Problème de connexion sur la base de données", Color.RED);
+                        } catch (ParseException var5) {
+                            BottomPanel.settextLabel("Problème de formatage de la date", Color.RED);
                         }
+
                         envoieSMSCredit();
                     }
+
                     if (config.isMandat()) {
                         try {
                             ServiceMandat();
-                        } catch (SQLException ex) {
-                            BottomPanel.settextLabel("Problème de connexion sur la base de données", java.awt.Color.RED);
-                        } catch (ParseException ex) {
-                            BottomPanel.settextLabel("Problème de formatage de la date", java.awt.Color.RED);
+                        } catch (SQLException var2) {
+                            BottomPanel.settextLabel("Problème de connexion sur la base de données", Color.RED);
+                        } catch (ParseException var3) {
+                            BottomPanel.settextLabel("Problème de formatage de la date", Color.RED);
                         }
+
                         envoieSMSMandat();
                     }
+
                     try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException ex) {
+                        Thread.sleep(1000L);
+                    } catch (InterruptedException var10) {
                         break;
                     }
                 }
+
             });
             threads.start();
-        } catch (ClassNotFoundException ex) {
-            BottomPanel.settextLabel("Problème de chargement du pilote", java.awt.Color.red);
+        } catch (ClassNotFoundException var2) {
+            BottomPanel.settextLabel("Problème de chargement du pilote", Color.red);
         }
+
     }
 
     public static void serviceEvenement() throws SQLException, ParseException {
-        setConnection();
+        String secretKey = "LACUS2017";
+        RemoteDB remoteDB = serviceManager.getDefaultRemoteDB(true);
+        String decryptedString = AES.decrypt(remoteDB.getPassword(), "LACUS2017");
+        conn = DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
         int compteur = serviceManager.getMaxIndexBkEve(TypeEvent.ordinaire);
-        String heure, date, currentString;
+        String currentString = "";
         Date current = new Date();
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
         SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat f2 = new SimpleDateFormat("dd/MM/yyyy");
-        String query, query1, finalquery, heureInit = "00:00:00.000";
+        String query = "";
+        String heureInit = "00:00:00.000";
+        String heure;
+        String date;
+        String finalquery;
         if (compteur == 0) {
             heure = "00:00:00.000";
             date = format.format(current);
             if (!condition.equals("")) {
-                finalquery = "SELECT b.NCP1,b.EVE,b.CLI1,b.ETA,b.DSAI,b.HSAI,b.DVAB,b.OPE,b.MON1,b.AGE FROM BKEVE b WHERE b.NCP1 >= '0' AND b.DSAI = '" + date + "' AND b.HSAI > '" + heure + "'" + " AND (" + condition + ")" + "  ORDER BY b.DSAI,b.HSAI ASC";
+                finalquery = "SELECT b.NCP1,b.EVE,b.CLI1,b.ETA,b.DSAI,b.HSAI,b.DVAB,b.OPE,b.MON1,b.AGE FROM bkeve b WHERE b.NCP1 >= '0' AND b.DSAI = '" + date + "' AND b.HSAI > '" + heure + "' AND (" + condition + ")  ORDER BY b.DSAI,b.HSAI ASC";
             } else {
-                finalquery = "SELECT b.NCP1,b.EVE,b.CLI1,b.ETA,b.DSAI,b.HSAI,b.DVAB,b.OPE,b.MON1,b.AGE FROM BKEVE b WHERE b.NCP1 >= '0' AND b.DSAI = '" + date + "' AND b.HSAI > '" + heure + "'" + "  ORDER BY b.DSAI,b.HSAI ASC";
+                finalquery = "SELECT b.NCP1,b.EVE,b.CLI1,b.ETA,b.DSAI,b.HSAI,b.DVAB,b.OPE,b.MON1,b.AGE FROM bkeve b WHERE b.NCP1 >= '0' AND b.DSAI = '" + date + "' AND b.HSAI > '" + heure + "'  ORDER BY b.DSAI,b.HSAI ASC";
             }
         } else {
             BkEve bkEve = serviceManager.getBkEveById(compteur);
@@ -532,187 +575,224 @@ public class App {
             date = tab[2] + "-" + tab[1] + "-" + tab[0];
             currentString = format.format(current);
             String suffix = " ORDER BY DSAI,HSAI ASC";
-
             if (!currentString.equals(date)) {
+                String query1;
                 if (!condition.equals("")) {
-                    query = "SELECT b.NCP1,b.EVE,b.CLI1,b.ETA,b.DSAI,b.HSAI,b.DVAB,b.OPE,b.MON1,b.AGE FROM BKEVE b WHERE b.NCP1 >= '0' AND b.DSAI = '" + date + "' AND b.HSAI > '" + heure + "'" + " AND (" + condition + ")";
-                    query1 = "SELECT b.NCP1,b.EVE,b.CLI1,b.ETA,b.DSAI,b.HSAI,b.DVAB,b.OPE,b.MON1,b.AGE FROM BKEVE b WHERE b.NCP1 >= '0' AND b.DSAI = '" + currentString + "' AND b.HSAI > '" + heureInit + "'" + " AND (" + condition + ")";
+                    query = "SELECT b.NCP1,b.EVE,b.CLI1,b.ETA,b.DSAI,b.HSAI,b.DVAB,b.OPE,b.MON1,b.AGE FROM bkeve b WHERE b.NCP1 >= '0' AND b.DSAI = '" + date + "' AND b.HSAI > '" + heure + "' AND (" + condition + ")";
+                    query1 = "SELECT b.NCP1,b.EVE,b.CLI1,b.ETA,b.DSAI,b.HSAI,b.DVAB,b.OPE,b.MON1,b.AGE FROM bkeve b WHERE b.NCP1 >= '0' AND b.DSAI = '" + currentString + "' AND b.HSAI > '" + heureInit + "' AND (" + condition + ")";
                     finalquery = "(" + query + ") UNION (" + query1 + ")" + suffix;
                 } else {
-                    query = "SELECT b.NCP1,b.EVE,b.CLI1,b.ETA,b.DSAI,b.HSAI,b.DVAB,b.OPE,b.MON1,b.AGE FROM BKEVE b WHERE b.NCP1 >= '0' AND b.DSAI = '" + date + "' AND b.HSAI > '" + heure + "'";
-                    query1 = "SELECT b.NCP1,b.EVE,b.CLI1,b.ETA,b.DSAI,b.HSAI,b.DVAB,b.OPE,b.MON1,b.AGE FROM BKEVE b WHERE b.NCP1 >= '0' AND b.DSAI = '" + currentString + "' AND b.HSAI > '" + heureInit + "'";
+                    query = "SELECT b.NCP1,b.EVE,b.CLI1,b.ETA,b.DSAI,b.HSAI,b.DVAB,b.OPE,b.MON1,b.AGE FROM bkeve b WHERE b.NCP1 >= '0' AND b.DSAI = '" + date + "' AND b.HSAI > '" + heure + "'";
+                    query1 = "SELECT b.NCP1,b.EVE,b.CLI1,b.ETA,b.DSAI,b.HSAI,b.DVAB,b.OPE,b.MON1,b.AGE FROM bkeve b WHERE b.NCP1 >= '0' AND b.DSAI = '" + currentString + "' AND b.HSAI > '" + heureInit + "'";
                     finalquery = "(" + query + ") UNION (" + query1 + ")" + suffix;
                 }
+            } else if (!condition.equals("")) {
+                query = "SELECT b.NCP1,b.EVE,b.CLI1,b.ETA,b.DSAI,b.HSAI,b.DVAB,b.OPE,b.MON1,b.AGE FROM bkeve b WHERE b.NCP1 >= '0' AND b.DSAI = '" + date + "' AND b.HSAI > '" + heure + "' AND (" + condition + ")";
+                finalquery = query + suffix;
             } else {
-                if (!condition.equals("")) {
-                    query = "SELECT b.NCP1,b.EVE,b.CLI1,b.ETA,b.DSAI,b.HSAI,b.DVAB,b.OPE,b.MON1,b.AGE FROM BKEVE b WHERE b.NCP1 >= '0' AND b.DSAI = '" + date + "' AND b.HSAI > '" + heure + "'" + " AND (" + condition + ")";
-                    finalquery = query + suffix;
-                } else {
-                    query = "SELECT b.NCP1,b.EVE,b.CLI1,b.ETA,b.DSAI,b.HSAI,b.DVAB,b.OPE,b.MON1,b.AGE FROM BKEVE b WHERE b.NCP1 >= '0' AND b.DSAI = '" + date + "' AND b.HSAI > '" + heure + "'";
-                    finalquery = query + suffix;
-                }
+                query = "SELECT b.NCP1,b.EVE,b.CLI1,b.ETA,b.DSAI,b.HSAI,b.DVAB,b.OPE,b.MON1,b.AGE FROM bkeve b WHERE b.NCP1 >= '0' AND b.DSAI = '" + date + "' AND b.HSAI > '" + heure + "'";
+                finalquery = query + suffix;
             }
         }
-        
-        finalquery = QueryService.buildQuery(finalquery, serviceManager.getParametreRequeteValues(TypeService.EVENEMENT), TypeService.EVENEMENT);
-        
-        if(finalquery == null){
-            return;
-        }
-        System.out.println(finalquery);
-        
-        try (PreparedStatement ps = conn.prepareStatement(finalquery)) {
+
+        PreparedStatement ps = conn.prepareStatement(finalquery);
+        Throwable var57 = null;
+
+        try {
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                BottomPanel.settextLabel("Recherche des évenements en cours.... ", java.awt.Color.BLACK);
-                if (rs.getString(1) != null) {
-                    if (rs.getString(1).trim().length() >= 10) {
-                        BkEve eve = new BkEve();
-                        BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString(10).trim());
-                        eve.setBkAgence(bkAgence);
-                        BkCli bkCli;
-                        String cli = "";
-                        if (rs.getString(1).trim().length() >= 9) {
-                            cli = rs.getString(1).trim().substring(3, 9);
-                        }
-                        bkCli = serviceManager.getBkCliById(cli);
-                        if (bkCli == null) {
-                            bkCli = serviceManager.getBkCliByNumCompte(rs.getString(1).trim());
-                        }
-                        eve.setCli(bkCli);
-                        eve.setCompte(rs.getString(1).trim());
-                        eve.setEtat(rs.getString(4).trim());
-                        eve.setHsai(rs.getString(6).trim());
-                        eve.setMont(Double.parseDouble(rs.getString(9).trim()));
-                        eve.setMontant(rs.getString(9).trim());
-                        BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString(8).trim());
-                        eve.setOpe(bkOpe);
-                        eve.setDVAB(rs.getString(5).trim());
-                        eve.setEventDate(f2.parse(f2.format(format1.parse(rs.getString(5).trim()))));
-                        eve.setSent(false);
-                        eve.setNumEve(rs.getString(2).trim());
-                        eve.setId(serviceManager.getMaxIndexBkEve() + 1);
-                        eve.setType(TypeEvent.ordinaire);
-                        
-                        boolean traitement = true;
-                        
-                        if (bkCli == null) {
-                            traitement = false;
-                        }
-                        
-                        if (!serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getEventDate(), eve.getCompte()).isEmpty()) {
-                            traitement = false;
-                        }
-                        
-                        if (!serviceManager.getBkEveByPeriode(eve.getNumEve(), eve.getCompte(), Utils.add(eve.getEventDate(), -2), eve.getEventDate()).isEmpty()) {
-                            traitement = false;
-                        }
-                        
-                        if (!serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getCompte(), eve.getHsai(), eve.getMontant()).isEmpty()) {
-                            traitement = false;
-                        }
-                        
-                        if (!serviceManager.getBkEveByCriteriaMontant(eve.getNumEve(), eve.getCompte(), eve.getMontant()).isEmpty()) {
-                            traitement = false;
-                        }
-                        
-                        if (traitement) {
-                            BottomPanel.settextLabel("Chargement données évenement.... " + eve.getCompte(), java.awt.Color.BLACK);
-                            serviceManager.enregistrer(eve);
-                            
-                            String q = "SELECT b.NUM, b.CLI, b.TYP FROM BKTELCLI b WHERE b.CLI='" + cli + "'";
-                            q = QueryService.buildQuery(q, serviceManager.getParametreRequeteValues(TypeService.TELEPHONE_CLIENT), TypeService.TELEPHONE_CLIENT);
-                                if(q == null){
-                                    return;
+
+            label513:
+            while(true) {
+                BkCli bkCli;
+                String cli;
+                boolean traitement;
+                BkEve eve;
+                do {
+                    do {
+                        do {
+                            if (!rs.next()) {
+                                break label513;
+                            }
+
+                            BottomPanel.settextLabel("Recherche des évenements en cours.... ", Color.BLACK);
+                        } while(rs.getString("NCP1") == null);
+                    } while(rs.getString("NCP1").trim().length() < 10);
+
+                    eve = new BkEve();
+                    BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString("AGE").trim());
+                    eve.setBkAgence(bkAgence);
+                    bkCli = null;
+                    cli = "";
+                    if (rs.getString("NCP1").trim().length() >= 9) {
+                        cli = rs.getString("NCP1").trim().substring(3, 9);
+                    }
+
+                    bkCli = serviceManager.getBkCliById(cli);
+                    if (bkCli == null) {
+                        bkCli = serviceManager.getBkCliByNumCompte(rs.getString("NCP1").trim());
+                    }
+
+                    eve.setCli(bkCli);
+                    eve.setCompte(rs.getString("NCP1").trim());
+                    eve.setEtat(rs.getString("ETA").trim());
+                    eve.setHsai(rs.getString("HSAI").trim());
+                    eve.setMont(Double.parseDouble(rs.getString("MON1").trim()));
+                    eve.setMontant(rs.getString("MON1").trim());
+                    BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString("OPE").trim());
+                    eve.setOpe(bkOpe);
+                    eve.setDVAB(rs.getString("DSAI").trim());
+                    eve.setEventDate(f2.parse(f2.format(format1.parse(rs.getString("DSAI").trim()))));
+                    eve.setSent(false);
+                    eve.setNumEve(rs.getString("EVE").trim());
+                    eve.setId(serviceManager.getMaxIndexBkEve() + 1);
+                    eve.setType(TypeEvent.ordinaire);
+                    traitement = bkCli != null;
+
+                    if (!serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getEventDate(), eve.getCompte()).isEmpty()) {
+                        traitement = false;
+                    }
+
+                    if (!serviceManager.getBkEveByPeriode(eve.getNumEve(), eve.getCompte(), Utils.add(eve.getEventDate(), -2L), eve.getEventDate()).isEmpty()) {
+                        traitement = false;
+                    }
+
+                    if (!serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getCompte(), eve.getHsai(), eve.getMontant()).isEmpty()) {
+                        traitement = false;
+                    }
+
+                    if (!serviceManager.getBkEveByCriteriaMontant(eve.getNumEve(), eve.getCompte(), eve.getMontant()).isEmpty()) {
+                        traitement = false;
+                    }
+                } while(!traitement);
+
+                BottomPanel.settextLabel("Chargement données évenement.... " + eve.getCompte(), Color.BLACK);
+                serviceManager.enregistrer(eve);
+                String q = "SELECT b.NUM, b.CLI, b.TYP FROM bktelcli b WHERE b.CLI='" + cli + "'";
+                PreparedStatement pss = conn.prepareStatement(q);
+                Throwable var26 = null;
+
+                try {
+                    ResultSet resultat = pss.executeQuery();
+                    int n = 0;
+
+                    while(true) {
+                        while(true) {
+                            do {
+                                if (!resultat.next()) {
+                                    continue label513;
                                 }
-                            
-                            try (PreparedStatement pss = conn.prepareStatement(q)) {
-                                ResultSet resultat = pss.executeQuery();
-                                
-                                int n = 0;
-                                
-                                while (resultat.next()) {
-                                    if (bkCli.getPhone() == 0) {
-                                        String code, numero;
-                                        if (resultat.getString(1).replace(" ", "").replace("/", "").trim().length() == 9 && Utils.estUnEntier(resultat.getString(1).trim())) {
-                                            code = "237";
-                                            numero = code + resultat.getString(1).trim();
-                                            if (bkCli.getPhone() != Long.parseLong(numero)) {
-                                                bkCli.setPhone(Long.parseLong(numero));
-                                                if (n == 0) {
-                                                    BottomPanel.settextLabel("Mise à jour numero client.... " + bkCli.getCode(), java.awt.Color.BLACK);
-                                                    serviceManager.modifier(bkCli);
-                                                    n++;
-                                                }
-                                            }
-                                        } else if (resultat.getString(1).replace(" ", "").replace("/", "").trim().length() == 8 && Utils.estUnEntier(resultat.getString(1).trim())) {
-                                            code = "241";
-                                            numero = code + resultat.getString(1).trim();
-                                            if (bkCli.getPhone() != Long.parseLong(numero)) {
-                                                bkCli.setPhone(Long.parseLong(numero));
-                                                if (n == 0) {
-                                                    BottomPanel.settextLabel("Mise à jour numero client.... " + bkCli.getCode(), java.awt.Color.BLACK);
-                                                    serviceManager.modifier(bkCli);
-                                                    n++;
-                                                }
-                                            }
-                                        }
+                            } while(bkCli.getPhone() != 0L);
+
+                            String code = "";
+                            String numero = null;
+                            if (resultat.getString("NUM").replace(" ", "").replace("/", "").trim().length() == 9 && Utils.estUnEntier(resultat.getString("NUM").trim())) {
+                                code = "237";
+                                numero = code + resultat.getString("NUM").trim();
+                                if (bkCli.getPhone() != Long.parseLong(numero)) {
+                                    bkCli.setPhone(Long.parseLong(numero));
+                                    if (n == 0) {
+                                        BottomPanel.settextLabel("Mise à jour numero client.... " + bkCli.getCode(), Color.BLACK);
+                                        serviceManager.modifier(bkCli);
+                                        ++n;
+                                    }
+                                }
+                            } else if (resultat.getString("NUM").replace(" ", "").replace("/", "").trim().length() == 8 && Utils.estUnEntier(resultat.getString("NUM").trim())) {
+                                code = "241";
+                                numero = code + resultat.getString("NUM").trim();
+                                if (bkCli.getPhone() != Long.parseLong(numero)) {
+                                    bkCli.setPhone(Long.parseLong(numero));
+                                    if (n == 0) {
+                                        BottomPanel.settextLabel("Mise à jour numero client.... " + bkCli.getCode(), Color.BLACK);
+                                        serviceManager.modifier(bkCli);
+                                        ++n;
                                     }
                                 }
                             }
                         }
                     }
+                } catch (Throwable var52) {
+                    var26 = var52;
+                    throw var52;
+                } finally {
+                    if (pss != null) {
+                        if (var26 != null) {
+                            try {
+                                pss.close();
+                            } catch (Throwable var51) {
+                                var26.addSuppressed(var51);
+                            }
+                        } else {
+                            pss.close();
+                        }
+                    }
+
                 }
-                
             }
+        } catch (Throwable var54) {
+            var57 = var54;
+            throw var54;
+        } finally {
+            if (ps != null) {
+                if (var57 != null) {
+                    try {
+                        ps.close();
+                    } catch (Throwable var50) {
+                        var57.addSuppressed(var50);
+                    }
+                } else {
+                    ps.close();
+                }
+            }
+
         }
+
         conn.close();
     }
 
     public static void envoieSMSEvenement() {
         if (checkLicence()) {
             List<BkEve> list = serviceManager.getBkEveBySendParam(false, listString, TypeEvent.ordinaire);
-            list.stream().forEach((BkEve eve) -> {
+            list.forEach((eve) -> {
                 BkCli bkCli = eve.getCli();
-                if (bkCli != null && eve.getOpe() != null && !"".equals(methode)) {
-                    if (bkCli.isEnabled() && serviceManager.getBkCompCliByCriteria(bkCli, eve.getCompte(), true) != null && bkCli.getPhone() != 0) {
-                        MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), bkCli.getLangue());
-                        if (mf != null) {
-                            String text = Utils.remplacerVariable(bkCli, eve.getOpe(), eve, mf);
-                            String res = testConnexionInternet();
-                            BottomPanel.settextLabel("Test connexion ...." + res, java.awt.Color.BLACK);
-                            if (res.equals("OK")) {
-                                BottomPanel.settextLabel("Envoie du Message à.... " + eve.getCompte(), java.awt.Color.BLACK);
-                                switch (methode) {
-                                    case "METHO1":
-                                        App.send(urlParam, "" + bkCli.getPhone(), text);
-                                        break;
-                                    case "METHO2":
-                                        App.send2(urlParam, "" + bkCli.getPhone(), text);
-                                        break;
-                                }
-                            } else {
-                                BottomPanel.settextLabel("Message non envoyé à.... " + eve.getCompte() + " Problème de connexion internet!!", java.awt.Color.RED);
+                if (bkCli != null && eve.getOpe() != null && !"".equals(methode) && bkCli.isEnabled() && serviceManager.getBkCompCliByCriteria(bkCli, eve.getCompte(), true) != null && bkCli.getPhone() != 0L) {
+                    MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), bkCli.getLangue());
+                    if (mf != null) {
+                        String text = Utils.remplacerVariable(bkCli, eve.getOpe(), eve, mf);
+                        String res = testConnexionInternet();
+                        BottomPanel.settextLabel("Test connexion ...." + res, Color.BLACK);
+                        if (res.equals("OK")) {
+                            BottomPanel.settextLabel("Envoie du Message à.... " + eve.getCompte(), Color.BLACK);
+                            switch (methode) {
+                                case "METHO1":
+                                    Sender.send(urlParam, "" + bkCli.getPhone(), text);
+                                    break;
+                                case "METHO2":
+                                    Sender.send(urlParam, "" + bkCli.getPhone(), text);
                             }
-                            Message message = new Message();
-                            message.setTitle(eve.getOpe().getLib());
-                            message.setContent(text);
-                            message.setBkEve(eve);
-                            message.setSendDate(new Date());
-                            message.setNumero(Long.toString(bkCli.getPhone()));
-                            if (res.equals("OK")) {
-                                serviceManager.enregistrer(message);
-                                eve.setSent(true);
-                                serviceManager.modifier(eve);
-                                BottomPanel.settextLabel("OK Message envoyé ", java.awt.Color.BLACK);
-                            }
+                        } else {
+                            BottomPanel.settextLabel("Message non envoyé à.... " + eve.getCompte() + " Problème de connexion internet!!", Color.RED);
+                        }
+
+                        Message message = new Message();
+                        message.setTitle(eve.getOpe().getLib());
+                        message.setContent(text);
+                        message.setBkEve(eve);
+                        message.setSendDate(new Date());
+                        message.setNumero(Long.toString(bkCli.getPhone()));
+                        if (res.equals("OK")) {
+                            serviceManager.enregistrer(message);
+                            eve.setSent(true);
+                            serviceManager.modifier(eve);
+                            BottomPanel.settextLabel("OK Message envoyé ", Color.BLACK);
                         }
                     }
                 }
+
             });
         } else {
-            BottomPanel.settextLabel("Message non envoyé Problème de Licence veuillez contacter le fournieur!!", java.awt.Color.RED);
+            BottomPanel.settextLabel("Message non envoyé Problème de Licence veuillez contacter le fournieur!!", Color.RED);
         }
+
     }
 
     public static void stopper() {
@@ -721,406 +801,484 @@ public class App {
         running2 = false;
         running3 = false;
         BottomPanel.settextLabel("");
-        System.out.println("le service a été arreté");
+        logger.info("le service a été arreté");
     }
 
     public static void send(String username, String pass, String number, String msg, String sid, int fl, int mt, String ipcl) {
         try {
-            String postBody = "username=" + URLEncoder.encode(username, "ISO-8859-1") + "&"
-                    + "password=" + URLEncoder.encode(pass, "ISO-8859-1") + "&"
-                    + "mno=" + URLEncoder.encode(number, "ISO-8859-1") + "&"
-                    + "msg=" + URLEncoder.encode(msg, "ISO-8859-1") + "&"
-                    + "Sid=" + URLEncoder.encode(sid, "ISO-8859-1") + "&"
-                    + "fl=" + URLEncoder.encode("" + fl, "ISO-8859-1") + "&"
-                    + "mt=" + URLEncoder.encode("" + mt, "ISO-8859-1") + "&"
-                    + "ipcl=" + URLEncoder.encode(ipcl, "ISO-8859-1");
+            String postBody = "username=" + URLEncoder.encode(username, "ISO-8859-1") + "&password=" + URLEncoder.encode(pass, "ISO-8859-1") + "&mno=" + URLEncoder.encode(number, "ISO-8859-1") + "&msg=" + URLEncoder.encode(msg, "ISO-8859-1") + "&Sid=" + URLEncoder.encode(sid, "ISO-8859-1") + "&fl=" + URLEncoder.encode("" + fl, "ISO-8859-1") + "&mt=" + URLEncoder.encode("" + mt, "ISO-8859-1") + "&ipcl=" + URLEncoder.encode(ipcl, "ISO-8859-1");
             String link = "https://1s2u.com/sms/sendsms/sendsms.asp?" + postBody;
             URL url = new URL(link);
-            HttpURLConnection conn1 = (HttpURLConnection) url.openConnection();
-            System.out.println(postBody);
+            HttpURLConnection conn1 = (HttpURLConnection)url.openConnection();
+            logger.info(postBody);
             conn1.setRequestMethod("POST");
             conn1.setDoOutput(true);
-            try (OutputStreamWriter wr = new OutputStreamWriter(conn1.getOutputStream())) {
-                wr.write(postBody);
-                wr.flush();
-            }
+            OutputStreamWriter wr = new OutputStreamWriter(conn1.getOutputStream());
+            wr.write(postBody);
+            wr.flush();
+            wr.close();
             conn1.connect();
-            StringBuilder results;
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(conn1.getInputStream()))) {
-                results = new StringBuilder();
-                String oneline;
-                while ((oneline = br.readLine()) != null) {
-                    results.append(oneline);
-                }
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn1.getInputStream()));
+            StringBuilder results = new StringBuilder();
+
+            String oneline;
+            while((oneline = br.readLine()) != null) {
+                results.append(oneline);
             }
-            System.out.println(URLDecoder.decode(results.toString(), "ISO-8859-1"));
-        } catch (IOException exception) {
-            System.out.println(exception.getMessage() + exception.getCause());
+
+            br.close();
+            logger.info(URLDecoder.decode(results.toString(), "ISO-8859-1"));
+        } catch (IOException var16) {
+            logger.error(var16.getMessage() + var16.getCause());
         }
+
     }
 
     public static String testConnexionInternet() {
         String code = "KO";
+
         try {
-            URL url = new URL("http://www.google.com");
-            HttpURLConnection conn1 = (HttpURLConnection) url.openConnection();
-            if (conn1.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            URL url = new URL("https://www.google.com");
+            HttpURLConnection conn1 = (HttpURLConnection)url.openConnection();
+            if (conn1.getResponseCode() == 200) {
                 code = "OK";
             }
-        } catch (UnknownHostException ex) {
-            System.out.println("problème de connexion internet " + ex.getMessage());
-            return "KO";
-        } catch (MalformedURLException ex) {
-            System.out.println("problème de connexion internet " + ex.getMessage());
-            return "KO";
-        } catch (IOException ex) {
-            System.out.println("problème de connexion internet " + ex.getMessage());
+
+            return code;
+        } catch (IOException var3) {
+            logger.error("problème de connexion internet " + var3.getMessage());
             return "KO";
         }
-        return code;
     }
 
     public static String send(String urlText, String number, String msg) {
-        String res = "", rCode = "KO";
+        String res = "";
+        String rCode = "KO";
+
         try {
             String link = urlText.replace("<num>", URLEncoder.encode(number, "UTF-8")).replace("<msg>", URLEncoder.encode(msg, "UTF-8"));
             int i = 0;
-            String r = "", r1 = link;
-            while (link.charAt(i) != '?') {
-                r += link.charAt(i);
-                i++;
+
+            String r;
+            for(r = ""; link.charAt(i) != '?'; ++i) {
+                r = r + link.charAt(i);
             }
-            r1 = r1.replace(r + "?", "");
+
+            String r1 = link.replace(r + "?", "");
             URL url = new URL(r + "?");
-            HttpURLConnection conn1 = (HttpURLConnection) url.openConnection();
-            System.out.println(r + "?" + r1);
+            HttpURLConnection conn1 = (HttpURLConnection)url.openConnection();
+            logger.info(r + "?" + r1);
             conn1.setRequestMethod("POST");
             conn1.setReadTimeout(5000);
             conn1.setDoOutput(true);
-            try (OutputStreamWriter wr = new OutputStreamWriter(conn1.getOutputStream())) {
-                wr.write(r1);
-                wr.flush();
-            }
+            OutputStreamWriter wr = new OutputStreamWriter(conn1.getOutputStream());
+            wr.write(r1);
+            wr.flush();
+            wr.close();
             conn1.connect();
-            StringBuilder results;
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(conn1.getInputStream()))) {
-                results = new StringBuilder();
-                String oneline;
-                BottomPanel.settextLabel("Récupération du résultat...", Color.black);
-                while ((oneline = br.readLine()) != null) {
-                    results.append(oneline);
-                }
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn1.getInputStream()));
+            StringBuilder results = new StringBuilder();
+            BottomPanel.settextLabel("Récupération du résultat...", Color.black);
+
+            String oneline;
+            while((oneline = br.readLine()) != null) {
+                results.append(oneline);
             }
-            System.out.println(URLDecoder.decode(results.toString(), "UTF-8"));
+
+            br.close();
+            logger.info(URLDecoder.decode(results.toString(), "UTF-8"));
             res = URLDecoder.decode(results.toString(), "UTF-8");
             rCode = "OK";
-        } catch (IOException exception) {
-            System.out.println(exception.getMessage() + exception.getCause());
+            return rCode;
+        } catch (IOException var15) {
+            logger.error(var15.getMessage() + var15.getCause());
             return null;
         }
-        return rCode;
     }
 
-    public static String send2(String urlText, String number, String msg) {
-        String res = "", rCode = "KO";
+    public static void send2(String urlText, String number, String msg) {
+        String res = "";
+        String rCode = "KO";
+
         try {
             String link = urlText.replace("<num>", URLEncoder.encode(number, "UTF-8")).replace("<msg>", URLEncoder.encode(msg, "UTF-8"));
             URL url = new URL(link);
-            HttpURLConnection conn1 = (HttpURLConnection) url.openConnection();
-            System.out.println(link);
+            HttpURLConnection conn1 = (HttpURLConnection)url.openConnection();
+            logger.info(link);
             conn1.setRequestMethod("POST");
             conn1.setDoOutput(true);
-            try (OutputStreamWriter wr = new OutputStreamWriter(conn1.getOutputStream())) {
+            OutputStreamWriter wr = new OutputStreamWriter(conn1.getOutputStream());
+            Throwable var9 = null;
+
+            try {
                 wr.write(urlText);
                 wr.flush();
-            }
-            conn1.connect();
-            StringBuilder results;
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(conn1.getInputStream()))) {
-                results = new StringBuilder();
-                String oneline;
-                BottomPanel.settextLabel("Récupération du résultat...", Color.black);
-                while ((oneline = br.readLine()) != null) {
-                    results.append(oneline);
+            } catch (Throwable var19) {
+                var9 = var19;
+                throw var19;
+            } finally {
+                if (var9 != null) {
+                    try {
+                        wr.close();
+                    } catch (Throwable var18) {
+                        var9.addSuppressed(var18);
+                    }
+                } else {
+                    wr.close();
                 }
+
             }
-            System.out.println(URLDecoder.decode(results.toString(), "UTF-8"));
+
+            conn1.connect();
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn1.getInputStream()));
+            StringBuilder results = new StringBuilder();
+            BottomPanel.settextLabel("Récupération du résultat...", Color.black);
+
+            String oneline;
+            while((oneline = br.readLine()) != null) {
+                results.append(oneline);
+            }
+
+            br.close();
+            logger.info(URLDecoder.decode(results.toString(), "UTF-8"));
             res = URLDecoder.decode(results.toString(), "UTF-8");
             rCode = "OK";
-        } catch (IOException exception) {
-            //System.out.println("erreur lors de l'envoie");
-            System.out.println(exception.getMessage() + exception.getCause());
-            return null;
+        } catch (IOException var21) {
+            logger.error(var21.getMessage() + var21.getCause());
         }
-        return rCode;
     }
 
     public static void ServiceSalaire() throws SQLException, ParseException {
-        BottomPanel.settextLabel("Traitement des salaires en cours.... ", java.awt.Color.BLACK);
+        BottomPanel.settextLabel("Traitement des salaires en cours.... ", Color.BLACK);
         SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat f2 = new SimpleDateFormat("dd/MM/yyyy");
+        String secretKey = "LACUS2017";
+        RemoteDB remoteDB = serviceManager.getDefaultRemoteDB(true);
+        String decryptedString = AES.decrypt(remoteDB.getPassword(), "LACUS2017");
+        conn = DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
+        PreparedStatement ps = conn.prepareStatement("SELECT b.NCP AS NCP1,b.AGE,b.DCO AS DSAI,b.OPE,b.EVE,b.MON FROM BKMPAI b  WHERE b.NCP >= '0' ORDER BY DCO ASC");
+        Throwable var6 = null;
 
-        setConnection();
-        
-        String query = "SELECT b.NCP AS NCP1,b.AGE,b.DCO AS DSAI,b.OPE,b.EVE,b.MON FROM BKMPAI b  WHERE b.NCP >= '0' ORDER BY DCO ASC";
-        
-        query = QueryService.buildQuery(query, serviceManager.getParametreRequeteValues(TypeService.SALAIRE1), TypeService.SALAIRE1);
-        if(query == null){
-            return;
-        }
-        
-        try (PreparedStatement ps = conn.prepareStatement(query)) {
+        try {
             ResultSet rs = ps.executeQuery();
-            
-            while (rs.next()) {
-                BottomPanel.settextLabel("Recherche données salaires.... ", java.awt.Color.BLACK);
-                if (rs.getString(1) != null) {
-                    if (rs.getString(1).trim().length() >= 10) {
-                        BkEve eve = new BkEve();
-                        BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString(2).trim());
-                        eve.setBkAgence(bkAgence);
-                        BkCli bkCli;
-                        String cli = "";
-                        if (rs.getString(1).trim().length() >= 9) {
-                            cli = rs.getString(1).trim().substring(3, 9);
-                        }
-                        bkCli = serviceManager.getBkCliById(cli);
-                        if (bkCli == null) {
-                            bkCli = serviceManager.getBkCliByNumCompte(rs.getString(1).trim());
-                        }
-                        eve.setCli(bkCli);
-                        eve.setCompte(rs.getString(1).trim());
-                        eve.setEtat("VA");
-                        eve.setHsai("00:00:00.000");
-                        eve.setMont(Double.parseDouble(rs.getString(6).trim()));
-                        eve.setMontant(rs.getString(6).trim());
-                        BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString(4).trim());
-                        eve.setOpe(bkOpe);
-                        eve.setDVAB(rs.getString(3).trim());
-                        eve.setEventDate(f2.parse(f2.format(format1.parse(rs.getString(3).trim()))));
-                        eve.setSent(false);
-                        eve.setNumEve(rs.getString(5).trim());
-                        eve.setId(serviceManager.getMaxIndexBkEve() + 1);
-                        eve.setType(TypeEvent.salaire);
-                        
-                        if (bkCli != null) {
-                            if (serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getEventDate(), eve.getCompte()).isEmpty()) {
-                                BottomPanel.settextLabel("Chargement données salaires.... " + eve.getCompte(), java.awt.Color.BLACK);
-                                serviceManager.enregistrer(eve);
-                                
-                                String q = "SELECT b.NUM, b.CLI, b.TYP FROM BKTELCLI b WHERE b.CLI='" + rs.getString(2).trim().substring(3, 9) + "'";
-                                q = QueryService.buildQuery(q, serviceManager.getParametreRequeteValues(TypeService.TELEPHONE_CLIENT), TypeService.TELEPHONE_CLIENT);
-                                if(q == null){
-                                    return;
-                                }
-                                try (PreparedStatement pss = conn.prepareStatement(q)) {
-                                    ResultSet resultat = pss.executeQuery();
-                                    
-                                    int n = 0;
-                                    
-                                    while (resultat.next()) {
-                                        if (bkCli.getPhone() == 0) {
-                                            String code, numero;
-                                            if (resultat.getString(1).replace(" ", "").replace("/", "").trim().length() == 9 && Utils.estUnEntier(resultat.getString(1).trim())) {
-                                                code = "237";
-                                                numero = code + resultat.getString(1).trim();
-                                                if (bkCli.getPhone() != Long.parseLong(numero)) {
-                                                    bkCli.setPhone(Long.parseLong(numero));
-                                                    if (n == 0) {
-                                                        BottomPanel.settextLabel("Mise à jour numero client.... " + bkCli.getCode(), java.awt.Color.BLACK);
-                                                        serviceManager.modifier(bkCli);
-                                                        n++;
-                                                    }
-                                                }
-                                            } else if (resultat.getString(1).replace(" ", "").replace("/", "").trim().length() == 8 && Utils.estUnEntier(resultat.getString(1).trim())) {
-                                                code = "241";
-                                                numero = code + resultat.getString(1).trim();
-                                                if (bkCli.getPhone() != Long.parseLong(numero)) {
-                                                    bkCli.setPhone(Long.parseLong(numero));
-                                                    if (n == 0) {
-                                                        BottomPanel.settextLabel("Mise à jour numero client.... " + bkCli.getCode(), java.awt.Color.BLACK);
-                                                        serviceManager.modifier(bkCli);
-                                                        n++;
-                                                    }
-                                                }
+
+            label357:
+            while(rs.next()) {
+                BottomPanel.settextLabel("Recherche données salaires.... ", Color.BLACK);
+                if (rs.getString("NCP1") != null && rs.getString("NCP1").trim().length() >= 10) {
+                    BkEve eve = new BkEve();
+                    BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString("AGE").trim());
+                    eve.setBkAgence(bkAgence);
+                    BkCli bkCli = null;
+                    String cli = "";
+                    if (rs.getString("NCP1").trim().length() >= 9) {
+                        cli = rs.getString("NCP1").trim().substring(3, 9);
+                    }
+
+                    bkCli = serviceManager.getBkCliById(cli);
+                    if (bkCli == null) {
+                        bkCli = serviceManager.getBkCliByNumCompte(rs.getString("NCP1").trim());
+                    }
+
+                    eve.setCli(bkCli);
+                    eve.setCompte(rs.getString("NCP1").trim());
+                    eve.setEtat("VA");
+                    eve.setHsai("00:00:00.000");
+                    eve.setMont(Double.parseDouble(rs.getString("MON").trim()));
+                    eve.setMontant(rs.getString("MON").trim());
+                    BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString("OPE").trim());
+                    eve.setOpe(bkOpe);
+                    eve.setDVAB(rs.getString("DSAI").trim());
+                    eve.setEventDate(f2.parse(f2.format(format1.parse(rs.getString("DSAI").trim()))));
+                    eve.setSent(false);
+                    eve.setNumEve(rs.getString("EVE").trim());
+                    eve.setId(serviceManager.getMaxIndexBkEve() + 1);
+                    eve.setType(TypeEvent.salaire);
+                    if (bkCli != null && serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getEventDate(), eve.getCompte()).isEmpty()) {
+                        BottomPanel.settextLabel("Chargement données salaires.... " + eve.getCompte(), Color.BLACK);
+                        serviceManager.enregistrer(eve);
+                        String q = "SELECT b.NUM, b.CLI, b.TYP FROM bktelcli b WHERE b.CLI='" + rs.getString("NCP1").trim().substring(3, 9) + "'";
+                        PreparedStatement pss = conn.prepareStatement(q);
+                        Throwable var15 = null;
+
+                        try {
+                            ResultSet resultat = pss.executeQuery();
+                            int n = 0;
+
+                            while(true) {
+                                while(true) {
+                                    do {
+                                        if (!resultat.next()) {
+                                            continue label357;
+                                        }
+                                    } while(bkCli.getPhone() != 0L);
+
+                                    String code = "";
+                                    String numero = null;
+                                    if (resultat.getString("NUM").replace(" ", "").replace("/", "").trim().length() == 9 && Utils.estUnEntier(resultat.getString("NUM").trim())) {
+                                        code = "237";
+                                        numero = code + resultat.getString("NUM").trim();
+                                        if (bkCli.getPhone() != Long.parseLong(numero)) {
+                                            bkCli.setPhone(Long.parseLong(numero));
+                                            if (n == 0) {
+                                                BottomPanel.settextLabel("Mise à jour numero client.... " + bkCli.getCode(), Color.BLACK);
+                                                serviceManager.modifier(bkCli);
+                                                ++n;
+                                            }
+                                        }
+                                    } else if (resultat.getString("NUM").replace(" ", "").replace("/", "").trim().length() == 8 && Utils.estUnEntier(resultat.getString("NUM").trim())) {
+                                        code = "241";
+                                        numero = code + resultat.getString("NUM").trim();
+                                        if (bkCli.getPhone() != Long.parseLong(numero)) {
+                                            bkCli.setPhone(Long.parseLong(numero));
+                                            if (n == 0) {
+                                                BottomPanel.settextLabel("Mise à jour numero client.... " + bkCli.getCode(), Color.BLACK);
+                                                serviceManager.modifier(bkCli);
+                                                ++n;
                                             }
                                         }
                                     }
                                 }
                             }
+                        } catch (Throwable var41) {
+                            var15 = var41;
+                            throw var41;
+                        } finally {
+                            if (pss != null) {
+                                if (var15 != null) {
+                                    try {
+                                        pss.close();
+                                    } catch (Throwable var40) {
+                                        var15.addSuppressed(var40);
+                                    }
+                                } else {
+                                    pss.close();
+                                }
+                            }
+
                         }
                     }
                 }
             }
+        } catch (Throwable var43) {
+            var6 = var43;
+            throw var43;
+        } finally {
+            if (ps != null) {
+                if (var6 != null) {
+                    try {
+                        ps.close();
+                    } catch (Throwable var39) {
+                        var6.addSuppressed(var39);
+                    }
+                } else {
+                    ps.close();
+                }
+            }
+
         }
+
         conn.close();
     }
 
     public static void ServiceSalaireBKMVTI() throws SQLException, ParseException {
-        BottomPanel.settextLabel("Traitement des salaires BKMVTI en cours.... ", java.awt.Color.BLACK);
+        BottomPanel.settextLabel("Traitement des salaires BKMVTI en cours.... ", Color.BLACK);
         SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat f2 = new SimpleDateFormat("dd/MM/yyyy");
-
-        setConnection();
-        
+        String secretKey = "LACUS2017";
+        RemoteDB remoteDB = serviceManager.getDefaultRemoteDB(true);
+        String decryptedString = AES.decrypt(remoteDB.getPassword(), "LACUS2017");
+        conn = DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
         String query = "SELECT b.AGE,b.NCP AS NCP1,b.OPE,b.EVE,b.DCO AS DSAI,b.DVA,b.MON FROM BKMVTI b WHERE b.NCP >= '0' ORDER BY DCO ASC";
-        query = QueryService.buildQuery(query, serviceManager.getParametreRequeteValues(TypeService.SALAIRE2), TypeService.SALAIRE2);
-        if(query == null){
-            return;
-        }
-        try (PreparedStatement ps = conn.prepareStatement(query)) {
+        PreparedStatement ps = conn.prepareStatement(query);
+        Throwable var7 = null;
+
+        try {
             ResultSet rs = ps.executeQuery();
 
-            while (rs.next()) {
-                BottomPanel.settextLabel("Recherche données salaires BKMVTI.... ", java.awt.Color.BLACK);
-                if (rs.getString(2) != null) {
-                    if (rs.getString(2).trim().length() >= 10) {
-                        BkEve eve = new BkEve();
-                        BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString(1).trim());
-                        eve.setBkAgence(bkAgence);
-                        String cli = "";
-                        if (rs.getString(2).trim().length() >= 9) {
-                            cli = rs.getString(2).trim().substring(3, 9);
-                        }
-                        BkCli bkCli = serviceManager.getBkCliById(cli);
-                        if (bkCli == null) {
-                            bkCli = serviceManager.getBkCliByNumCompte(rs.getString(2).trim());
-                        }
-                        eve.setCli(bkCli);
-                        eve.setCompte(rs.getString(2).trim());
-                        eve.setEtat("VA");
-                        eve.setHsai("00:00:00.000");
-                        eve.setMont(Double.parseDouble(rs.getString(7).trim()));
-                        eve.setMontant(rs.getString(7).trim());
-                        BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString(3).trim());
-                        eve.setOpe(bkOpe);
-                        eve.setDVAB(rs.getString(5).trim());
-                        eve.setEventDate(f2.parse(f2.format(format1.parse(rs.getString(5).trim()))));
-                        eve.setSent(false);
-                        eve.setNumEve(rs.getString(4).trim());
-                        eve.setId(serviceManager.getMaxIndexBkEve() + 1);
-                        eve.setType(TypeEvent.salaire);
+            label357:
+            while(rs.next()) {
+                BottomPanel.settextLabel("Recherche données salaires BKMVTI.... ", Color.BLACK);
+                if (rs.getString("NCP1") != null && rs.getString("NCP1").trim().length() >= 10) {
+                    BkEve eve = new BkEve();
+                    BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString("AGE").trim());
+                    eve.setBkAgence(bkAgence);
+                    String cli = "";
+                    if (rs.getString("NCP1").trim().length() >= 9) {
+                        cli = rs.getString("NCP1").trim().substring(3, 9);
+                    }
 
-                        if (bkCli != null) {
-                            if (serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getEventDate(), eve.getCompte()).isEmpty()) {
-                                BottomPanel.settextLabel("Chargement données salaires BKMVTI.... " + eve.getCompte(), java.awt.Color.BLACK);
-                                serviceManager.enregistrer(eve);
+                    BkCli bkCli = serviceManager.getBkCliById(cli);
+                    if (bkCli == null) {
+                        bkCli = serviceManager.getBkCliByNumCompte(rs.getString("NCP1").trim());
+                    }
 
-                                String q = "SELECT b.NUM, b.CLI, b.TYP FROM BKTELCLI b WHERE b.CLI='" + rs.getString(2).trim().substring(3, 9) + "'";
-                                q = QueryService.buildQuery(q, serviceManager.getParametreRequeteValues(TypeService.TELEPHONE_CLIENT), TypeService.TELEPHONE_CLIENT);
-                                if(q == null){
-                                    return;
-                                }
-                                try (PreparedStatement pss = conn.prepareStatement(q)) {
-                                    ResultSet resultat = pss.executeQuery();
-                                    
-                                    int n = 0;
-                                    
-                                    while (resultat.next()) {
-                                        if (bkCli.getPhone() == 0) {
-                                            String code , numero;
-                                            if (resultat.getString(1).replace(" ", "").replace("/", "").trim().length() == 9 && Utils.estUnEntier(resultat.getString(1).trim())) {
-                                                code = "237";
-                                                numero = code + resultat.getString(1).trim();
-                                                if (bkCli.getPhone() != Long.parseLong(numero)) {
-                                                    bkCli.setPhone(Long.parseLong(numero));
-                                                    if (n == 0) {
-                                                        BottomPanel.settextLabel("Mise à jour numero client.... " + bkCli.getCode(), java.awt.Color.BLACK);
-                                                        serviceManager.modifier(bkCli);
-                                                        n++;
-                                                    }
-                                                }
-                                            } else if (resultat.getString(1).replace(" ", "").replace("/", "").trim().length() == 8 && Utils.estUnEntier(resultat.getString(1).trim())) {
-                                                code = "241";
-                                                numero = code + resultat.getString(1).trim();
-                                                if (bkCli.getPhone() != Long.parseLong(numero)) {
-                                                    bkCli.setPhone(Long.parseLong(numero));
-                                                    if (n == 0) {
-                                                        BottomPanel.settextLabel("Mise à jour numero client.... " + bkCli.getCode(), java.awt.Color.BLACK);
-                                                        serviceManager.modifier(bkCli);
-                                                        n++;
-                                                    }
-                                                }
+                    eve.setCli(bkCli);
+                    eve.setCompte(rs.getString("NCP1").trim());
+                    eve.setEtat("VA");
+                    eve.setHsai("00:00:00.000");
+                    eve.setMont(Double.parseDouble(rs.getString("MON").trim()));
+                    eve.setMontant(rs.getString("MON").trim());
+                    BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString("OPE").trim());
+                    eve.setOpe(bkOpe);
+                    eve.setDVAB(rs.getString("DSAI").trim());
+                    eve.setEventDate(f2.parse(f2.format(format1.parse(rs.getString("DSAI").trim()))));
+                    eve.setSent(false);
+                    eve.setNumEve(rs.getString("EVE").trim());
+                    eve.setId(serviceManager.getMaxIndexBkEve() + 1);
+                    eve.setType(TypeEvent.salaire);
+                    if (bkCli != null && serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getEventDate(), eve.getCompte()).isEmpty()) {
+                        BottomPanel.settextLabel("Chargement données salaires BKMVTI.... " + eve.getCompte(), Color.BLACK);
+                        serviceManager.enregistrer(eve);
+                        String q = "SELECT b.NUM, b.CLI, b.TYP FROM bktelcli b WHERE b.CLI='" + rs.getString("NCP1").trim().substring(3, 9) + "'";
+                        PreparedStatement pss = conn.prepareStatement(q);
+                        Throwable var16 = null;
+
+                        try {
+                            ResultSet resultat = pss.executeQuery();
+                            int n = 0;
+
+                            while(true) {
+                                while(true) {
+                                    do {
+                                        if (!resultat.next()) {
+                                            continue label357;
+                                        }
+                                    } while(bkCli.getPhone() != 0L);
+
+                                    String code;
+                                    String numero;
+                                    if (resultat.getString("NUM").replace(" ", "").replace("/", "").trim().length() == 9 && Utils.estUnEntier(resultat.getString("NUM").trim())) {
+                                        code = "237";
+                                        numero = code + resultat.getString("NUM").trim();
+                                        if (bkCli.getPhone() != Long.parseLong(numero)) {
+                                            bkCli.setPhone(Long.parseLong(numero));
+                                            if (n == 0) {
+                                                BottomPanel.settextLabel("Mise à jour numero client.... " + bkCli.getCode(), Color.BLACK);
+                                                serviceManager.modifier(bkCli);
+                                                ++n;
+                                            }
+                                        }
+                                    } else if (resultat.getString("NUM").replace(" ", "").replace("/", "").trim().length() == 8 && Utils.estUnEntier(resultat.getString("NUM").trim())) {
+                                        code = "241";
+                                        numero = code + resultat.getString("NUM").trim();
+                                        if (bkCli.getPhone() != Long.parseLong(numero)) {
+                                            bkCli.setPhone(Long.parseLong(numero));
+                                            if (n == 0) {
+                                                BottomPanel.settextLabel("Mise à jour numero client.... " + bkCli.getCode(), Color.BLACK);
+                                                serviceManager.modifier(bkCli);
+                                                ++n;
                                             }
                                         }
                                     }
                                 }
                             }
+                        } catch (Throwable var42) {
+                            var16 = var42;
+                            throw var42;
+                        } finally {
+                            if (pss != null) {
+                                if (var16 != null) {
+                                    try {
+                                        pss.close();
+                                    } catch (Throwable var41) {
+                                        var16.addSuppressed(var41);
+                                    }
+                                } else {
+                                    pss.close();
+                                }
+                            }
+
                         }
                     }
                 }
             }
+        } catch (Throwable var44) {
+            var7 = var44;
+            throw var44;
+        } finally {
+            if (ps != null) {
+                if (var7 != null) {
+                    try {
+                        ps.close();
+                    } catch (Throwable var40) {
+                        var7.addSuppressed(var40);
+                    }
+                } else {
+                    ps.close();
+                }
+            }
+
         }
+
         conn.close();
     }
 
     public static void envoieSMSSalaire() {
         if (checkLicence()) {
             List<BkEve> list = serviceManager.getBkEveBySendParam(false, listString, TypeEvent.salaire);
-            list.stream().forEach((BkEve eve) -> {
+            list.forEach((eve) -> {
                 BkCli bkCli = eve.getCli();
-                if (bkCli != null && eve.getOpe() != null && !"".equals(methode)) {
-                    if (bkCli.isEnabled() && serviceManager.getBkCompCliByCriteria(bkCli, eve.getCompte(), true) != null && bkCli.getPhone() != 0) {
-                        MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), bkCli.getLangue());
-                        if (mf != null) {
-                            String text = Utils.remplacerVariable(bkCli, eve.getOpe(), eve, mf);
-                            String res = testConnexionInternet();
-                            BottomPanel.settextLabel("Test connexion ...." + res, java.awt.Color.BLACK);
-                            if (res.equals("OK")) {
-                                BottomPanel.settextLabel("Envoie du Message à.... " + eve.getCompte(), java.awt.Color.BLACK);
-                                switch (methode) {
-                                    case "METHO1":
-                                        App.send(urlParam, "" + bkCli.getPhone(), text);
-                                        break;
-                                    case "METHO2":
-                                        App.send2(urlParam, "" + bkCli.getPhone(), text);
-                                        break;
-                                }
-                            } else {
-                                BottomPanel.settextLabel("Message non envoyé à.... " + eve.getCompte() + " Problème de connexion internet!!", java.awt.Color.RED);
+                if (bkCli != null && eve.getOpe() != null && !"".equals(methode) && bkCli.isEnabled() && serviceManager.getBkCompCliByCriteria(bkCli, eve.getCompte(), true) != null && bkCli.getPhone() != 0L) {
+                    MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), bkCli.getLangue());
+                    if (mf != null) {
+                        String text = Utils.remplacerVariable(bkCli, eve.getOpe(), eve, mf);
+                        String res = testConnexionInternet();
+                        BottomPanel.settextLabel("Test connexion ...." + res, Color.BLACK);
+                        if (res.equals("OK")) {
+                            BottomPanel.settextLabel("Envoie du Message à.... " + eve.getCompte(), Color.BLACK);
+                            switch (methode) {
+                                case "METHO1":
+                                case "METHO2":
+                                    Sender.send(urlParam, "" + bkCli.getPhone(), text);
+                                    break;
                             }
-                            Message message = new Message();
-                            message.setTitle(eve.getOpe().getLib());
-                            message.setContent(text);
-                            message.setBkEve(eve);
-                            message.setSendDate(new Date());
-                            message.setNumero(Long.toString(bkCli.getPhone()));
-                            if (res.equals("OK")) {
-                                serviceManager.enregistrer(message);
-                                eve.setSent(true);
-                                serviceManager.modifier(eve);
-                                BottomPanel.settextLabel("OK Message envoyé ", java.awt.Color.BLACK);
-                            }
+                        } else {
+                            BottomPanel.settextLabel("Message non envoyé à.... " + eve.getCompte() + " Problème de connexion internet!!", Color.RED);
+                        }
+
+                        Message message = new Message();
+                        message.setTitle(eve.getOpe().getLib());
+                        message.setContent(text);
+                        message.setBkEve(eve);
+                        message.setSendDate(new Date());
+                        message.setNumero(Long.toString(bkCli.getPhone()));
+                        if (res.equals("OK")) {
+                            serviceManager.enregistrer(message);
+                            eve.setSent(true);
+                            serviceManager.modifier(eve);
+                            BottomPanel.settextLabel("OK Message envoyé ", Color.BLACK);
                         }
                     }
                 }
+
             });
         } else {
-            BottomPanel.settextLabel("Message non envoyé Problème de Licence veuillez contacter le fournieur!!", java.awt.Color.RED);
+            BottomPanel.settextLabel("Message non envoyé Problème de Licence veuillez contacter le fournieur 1.2.5 !!", Color.RED);
         }
+
     }
 
     public static void ServiceCredit() throws SQLException, ParseException {
-        BottomPanel.settextLabel("Traitement des credits en cours.... ", java.awt.Color.BLACK);
+        BottomPanel.settextLabel("Traitement des credits en cours.... ", Color.BLACK);
         SimpleDateFormat f2 = new SimpleDateFormat("dd/MM/yyyy");
-        Map<String,String> map = serviceManager.getParametreRequeteValues(TypeService.CREDIT);
-        
-        setConnection();
-
+        String secretKey = "LACUS2017";
+        RemoteDB remoteDB = serviceManager.getDefaultRemoteDB(true);
+        String decryptedString = AES.decrypt(remoteDB.getPassword(), "LACUS2017");
+        conn = DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
         Date current = new Date();
         String currentString = f2.format(current);
-
         int compteur = 0;
         if (serviceManager.getMaxIndexBkEve(TypeEvent.credit) != null) {
             compteur = serviceManager.getMaxIndexBkEve(TypeEvent.credit);
         }
 
-        String query, hsai;
+        String query;
         if (compteur == 0) {
             query = "SELECT b.NCP AS NCP1,b.CAI,b.OPE,b.EVE,b.MNT,b.HEU,b.ETA FROM BKMAC b WHERE b.NCP >= '0' AND b.CAI >= '0' ORDER BY HEU ASC";
         } else {
             BkEve bkEve = serviceManager.getBkEveById(compteur);
-            hsai = bkEve.getHsai();
+            String hsai = bkEve.getHsai();
             Date date = bkEve.getEventDate();
             if (!currentString.equals(f2.format(date))) {
                 query = "SELECT b.NCP AS NCP1,b.CAI,b.OPE,b.EVE,b.MNT,b.HEU,b.ETA FROM BKMAC b WHERE b.NCP >= '0' AND b.CAI >= '0' ORDER BY HEU ASC";
@@ -1131,131 +1289,194 @@ public class App {
                         hsai = "0" + hsai;
                     }
                 }
-                query = "SELECT b.NCP ,b.CAI ,b.OPE ,b.EVE,b.MNT,b.HEU,b.ETA FROM BKMAC b WHERE b.NCP >= '0' AND b.CAI >= '0' AND HEU > '" + hsai + "'  ORDER BY HEU ASC";
+
+                query = "SELECT b.NCP AS NCP1,b.CAI,b.OPE,b.EVE,b.MNT,b.HEU,b.ETA FROM BKMAC b WHERE b.NCP >= '0' AND b.CAI >= '0' AND HEU > '" + hsai + "'  ORDER BY HEU ASC";
             }
         }
-        query = QueryService.buildQuery(query, map, TypeService.CREDIT);
-        if(query==null){
-            return;
-        }
-        try (PreparedStatement ps = conn.prepareStatement(query)) {
+
+        PreparedStatement ps = conn.prepareStatement(query);
+        Throwable var73 = null;
+
+        try {
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                BottomPanel.settextLabel("Recherche évenements credits.... ", java.awt.Color.BLACK);
-                if (rs.getString(1) != null && rs.getString(2) != null) {
-                    if (rs.getString(1).trim().length() >= 10) {
-                        String age;
-                        
-                        String queryAgence = "SELECT AGE FROM BKCOM WHERE NCP = '" + rs.getString(1).trim() + "'";
-                        
-                        queryAgence = QueryService.buildQuery(queryAgence, serviceManager.getParametreRequeteValues(TypeService.AGENCE), TypeService.CREDIT);
-                        if(queryAgence==null){
-                            return;
+
+            label766:
+            while(true) {
+                BkEve eve;
+                BkCli bkCli;
+                boolean traitement;
+                do {
+                    do {
+                        do {
+                            do {
+                                if (!rs.next()) {
+                                    break label766;
+                                }
+
+                                BottomPanel.settextLabel("Recherche évenements credits.... ", Color.BLACK);
+                            } while(rs.getString("NCP1") == null);
+                        } while(rs.getString("CAI") == null);
+                    } while(rs.getString("NCP1").trim().length() < 10);
+
+                    PreparedStatement psss = conn.prepareStatement("SELECT AGE FROM BKCOM WHERE NCP = '" + rs.getString("NCP1").trim() + "'");
+                    Throwable var14 = null;
+
+                    String age;
+                    try {
+                        ResultSet result = psss.executeQuery();
+
+                        for(age = null; result.next(); age = result.getString("AGE").trim()) {
                         }
-                        try (PreparedStatement psss = conn.prepareStatement(queryAgence)) {
-                            ResultSet result = psss.executeQuery();
-                            age = null;
-                            while (result.next()) {
-                                age = result.getString(1).trim();
+                    } catch (Throwable var66) {
+                        var14 = var66;
+                        throw var66;
+                    } finally {
+                        if (psss != null) {
+                            if (var14 != null) {
+                                try {
+                                    psss.close();
+                                } catch (Throwable var65) {
+                                    var14.addSuppressed(var65);
+                                }
+                            } else {
+                                psss.close();
                             }
                         }
-                        BkEve eve = new BkEve();
-                        BkAgence bkAgence;
-                        if (age != null) {
-                            bkAgence = serviceManager.getBkAgenceById(age);
-                        } else {
-                            bkAgence = serviceManager.getBkAgenceById("00200");
-                        }
-                        eve.setBkAgence(bkAgence);
-                        String cli = "";
-                        if (rs.getString(1).trim().length() >= 9) {
-                            cli = rs.getString(1).trim().substring(3, 9);
-                        }
-                        BkCli bkCli = serviceManager.getBkCliById(cli);
-                        if (bkCli == null) {
-                            bkCli = serviceManager.getBkCliByNumCompte(rs.getString(1).trim());
-                        }
-                        eve.setCli(bkCli);
-                        eve.setCompte(rs.getString(1).trim());
-                        eve.setEtat(rs.getString(7).trim());
-                        eve.setHsai(rs.getString(6).trim());
-                        eve.setMont(Double.parseDouble(rs.getString(5).trim().replace(".", "")));
-                        eve.setMontant(rs.getString(5).trim().replace(".", "").replace(" ", ""));
-                        BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString(3).trim());
-                        eve.setOpe(bkOpe);
-                        eve.setDVAB(f2.format(new Date()));
-                        eve.setEventDate(f2.parse(f2.format(new Date())));
-                        eve.setSent(false);
-                        eve.setNumEve(rs.getString(4).trim());
-                        eve.setId(serviceManager.getMaxIndexBkEve() + 1);
-                        eve.setType(TypeEvent.credit);
 
-                        boolean traitement = true;
+                    }
 
-                        if (bkCli == null) {
-                            traitement = false;
-                        }
+                    eve = new BkEve();
+                    BkAgence bkAgence;
+                    if (age != null) {
+                        bkAgence = serviceManager.getBkAgenceById(age);
+                    } else {
+                        bkAgence = serviceManager.getBkAgenceById("00200");
+                    }
 
-                        if (!serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getEventDate(), eve.getCompte()).isEmpty()) {
-                            traitement = false;
-                        }
+                    eve.setBkAgence(bkAgence);
+                    String cli = "";
+                    if (rs.getString("NCP1").trim().length() >= 9) {
+                        cli = rs.getString("NCP1").trim().substring(3, 9);
+                    }
 
-                        if (!serviceManager.getBkEveByCriteriaMontant(eve.getNumEve(), eve.getCompte(), eve.getNumEve()).isEmpty()) {
-                            traitement = false;
-                        }
+                    bkCli = serviceManager.getBkCliById(cli);
+                    if (bkCli == null) {
+                        bkCli = serviceManager.getBkCliByNumCompte(rs.getString("NCP1").trim());
+                    }
 
-                        if (!serviceManager.getBkEveByPeriode(eve.getNumEve(), eve.getCompte(), Utils.add(eve.getEventDate(), -3), eve.getEventDate()).isEmpty()) {
-                            traitement = false;
-                        }
+                    eve.setCli(bkCli);
+                    eve.setCompte(rs.getString("NCP1").trim());
+                    eve.setEtat(rs.getString("ETA").trim());
+                    eve.setHsai(rs.getString("HEU").trim());
+                    eve.setMont(Double.parseDouble(rs.getString("MNT").trim().replace(".", "")));
+                    eve.setMontant(rs.getString("MNT").trim().replace(".", "").replace(" ", ""));
+                    BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString("OPE").trim());
+                    eve.setOpe(bkOpe);
+                    eve.setDVAB(f2.format(new Date()));
+                    eve.setEventDate(f2.parse(f2.format(new Date())));
+                    eve.setSent(false);
+                    eve.setNumEve(rs.getString("EVE").trim());
+                    eve.setId(serviceManager.getMaxIndexBkEve() + 1);
+                    eve.setType(TypeEvent.credit);
+                    traitement = true;
+                    if (bkCli == null) {
+                        traitement = false;
+                    }
 
-                        if (traitement) {
-                            BottomPanel.settextLabel("Chargement données credits.... " + eve.getCompte(), java.awt.Color.BLACK);
-                            serviceManager.enregistrer(eve);
+                    if (!serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getEventDate(), eve.getCompte()).isEmpty()) {
+                        traitement = false;
+                    }
 
-                            String q = "SELECT b.NUM, b.CLI, b.TYP FROM BKTELCLI b WHERE b.CLI='" + rs.getString(1).trim().substring(3, 9) + "'";
-                            q = QueryService.buildQuery(q, serviceManager.getParametreRequeteValues(TypeService.TELEPHONE_CLIENT), TypeService.TELEPHONE_CLIENT);
-                            try (PreparedStatement pss = conn.prepareStatement(q)) {
-                                ResultSet resultat = pss.executeQuery();
-                                
-                                int n = 0;
-                                
-                                while (resultat.next()) {
-                                    Long number = bkCli.getPhone();
-                                    if (number == 0) {
-                                        String code, numero;
-                                        if (resultat.getString(1).replace(" ", "").replace("/", "").trim().length() == 9 
-                                                && Utils.estUnEntier(resultat.getString(1).trim())) {
-                                            code = "237";
-                                            numero = code + resultat.getString(1).trim();
-                                            if (bkCli.getPhone() != Long.parseLong(numero)) {
-                                                bkCli.setPhone(Long.parseLong(numero));
-                                                if (n == 0) {
-                                                    BottomPanel.settextLabel("Mise à jour numero client.... " + bkCli.getCode(), java.awt.Color.BLACK);
-                                                    serviceManager.modifier(bkCli);
-                                                    n++;
-                                                }
-                                            }
-                                        } else if (resultat.getString(1).replace(" ", "").replace("/", "").trim().length() == 8 
-                                                && Utils.estUnEntier(resultat.getString(1).trim())) {
-                                            code = "241";
-                                            numero = code + resultat.getString(1).trim();
-                                            if (bkCli.getPhone() != Long.parseLong(numero)) {
-                                                bkCli.setPhone(Long.parseLong(numero));
-                                                if (n == 0) {
-                                                    BottomPanel.settextLabel("Mise à jour numero client.... " + bkCli.getCode(), java.awt.Color.BLACK);
-                                                    serviceManager.modifier(bkCli);
-                                                    n++;
-                                                }
-                                            }
-                                        }
+                    if (!serviceManager.getBkEveByCriteriaMontant(eve.getNumEve(), eve.getCompte(), eve.getNumEve()).isEmpty()) {
+                        traitement = false;
+                    }
+
+                    if (!serviceManager.getBkEveByPeriode(eve.getNumEve(), eve.getCompte(), Utils.add(eve.getEventDate(), -3L), eve.getEventDate()).isEmpty()) {
+                        traitement = false;
+                    }
+                } while(!traitement);
+
+                BottomPanel.settextLabel("Chargement données credits.... " + eve.getCompte(), Color.BLACK);
+                serviceManager.enregistrer(eve);
+                String q = "SELECT b.NUM, b.CLI, b.TYP FROM bktelcli b WHERE b.CLI='" + rs.getString("NCP1").trim().substring(3, 9) + "'";
+                PreparedStatement pss = conn.prepareStatement(q);
+                Throwable var21 = null;
+
+                try {
+                    ResultSet resultat = pss.executeQuery();
+                    int n = 0;
+
+                    while(true) {
+                        while(true) {
+                            do {
+                                if (!resultat.next()) {
+                                    continue label766;
+                                }
+                            } while(bkCli.getPhone() != 0L);
+
+                            String code;
+                            String numero;
+                            if (resultat.getString("NUM").replace(" ", "").replace("/", "").trim().length() == 9 && Utils.estUnEntier(resultat.getString("NUM").trim())) {
+                                code = "237";
+                                numero = code + resultat.getString("NUM").trim();
+                                if (bkCli.getPhone() != Long.parseLong(numero)) {
+                                    bkCli.setPhone(Long.parseLong(numero));
+                                    if (n == 0) {
+                                        BottomPanel.settextLabel("Mise à jour numero client.... " + bkCli.getCode(), Color.BLACK);
+                                        serviceManager.modifier(bkCli);
+                                        ++n;
+                                    }
+                                }
+                            } else if (resultat.getString("NUM").replace(" ", "").replace("/", "").trim().length() == 8 && Utils.estUnEntier(resultat.getString("NUM").trim())) {
+                                code = "241";
+                                numero = code + resultat.getString("NUM").trim();
+                                if (bkCli.getPhone() != Long.parseLong(numero)) {
+                                    bkCli.setPhone(Long.parseLong(numero));
+                                    if (n == 0) {
+                                        BottomPanel.settextLabel("Mise à jour numero client.... " + bkCli.getCode(), Color.BLACK);
+                                        serviceManager.modifier(bkCli);
+                                        ++n;
                                     }
                                 }
                             }
                         }
                     }
+                } catch (Throwable var68) {
+                    var21 = var68;
+                    throw var68;
+                } finally {
+                    if (pss != null) {
+                        if (var21 != null) {
+                            try {
+                                pss.close();
+                            } catch (Throwable var64) {
+                                var21.addSuppressed(var64);
+                            }
+                        } else {
+                            pss.close();
+                        }
+                    }
+
                 }
             }
+        } catch (Throwable var70) {
+            var73 = var70;
+            throw var70;
+        } finally {
+            if (ps != null) {
+                if (var73 != null) {
+                    try {
+                        ps.close();
+                    } catch (Throwable var63) {
+                        var73.addSuppressed(var63);
+                    }
+                } else {
+                    ps.close();
+                }
+            }
+
         }
+
         conn.close();
     }
 
@@ -1264,56 +1485,58 @@ public class App {
             List<BkEve> list = serviceManager.getBkEveBySendParam(false, listString, TypeEvent.credit);
             list.stream().forEach((eve) -> {
                 BkCli bkCli = eve.getCli();
-                if (bkCli != null && eve.getOpe() != null && !"".equals(methode)) {
-                    if (bkCli.isEnabled() && serviceManager.getBkCompCliByCriteria(bkCli, eve.getCompte(), true) != null && bkCli.getPhone() != 0) {
-                        MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), bkCli.getLangue());
-                        if (mf != null) {
-                            String text = Utils.remplacerVariable(bkCli, eve.getOpe(), eve, mf);
-                            String res = testConnexionInternet();
-                            BottomPanel.settextLabel("Test connexion ...." + res, java.awt.Color.BLACK);
-                            if (res.equals("OK")) {
-                                BottomPanel.settextLabel("Envoie du Message à.... " + eve.getCompte(), java.awt.Color.BLACK);
-                                switch (methode) {
-                                    case "METHO1":
-                                        App.send(urlParam, "" + bkCli.getPhone(), text);
-                                        break;
-                                    case "METHO2":
-                                        App.send2(urlParam, "" + bkCli.getPhone(), text);
-                                        break;
-                                }
-                            } else {
-                                BottomPanel.settextLabel("Message non envoyé à.... " + eve.getCompte() + " Problème de connexion internet!!", java.awt.Color.RED);
+                if (bkCli != null && eve.getOpe() != null && !"".equals(methode) && bkCli.isEnabled() && serviceManager.getBkCompCliByCriteria(bkCli, eve.getCompte(), true) != null && bkCli.getPhone() != 0L) {
+                    MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), bkCli.getLangue());
+                    if (mf != null) {
+                        String text = Utils.remplacerVariable(bkCli, eve.getOpe(), eve, mf);
+                        String res = testConnexionInternet();
+                        BottomPanel.settextLabel("Test connexion ...." + res, Color.BLACK);
+                        if (res.equals("OK")) {
+                            BottomPanel.settextLabel("Envoie du Message à.... " + eve.getCompte(), Color.BLACK);
+                            switch (methode) {
+                                case "METHO1":
+                                    Sender.send(urlParam, "" + bkCli.getPhone(), text);
+                                    break;
+                                case "METHO2":
+                                    Sender.send(urlParam, "" + bkCli.getPhone(), text);
                             }
-                            Message message = new Message();
-                            message.setTitle(eve.getOpe().getLib());
-                            message.setContent(text);
-                            message.setBkEve(eve);
-                            message.setSendDate(new Date());
-                            message.setNumero(Long.toString(bkCli.getPhone()));
-                            if (res.equals("OK")) {
-                                serviceManager.enregistrer(message);
-                                eve.setSent(true);
-                                serviceManager.modifier(eve);
-                                BottomPanel.settextLabel("OK Message envoyé ", java.awt.Color.BLACK);
-                            }
+                        } else {
+                            BottomPanel.settextLabel("Message non envoyé à.... " + eve.getCompte() + " Problème de connexion internet!!", Color.RED);
+                        }
+
+                        Message message = new Message();
+                        message.setTitle(eve.getOpe().getLib());
+                        message.setContent(text);
+                        message.setBkEve(eve);
+                        message.setSendDate(new Date());
+                        message.setNumero(Long.toString(bkCli.getPhone()));
+                        if (res.equals("OK")) {
+                            serviceManager.enregistrer(message);
+                            eve.setSent(true);
+                            serviceManager.modifier(eve);
+                            BottomPanel.settextLabel("OK Message envoyé ", Color.BLACK);
                         }
                     }
                 }
+
             });
         } else {
-            BottomPanel.settextLabel("Message non envoyé Problème de Licence veuillez contacter le fournieur!!", java.awt.Color.RED);
+            BottomPanel.settextLabel("Message non envoyé Problème de Licence veuillez contacter le fournieur 1.2.5 !!", Color.RED);
         }
+
     }
 
     public static void ServiceMandat() throws SQLException, ParseException {
-        BottomPanel.settextLabel("Traitement des mandats en cours.... ", java.awt.Color.BLACK);
+        BottomPanel.settextLabel("Traitement des mandats en cours.... ", Color.BLACK);
         SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat f2 = new SimpleDateFormat("dd/MM/yyyy");
-        
-        setConnection();
-
+        String secretKey = "LACUS2017";
+        RemoteDB remoteDB = serviceManager.getDefaultRemoteDB(true);
+        String decryptedString = AES.decrypt(remoteDB.getPassword(), "LACUS2017");
+        conn = DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
+        new SimpleDateFormat("dd-MM-yyyy");
         int compteur = serviceManager.getMaxBkMad();
-        String query;
+        String query = "";
         if (compteur == 0) {
             query = "SELECT b.CLESEC,b.CTR,b.AGE,b.DCO AS DSAI,b.OPE,b.EVE,b.DBD,b.AD1P,b.AD2P,b.MNT FROM BKMAD b WHERE MNT > '0' ORDER BY DCO ASC";
         } else {
@@ -1322,130 +1545,149 @@ public class App {
             String s = date[2] + "-" + date[1] + "-" + date[0];
             query = "SELECT b.CLESEC,b.CTR,b.AGE,b.DCO AS DSAI,b.OPE,b.EVE,b.DBD,b.AD1P,b.AD2P,b.MNT FROM BKMAD b WHERE MNT > '0' AND DCO >= '" + s + "' ORDER BY DCO ASC";
         }
-        query = QueryService.buildQuery(query, serviceManager.getParametreRequeteValues(TypeService.MANDAT), TypeService.MANDAT);
-        if(query==null){
-            return;
-        }
-        try (PreparedStatement ps = conn.prepareStatement(query)) {
+
+        System.err.println("Resquete " + query);
+        PreparedStatement ps = conn.prepareStatement(query);
+        Throwable var27 = null;
+
+        try {
             ResultSet rs = ps.executeQuery();
 
-            while (rs.next()) {
-                BottomPanel.settextLabel("Recherche données de manadats.... ", java.awt.Color.BLACK);
-                BkMad bkMad = serviceManager.getBkMadByClesec(rs.getString(1).trim());
+            while(rs.next()) {
+                BottomPanel.settextLabel("Recherche données de manadats.... ", Color.BLACK);
+                BkMad bkMad = serviceManager.getBkMadByClesec(rs.getString("CLESEC").trim());
                 if (bkMad == null) {
                     BkMad eve = new BkMad();
-                    BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString(3).trim());
+                    BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString("AGE").trim());
                     eve.setAge(bkAgence);
-                    eve.setMnt(rs.getString(10).trim());
-                    BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString(5).trim());
+                    eve.setMnt(rs.getString("MNT").trim());
+                    BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString("OPE").trim());
                     eve.setOpe(bkOpe);
-                    eve.setDco(rs.getString(4).trim());
-                    eve.setDateEnvoie(f2.parse(f2.format(format1.parse(rs.getString(4).trim()))));
-                    if (rs.getString(8) != null) {
-                        eve.setAd1p(rs.getString(8).trim());
+                    eve.setDco(rs.getString("DSAI").trim());
+                    eve.setDateEnvoie(f2.parse(f2.format(format1.parse(rs.getString("DSAI").trim()))));
+                    if (rs.getString("AD1P") != null) {
+                        eve.setAd1p(rs.getString("AD1P").trim());
                     }
-                    if (rs.getString(9) != null) {
-                        eve.setAd2p(rs.getString(9).trim());
+
+                    if (rs.getString("AD2P") != null) {
+                        eve.setAd2p(rs.getString("AD2P").trim());
                     }
+
                     eve.setSent(false);
-                    eve.setEve(rs.getString(6).trim());
-                    eve.setClesec(rs.getString(1).trim());
+                    eve.setEve(rs.getString("EVE").trim());
+                    eve.setClesec(rs.getString("CLESEC").trim());
                     eve.setId(serviceManager.getMaxBkMad() + 1);
-                    switch (rs.getString(2).trim()) {
+                    switch (rs.getString("CTR").trim()) {
                         case "9":
                             eve.setTraite(1);
                             break;
                         case "0":
                             eve.setTraite(0);
-                            break;
                     }
-                    eve.setCtr(rs.getString(2).trim());
-                    BottomPanel.settextLabel("Chargement données salaires.... " + eve.getAd1p(), java.awt.Color.BLACK);
+
+                    eve.setCtr(rs.getString("CTR").trim());
+                    BottomPanel.settextLabel("Chargement données salaires.... " + eve.getAd1p(), Color.BLACK);
                     serviceManager.enregistrer(eve);
-                } else if (!bkMad.getCtr().equals("9")) {
-                    if (rs.getString(2).trim().equals("9")) {
-                        bkMad.setDbd(rs.getString(7).trim());
-                        bkMad.setDateRetrait(f2.parse(f2.format(format1.parse(rs.getString(7).trim()))));
-                        bkMad.setCtr("9");
-                        bkMad.setTraite(1);
-                        serviceManager.modifier(bkMad);
-                    }
+                } else if (!bkMad.getCtr().equals("9") && rs.getString("CTR").trim().equals("9")) {
+                    bkMad.setDbd(rs.getString("DBD").trim());
+                    bkMad.setDateRetrait(f2.parse(f2.format(format1.parse(rs.getString("DBD").trim()))));
+                    bkMad.setCtr("9");
+                    bkMad.setTraite(1);
+                    serviceManager.modifier(bkMad);
                 }
             }
+        } catch (Throwable var24) {
+            var27 = var24;
+            throw var24;
+        } finally {
+            if (ps != null) {
+                if (var27 != null) {
+                    try {
+                        ps.close();
+                    } catch (Throwable var23) {
+                        var27.addSuppressed(var23);
+                    }
+                } else {
+                    ps.close();
+                }
+            }
+
         }
+
         conn.close();
     }
 
     public static void envoieSMSMandat() {
         boolean bon = false;
-        BottomPanel.settextLabel("Debut envoie de message", java.awt.Color.BLACK);
+        BottomPanel.settextLabel("Debut envoie de message", Color.BLACK);
         if (checkLicence()) {
             List<BkMad> list = serviceManager.getBkMadByTraite();
-            for (BkMad eve : list) {
-                if (testPhone(eve.getAd1p()) != null && testPhone(eve.getAd2p()) != null) {
-                    if (eve.getOpe() != null && !"".equals(methode)) {
-                        MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), "FR");
-                        if (mf != null) {
-                            String text = Utils.remplacerVariable(eve, mf);
-                            String res = testConnexionInternet();
-                            BottomPanel.settextLabel("Test connexion ...." + res, java.awt.Color.BLACK);
-                            if (res.equals("OK")) {
-                                if (eve.getTraite() == 0) {
-                                    BottomPanel.settextLabel("Envoie du Message à.... " + eve.getAd2p(), java.awt.Color.BLACK);
+            Iterator var2 = list.iterator();
+
+            while(var2.hasNext()) {
+                BkMad eve = (BkMad)var2.next();
+                if (testPhone(eve.getAd1p()) != null && testPhone(eve.getAd2p()) != null && eve.getOpe() != null && !"".equals(methode)) {
+                    MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), "FR");
+                    if (mf != null) {
+                        String text = Utils.remplacerVariable(eve, mf);
+                        String res = testConnexionInternet();
+                        BottomPanel.settextLabel("Test connexion ...." + res, Color.BLACK);
+                        if (res.equals("OK")) {
+                            if (eve.getTraite() == 0) {
+                                BottomPanel.settextLabel("Envoie du Message à.... " + eve.getAd2p(), Color.BLACK);
+                                switch (methode) {
+                                    case "METHO1":
+                                        Sender.send(urlParam, "" + eve.getAd2p(), text);
+                                        break;
+                                    case "METHO2":
+                                        Sender.send(urlParam, "" + eve.getAd2p(), text);
+                                }
+                            } else if (eve.getTraite() == 1) {
+                                mf = serviceManager.getFormatByBkOpe(serviceManager.getBkOpeById("100"), "FR");
+                                if (mf != null) {
+                                    text = Utils.remplacerVariable(eve, mf);
+                                    bon = true;
+                                    BottomPanel.settextLabel("Envoie du Message à.... " + eve.getAd1p(), Color.BLACK);
                                     switch (methode) {
                                         case "METHO1":
-                                            App.send(urlParam, "" + eve.getAd2p(), text);
+                                            Sender.send(urlParam, "" + eve.getAd1p(), text);
                                             break;
                                         case "METHO2":
-                                            App.send2(urlParam, "" + eve.getAd2p(), text);
-                                            break;
-                                    }
-                                } else if (eve.getTraite() == 1) {
-                                    mf = serviceManager.getFormatByBkOpe(serviceManager.getBkOpeById("100"), "FR");
-                                    if (mf != null) {
-                                        text = Utils.remplacerVariable(eve, mf);
-                                        bon = true;
-                                        BottomPanel.settextLabel("Envoie du Message à.... " + eve.getAd1p(), java.awt.Color.BLACK);
-                                        switch (methode) {
-                                            case "METHO1":
-                                                App.send(urlParam, "" + eve.getAd1p(), text);
-                                                break;
-                                            case "METHO2":
-                                                App.send2(urlParam, "" + eve.getAd1p(), text);
-                                                break;
-                                        }
+                                            Sender.send(urlParam, "" + eve.getAd1p(), text);
                                     }
                                 }
-                            } else {
-                                BottomPanel.settextLabel("Message non envoyé problème de connexion internet!!", java.awt.Color.RED);
                             }
-                            MessageMandat message = new MessageMandat();
-                            message.setTitle(eve.getOpe().getLib());
-                            message.setContent(text);
-                            message.setBkMad(eve);
-                            message.setSendDate(new Date());
-                            if (res.equals("OK")) {
+                        } else {
+                            BottomPanel.settextLabel("Message non envoyé problème de connexion internet!!", Color.RED);
+                        }
 
-                                if (eve.getTraite() == 0) {
-                                    eve.setTraite(1);
-                                    message.setNumero(eve.getAd2p());
-                                    serviceManager.enregistrer(message);
-                                } else if (eve.getTraite() == 1 && bon) {
-                                    eve.setTraite(2);
-                                    eve.setSent(true);
-                                    message.setNumero(eve.getAd1p());
-                                    serviceManager.enregistrer(message);
-                                }
-                                serviceManager.modifier(eve);
-                                BottomPanel.settextLabel("OK Message envoyé ", java.awt.Color.BLACK);
+                        MessageMandat message = new MessageMandat();
+                        message.setTitle(eve.getOpe().getLib());
+                        message.setContent(text);
+                        message.setBkMad(eve);
+                        message.setSendDate(new Date());
+                        if (res.equals("OK")) {
+                            if (eve.getTraite() == 0) {
+                                eve.setTraite(1);
+                                message.setNumero(eve.getAd2p());
+                                serviceManager.enregistrer(message);
+                            } else if (eve.getTraite() == 1 && bon) {
+                                eve.setTraite(2);
+                                eve.setSent(true);
+                                message.setNumero(eve.getAd1p());
+                                serviceManager.enregistrer(message);
                             }
+
+                            serviceManager.modifier(eve);
+                            BottomPanel.settextLabel("OK Message envoyé ", Color.BLACK);
                         }
                     }
                 }
             }
         } else {
-            BottomPanel.settextLabel("Message non envoyé Problème de Licence veuillez contacter le fournieur!!", java.awt.Color.RED);
+            BottomPanel.settextLabel("Message non envoyé Problème de Licence veuillez contacter le fournieur 1.2.5 !!", Color.RED);
         }
+
     }
 
     public static String testPhone(String num) {
@@ -1457,103 +1699,118 @@ public class App {
                 res = "237" + num;
             }
         }
+
         return res;
     }
 
-    /**
-     * 
-     * @throws SQLException
-     * @throws ParseException 
-     */
     public static void ServiceRequete() throws SQLException, ParseException {
-        BottomPanel.settextLabel("Traitement des requetes en cours.... ", java.awt.Color.BLACK);
-
-        setConnection();
-
+        BottomPanel.settextLabel("Traitement des requetes en cours.... ", Color.BLACK);
+        new SimpleDateFormat("yyyy-MM-dd");
+        new SimpleDateFormat("dd/MM/yyyy");
+        String secretKey = "LACUS2017";
+        RemoteDB remoteDB = serviceManager.getDefaultRemoteDB(true);
+        String decryptedString = AES.decrypt(remoteDB.getPassword(), "LACUS2017");
+        conn = DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
         List<Command> commands = serviceManager.getCommandByStatus(Status.PENDING);
-        String query;
-        for (Command command : commands) {
-            switch (command.getOpe()) {
-                case MethodUtils.SOLDE: {
-                    final ServiceOffert ser = serviceManager.findServiceByCode(MethodUtils.SOLDE);
-                    query = "SELECT b.SIN FROM BKCOM b WHERE b.NCP='" + command.getCompte() + "'";
-                    query = QueryService.buildQuery(query, serviceManager.getParametreRequeteValues(TypeService.SOLDE), TypeService.SOLDE);
-                    if(query == null){
-                        return;
-                    }
-                    System.out.println("Resquete " + query);
-                    String solde;
-                    try (PreparedStatement ps = conn.prepareStatement(query)) {
-                        ResultSet rs = ps.executeQuery();
-                        solde = "";
-                        while (rs.next()) {
-                            solde = rs.getBigDecimal(1).toPlainString();
+        String query = null;
+        Iterator var7 = commands.iterator();
+
+        while(true) {
+            while(var7.hasNext()) {
+                Command command = (Command)var7.next();
+                ServiceOffert ser;
+                switch (command.getOpe()) {
+                    case "SOLDE":
+                        ser = serviceManager.findServiceByCode("SOLDE");
+                        query = "SELECT b.SIN FROM BKCOM b WHERE b.NCP='" + command.getCompte() + "'";
+                        System.err.println("Resquete " + query);
+                        PreparedStatement ps = conn.prepareStatement(query);
+                        Throwable var28 = null;
+
+                        String solde;
+                        try {
+                            ResultSet rs = ps.executeQuery();
+
+                            for(solde = ""; rs.next(); solde = rs.getBigDecimal("SIN").toPlainString()) {
+                            }
+                        } catch (Throwable var23) {
+                            var28 = var23;
+                            throw var23;
+                        } finally {
+                            if (ps != null) {
+                                if (var28 != null) {
+                                    try {
+                                        ps.close();
+                                    } catch (Throwable var22) {
+                                        var28.addSuppressed(var22);
+                                    }
+                                } else {
+                                    ps.close();
+                                }
+                            }
+
                         }
-                    }
-                    String msg = "Cher client au compte " + command.getCompte() + " votre solde est de " + solde + ".";
-                    command.setMessage(msg);
-                    command.setMontant(ser.getMontant());
-                    envoieSmsRequete(command);
-                    break;
-                }
-                case MethodUtils.HIST: {
-                    final ServiceOffert ser = serviceManager.findServiceByCode(MethodUtils.HIST);
-                    query = "SELECT b.MCTV, b.EVE, b.AGE, b.DVA, b.OPE FROM BKHIS b WHERE b.NCP='" + command.getCompte() + "' ORDER BY b.DVA ASC";
-                    query = QueryService.buildQuery(query, serviceManager.getParametreRequeteValues(TypeService.HISTORIQUE), TypeService.HISTORIQUE);
-                    if(query == null){
-                        return;
-                    }
-                    PreparedStatement ps = conn.prepareStatement(query);
-                    ResultSet rs = ps.executeQuery();
-                    int i = 0;
-                    StringBuilder msg = new StringBuilder();
-                    msg.append("Cher client au compte ");
-                    msg.append(command.getCompte());
-                    msg.append(" ");
-                    msg.append("voici les 5 derières operations ");
-                    while (rs.next()) {
-                        BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString(3).trim());
-                        BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString(5).trim());
-                        msg.append(bkOpe.getLib());
-                        msg.append(" ");
-                        msg.append(rs.getString(1).trim());
-                        msg.append(" ");
-                        msg.append(rs.getString(4).trim());
-                        msg.append(" ");
-                        msg.append(bkAgence.getNoma());
-                        msg.append("\n");
-                        i++;
-                        if (i == 5) {
-                            break;
+
+                        String msg = "Cher client au compte " + command.getCompte() + " votre solde est de " + solde + ".";
+                        command.setMessage(msg);
+                        command.setMontant(ser.getMontant());
+                        envoieSmsRequete(command);
+                        break;
+                    case "HIST":
+                        ser = serviceManager.findServiceByCode("HIST");
+                        query = "SELECT b.MCTV, b.EVE, b.AGE, b.DVA, b.OPE FROM BKHIS b WHERE b.NCP='" + command.getCompte() + "' ORDER BY b.DVA ASC";
+                        PreparedStatement psmt = conn.prepareStatement(query);
+                        ResultSet rs = psmt.executeQuery();
+                        int i = 0;
+                        StringBuilder builder = new StringBuilder();
+                        builder.append("Cher client au compte ");
+                        builder.append(command.getCompte());
+                        builder.append(" ");
+                        builder.append("voici les 5 derières operations ");
+
+                        while(rs.next()) {
+                            BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString("AGE").trim());
+                            BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString("OPE").trim());
+                            builder.append(bkOpe.getLib());
+                            builder.append(" ");
+                            builder.append(rs.getString("MCTV").trim());
+                            builder.append(" ");
+                            builder.append(rs.getString("DVA").trim());
+                            builder.append(" ");
+                            builder.append(bkAgence.getNoma());
+                            builder.append("\n");
+                            ++i;
+                            if (i == 5) {
+                                break;
+                            }
                         }
-                    }
-                    command.setMontant(ser.getMontant());
-                    command.setMessage(msg.toString());
-                    envoieSmsRequete(command);
-                    break;
+
+                        command.setMontant(ser.getMontant());
+                        command.setMessage(builder.toString());
+                        envoieSmsRequete(command);
                 }
             }
+
+            conn.close();
+            return;
         }
-        conn.close();
     }
 
     public static void envoieSmsRequete(Command command) {
         if (checkLicence()) {
             String res = testConnexionInternet();
-            BottomPanel.settextLabel("Test connexion ...." + res, java.awt.Color.BLACK);
+            BottomPanel.settextLabel("Test connexion ...." + res, Color.BLACK);
             if (res.equals("OK")) {
-                BottomPanel.settextLabel("Envoie du Message à.... " + command.getCompte(), java.awt.Color.BLACK);
-                //if(command.getCompte())
+                BottomPanel.settextLabel("Envoie du Message à.... " + command.getCompte(), Color.BLACK);
                 switch (methode) {
                     case "METHO1":
-                        App.send(urlParam, command.getPhone(), command.getMessage());
+                        Sender.send(urlParam, command.getPhone(), command.getMessage());
                         break;
                     case "METHO2":
-                        App.send2(urlParam, "" + command.getPhone(), command.getMessage());
-                        break;
+                        Sender.send(urlParam, "" + command.getPhone(), command.getMessage());
                 }
             } else {
-                BottomPanel.settextLabel("Message non envoyé à.... " + command.getCompte() + " Problème de connexion internet!!", java.awt.Color.RED);
+                BottomPanel.settextLabel("Message non envoyé à.... " + command.getCompte() + " Problème de connexion internet!!", Color.RED);
                 command.setErrorDescription("problème de connexion internet");
                 serviceManager.modifier(command);
             }
@@ -1562,24 +1819,13 @@ public class App {
                 command.setStatus(Status.PROCESSED);
                 command.setProcessedDate(new Date());
                 serviceManager.modifier(command);
-                BottomPanel.settextLabel("OK Message envoyé ", java.awt.Color.BLACK);
+                BottomPanel.settextLabel("OK Message envoyé ", Color.BLACK);
             }
         } else {
-            BottomPanel.settextLabel("Message non envoyé Problème de Licence veuillez contacter le fournieur!!", java.awt.Color.RED);
+            BottomPanel.settextLabel("Message non envoyé Problème de Licence veuillez contacter le fournieur 1.2.5 !!", Color.RED);
             command.setErrorDescription("problème de licence");
             serviceManager.modifier(command);
         }
-    }
-    
-    public static void setConnection() throws SQLException{
-        String pwd = remoteDB.getPassword();
-        if(pwd != null && !pwd.isEmpty()){
-           String decryptedString = AES.decrypt(pwd, ConstantUtils.SECRET_KEY);
-            conn = DriverManager.
-                getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
-        }else{
-            conn = DriverManager.
-                getConnection(remoteDB.getUrl(), remoteDB.getName(), "");
-        }
+
     }
 }

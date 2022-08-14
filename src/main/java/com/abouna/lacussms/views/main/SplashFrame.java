@@ -6,6 +6,9 @@
 
 package com.abouna.lacussms.views.main;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Font;
@@ -18,15 +21,16 @@ import java.awt.SplashScreen;
  */
 public class SplashFrame {
     final SplashScreen splash = SplashScreen.getSplashScreen();
+    private final Logger logger = LoggerFactory.getLogger(SplashFrame.class);
     
     public SplashFrame(){
         if (splash == null) {
-            System.out.println("SplashScreen.getSplashScreen() returned null");
+            logger.info("SplashScreen.getSplashScreen() returned null");
             return;
         }
         Graphics2D g = splash.createGraphics();
         if (g == null) {
-            System.out.println("g is null");
+            logger.info("g is null");
             return;
         }
         for(int i=0; i<100; i++) {
@@ -36,6 +40,7 @@ public class SplashFrame {
                 Thread.sleep(90);
             }
             catch(InterruptedException e) {
+                logger.error(e.getMessage());
             }
         }
         

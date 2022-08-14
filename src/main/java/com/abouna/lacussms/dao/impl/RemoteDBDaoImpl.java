@@ -9,14 +9,14 @@ package com.abouna.lacussms.dao.impl;
 import com.abouna.generic.dao.impl.GenericDao;
 import com.abouna.lacussms.dao.IRemoteDBDao;
 import com.abouna.lacussms.entities.RemoteDB;
-import com.abouna.lacussms.entities.RemoteDB_;
-import com.abouna.lacussms.main.App;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
+
 import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import org.apache.log4j.Logger;
-import org.springframework.stereotype.Repository;
 
 /**
  *
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class RemoteDBDaoImpl extends GenericDao<RemoteDB, Integer> implements IRemoteDBDao{
-    final static Logger logger = Logger.getLogger(RemoteDBDaoImpl.class);
+    final static Logger logger = LoggerFactory.getLogger(RemoteDBDaoImpl.class);
 
     @Override
     public RemoteDB getDefaultRemoteDB(boolean b) {
@@ -32,7 +32,7 @@ public class RemoteDBDaoImpl extends GenericDao<RemoteDB, Integer> implements IR
             CriteriaBuilder builder = getManager().getCriteriaBuilder();
             CriteriaQuery<RemoteDB> cq = builder.createQuery(RemoteDB.class);
             Root<RemoteDB> remoteRoot = cq.from(RemoteDB.class);
-            cq.where(builder.equal(remoteRoot.get(RemoteDB_.parDefault), b));
+            cq.where(builder.equal(remoteRoot.get("parDefault"), b));
             cq.select(remoteRoot);
             return getManager().createQuery(cq).getSingleResult();
         } catch (NoResultException ex) {

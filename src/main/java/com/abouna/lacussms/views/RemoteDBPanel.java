@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -74,9 +75,9 @@ public class RemoteDBPanel extends JPanel {
         contenu.setLayout(new BorderLayout());
         JPanel bas = new JPanel();
         bas.setLayout(new FlowLayout());
-        Image ajouImg = ImageIO.read(getClass().getResource("/images/Ajouter.png"));
-        Image supprImg = ImageIO.read(getClass().getResource("/images/Cancel2.png"));
-        Image modifImg = ImageIO.read(getClass().getResource("/images/OK.png"));
+        Image ajouImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Ajouter.png")));
+        Image supprImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Cancel2.png")));
+        Image modifImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/OK.png")));
         nouveau = new JButton(new ImageIcon(ajouImg));
         nouveau.setToolTipText("Ajouter une nouvelle agence");
         supprimer = new JButton(new ImageIcon(supprImg));
@@ -353,7 +354,7 @@ public class RemoteDBPanel extends JPanel {
                 }
                 dispose();
                 try {
-                    parentPanel.setContenu(new RemoteDBPanel());
+                    parentPanel.setContent(new RemoteDBPanel());
                     JOptionPane.showMessageDialog(parentPanel, "Enregistré avec success");
                 } catch (IOException ex) {
                     Logger.getLogger(RemoteDBPanel.class.getName()).log(Level.SEVERE, null, ex);
@@ -363,7 +364,7 @@ public class RemoteDBPanel extends JPanel {
             annulerBtn.addActionListener((ActionEvent ae) -> {
                 dispose();
                 try {
-                    parentPanel.setContenu(new RemoteDBPanel());
+                    parentPanel.setContent(new RemoteDBPanel());
                 } catch (IOException ex) {
                     Logger.getLogger(RemoteDBPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }

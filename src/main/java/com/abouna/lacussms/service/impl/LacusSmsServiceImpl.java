@@ -75,6 +75,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -138,144 +140,8 @@ public class LacusSmsServiceImpl implements LacusSmsService {
     @Autowired
     private ISmsScheduledFormatDao smsScheduledFormatDao;
 
-    public IMessageMandatDao getMessageMandatDao() {
-        return messageMandatDao;
-    }
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(LacusSmsServiceImpl.class);
 
-    public void setMessageMandatDao(IMessageMandatDao messageMandatDao) {
-        this.messageMandatDao = messageMandatDao;
-    }
-
-    public ISentMailDao getSentMailDao() {
-        return sentMailDao;
-    }
-
-    public void setSentMailDao(ISentMailDao sentMailDao) {
-        this.sentMailDao = sentMailDao;
-    }
-
-    public IBkMadDao getBkMadDao() {
-        return bkMadDao;
-    }
-
-    public void setBkMadDao(IBkMadDao bkMadDao) {
-        this.bkMadDao = bkMadDao;
-    }
-
-    public IBkCompCliDao getBkCompCliDao() {
-        return bkCompCliDao;
-    }
-
-    public void setBkCompCliDao(IBkCompCliDao bkCompCliDao) {
-        this.bkCompCliDao = bkCompCliDao;
-    }
-
-    public IBkEtatOpDao getBkEtatOpDao() {
-        return bkEtatOpDao;
-    }
-
-    public void setBkEtatOpDao(IBkEtatOpDao bkEtatOpDao) {
-        this.bkEtatOpDao = bkEtatOpDao;
-    }
-
-    public IUrlMessageDao getUrlMessageDao() {
-        return urlMessageDao;
-    }
-
-    public void setUrlMessageDao(IUrlMessageDao urlMessageDao) {
-        this.urlMessageDao = urlMessageDao;
-    }
-
-    public IBkTelCliDao getBkTelCliDao() {
-        return bkTelCliDao;
-    }
-
-    public void setBkTelCliDao(IBkTelCliDao bkTelCliDao) {
-        this.bkTelCliDao = bkTelCliDao;
-    }
-
-    public ILicenceDao getLicenceDao() {
-        return licenceDao;
-    }
-
-    public void setLicenceDao(ILicenceDao licenceDao) {
-        this.licenceDao = licenceDao;
-    }
-
-    public IBkAgenceDao getBkAgenceDao() {
-        return bkAgenceDao;
-    }
-
-    public void setBkAgenceDao(IBkAgenceDao bkAgenceDao) {
-        this.bkAgenceDao = bkAgenceDao;
-    }
-
-    public IRemoteDBDao getRemoteDBDao() {
-        return remoteDBDao;
-    }
-
-    public void setRemoteDBDao(IRemoteDBDao remoteDBDao) {
-        this.remoteDBDao = remoteDBDao;
-    }
-
-    public IMessageDao getMessageDao() {
-        return messageDao;
-    }
-
-    public void setMessageDao(IMessageDao messageDao) {
-        this.messageDao = messageDao;
-    }
-
-    public IUserDao getUserDao() {
-        return userDao;
-    }
-
-    public void setUserDao(IUserDao userDao) {
-        this.userDao = userDao;
-    }
-
-    public IMessageFormatDao getMessageFormat() {
-        return messageFormat;
-    }
-
-    public void setMessageFormat(IMessageFormatDao messageFormat) {
-        this.messageFormat = messageFormat;
-    }
-
-    public IBkCliDao getBkCliDao() {
-        return bkCliDao;
-    }
-
-    public void setBkCliDao(IBkCliDao bkCliDao) {
-        this.bkCliDao = bkCliDao;
-    }
-
-    public IBkEveDao getBkEveDao() {
-        return bkEveDao;
-    }
-
-    public void setBkEveDao(IBkEveDao bkEveDao) {
-        this.bkEveDao = bkEveDao;
-    }
-
-    public IBkOpeDao getBkOpeDao() {
-        return bkOpeDao;
-    }
-
-    public void setBkOpeDao(IBkOpeDao bkOpeDao) {
-        this.bkOpeDao = bkOpeDao;
-    }
-
-    public ITypeMessageDao getTypeMessageDao() {
-        return typeMessageDao;
-    }
-
-    public void setTypeMessageDao(ITypeMessageDao typeMessageDao) {
-        this.typeMessageDao = typeMessageDao;
-    }
-
-    public LacusSmsServiceImpl() {
-    }
 
     @Override
     public MessageFormat enregistrer(MessageFormat mf) {
@@ -803,6 +669,7 @@ public class LacusSmsServiceImpl implements LacusSmsService {
             licence.setStartDate(sdf.format(cal.getTime()));
             String secretKey = ConstantUtils.SECRET_KEY;
             String value = AES.decrypt(licence.getValeur(), secretKey);
+            assert value != null;
             long jour = (sdf.parse(value.substring(0, 6)).getTime() - cal.getTime().getTime()) / (1000 * 60 * 60 * 24);
             licence.setJour(jour);
             return licenceDao.create(licence);
@@ -820,8 +687,9 @@ public class LacusSmsServiceImpl implements LacusSmsService {
             licence.setStartDate(sdf.format(cal.getTime()));
             String secretKey = ConstantUtils.SECRET_KEY;
             String value = AES.decrypt(licence.getValeur(), secretKey);
+            assert value != null;
             long jour = (sdf.parse(value.substring(0, 6)).getTime() - cal.getTime().getTime()) / (1000 * 60 * 60 * 24);
-            System.out.println("jour=" + jour);
+            logger.info("jour=" + jour);
             licence.setJour(jour);
             return licenceDao.update(licence);
         } catch (DataAccessException | ParseException ex) {

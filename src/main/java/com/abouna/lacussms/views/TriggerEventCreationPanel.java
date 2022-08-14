@@ -39,12 +39,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import org.jdesktop.swingx.JXSearchField;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  *
@@ -259,7 +257,7 @@ public class TriggerEventCreationPanel extends JPanel{
                     }
                     dispose();
                     try {
-                        parentPanel.setContenu(new MessageFormatPanel());
+                        parentPanel.setContent(new MessageFormatPanel());
                     } catch (IOException ex) {
                         Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -271,7 +269,7 @@ public class TriggerEventCreationPanel extends JPanel{
                 public void actionPerformed(ActionEvent ae) {
                     dispose();
                     try {
-                        parentPanel.setContenu(new MessageFormatPanel());
+                        parentPanel.setContent(new MessageFormatPanel());
                     } catch (IOException ex) {
                         Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
                     }

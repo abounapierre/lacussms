@@ -8,11 +8,20 @@ package com.abouna.lacussms.config;
 import com.abouna.lacussms.entities.Licence;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.tools.Utils;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.nio.file.FileSystems;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
+
+import com.abouna.lacussms.views.utils.LogBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +35,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class Tache {
 
-    private static final Logger log = LoggerFactory.getLogger(Tache.class);
+    private static final Logger logger = LoggerFactory.getLogger(Tache.class);
     @Autowired
     private LacusSmsService service;
 
@@ -54,5 +63,21 @@ public class Tache {
                 java.util.logging.Logger.getLogger(Tache.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+    }
+
+    //@Scheduled(cron = "*/1 * * * * *")
+    public void write() {
+        String userDirectory = (String) ApplicationConfig.getApplicationContext().getBean("logPath");
+        logger.info(userDirectory);
+
+    }
+
+    //@Scheduled(cron = "*/1 * * * * *")
+    public void logTask() throws FileNotFoundException {
+        String path = (String) ApplicationConfig.getApplicationContext().getBean("logPath");
+        File file = new File(path);
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        LogBean logBean = ApplicationConfig.getApplicationContext().getBean(LogBean.class);
+        logBean.setLogs(reader.lines().collect(Collectors.joining("\n")));
     }
 }

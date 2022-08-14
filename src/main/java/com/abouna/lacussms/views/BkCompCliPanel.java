@@ -12,6 +12,7 @@ import com.abouna.lacussms.entities.BkCompCli;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.MainMenuPanel;
 import com.abouna.lacussms.views.tools.XlsGenerator;
+import com.abouna.lacussms.views.utils.DialogUtils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
@@ -28,6 +29,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -38,7 +40,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -47,6 +48,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import org.jdesktop.swingx.JXSearchField;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -64,6 +66,7 @@ public class BkCompCliPanel extends JPanel{
     @Autowired
     private  LacusSmsService serviceManager;
     private final JFileChooser fc = new JFileChooser();
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(BkCompCliPanel.class);
     
     public BkCompCliPanel() throws IOException{
         serviceManager = ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
@@ -79,10 +82,10 @@ public class BkCompCliPanel extends JPanel{
         contenu.setLayout(new BorderLayout());
         JPanel bas = new JPanel();
         bas.setLayout(new FlowLayout());
-        Image ajouImg = ImageIO.read(getClass().getResource("/images/Ajouter.png"));
-        Image supprImg = ImageIO.read(getClass().getResource("/images/Cancel2.png"));
-        Image modifImg = ImageIO.read(getClass().getResource("/images/OK.png"));
-        Image excelImg = ImageIO.read(getClass().getResource("/images/excel.PNG"));
+        Image ajouImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Ajouter.png")));
+        Image supprImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Cancel2.png")));
+        Image modifImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/OK.png")));
+        Image excelImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/excel.PNG")));
         exportBtn = new JButton(new ImageIcon(excelImg));
         nouveau = new JButton(new ImageIcon(ajouImg));
         exportBtn.setToolTipText("Exporter la liste des comptes Excel");
@@ -97,12 +100,13 @@ public class BkCompCliPanel extends JPanel{
             @Override
             public void actionPerformed(ActionEvent ae) {
                 Nouveau nouveau1 = new Nouveau(null);
-                nouveau1.setSize(400, 400);
+                DialogUtils.initDialog(nouveau1, BkCompCliPanel.this.getParent(), 400, 400);
+                /*nouveau1.setSize(400, 400);
                 nouveau1.setLocationRelativeTo(null);
                 nouveau1.setModal(true);
                 nouveau1.setResizable(false);
                 nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                nouveau1.setVisible(true);
+                nouveau1.setVisible(true);*/
             }
         });
         modifier.addActionListener(new ActionListener() {
@@ -114,17 +118,18 @@ public class BkCompCliPanel extends JPanel{
                     Nouveau nouveau1 = null;
                     try {
                         nouveau1 = new Nouveau(serviceManager.getBkCompCliById(id));
+                        DialogUtils.initDialog(nouveau1, BkCompCliPanel.this.getParent(), 400, 400);
                     } catch (Exception ex) {
                         Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    nouveau1.setSize(400, 400);
+                    /*nouveau1.setSize(400, 400);
                     nouveau1.setLocationRelativeTo(null);
                     nouveau1.setModal(true);
                     nouveau1.setResizable(false);
                     nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                    nouveau1.setVisible(true);
+                    nouveau1.setVisible(true);*/
                 } else {
-                    JOptionPane.showMessageDialog(null, "Aucun élément n'est selectionné");
+                    JOptionPane.showMessageDialog(BkCompCliPanel.this.getParent(), "Aucun élément n'est selectionné");
                 }
             }
         });
@@ -134,7 +139,7 @@ public class BkCompCliPanel extends JPanel{
                 int selected = table.getSelectedRow();
                 if (selected >= 0) {
                     String id = (String) tableModel.getValueAt(selected, 0);
-                    int res = JOptionPane.showConfirmDialog(null, "Etes vous sûr de suppimer le compte client courant?", "Confirmation",
+                    int res = JOptionPane.showConfirmDialog(BkCompCliPanel.this.getParent(), "Etes vous sûr de suppimer le compte client courant?", "Confirmation",
                             JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
                     if (res == JOptionPane.YES_OPTION) {
                         try {
@@ -145,7 +150,7 @@ public class BkCompCliPanel extends JPanel{
                         tableModel.removeRow(selected);
                     }
                 } else {
-                    JOptionPane.showMessageDialog(null, "Aucun élément selectionné");
+                    JOptionPane.showMessageDialog(BkCompCliPanel.this.getParent(), "Aucun élément selectionné");
                 }
             }
         });
@@ -178,11 +183,11 @@ public class BkCompCliPanel extends JPanel{
                                     Desktop.getDesktop().open(pdfFile);
                                 } else {
                                     JOptionPane.showMessageDialog(BkCompCliPanel.this, "Ce type de fichier n'est pas pris en charge");
-                                    System.out.println("Awt Desktop is not supported!");
+                                    logger.info("Awt Desktop is not supported!");
                                 }
                             } else {
                                 JOptionPane.showMessageDialog(BkCompCliPanel.this, "Ce fichier n'existe pas");
-                                System.out.println("File is not exists!");
+                                logger.error("File is not exists!");
                             }
                         } catch (IOException ex) {
                         } catch (HeadlessException ex) {
@@ -331,7 +336,7 @@ public class BkCompCliPanel extends JPanel{
                     }
                     dispose();
                     try {
-                        parentPanel.setContenu(new BkCompCliPanel());
+                        parentPanel.setContent(new BkCompCliPanel());
                     } catch (IOException ex) {
                         Logger.getLogger(BkCompCliPanel.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -341,7 +346,7 @@ public class BkCompCliPanel extends JPanel{
             annulerBtn.addActionListener((ActionEvent ae) -> {
                 dispose();
                 try {
-                    parentPanel.setContenu(new BkCompCliPanel());
+                    parentPanel.setContent(new BkCompCliPanel());
                 } catch (IOException ex) {
                     Logger.getLogger(BkCompCliPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }

@@ -28,7 +28,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import org.jdesktop.swingx.JXDatePicker;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  *
@@ -83,7 +82,7 @@ public class DeleteBkEveDialog extends JDialog{
                         }
                     }
                     dispose();
-                    parentPanel.setContenu(new BkEvePanel());
+                    parentPanel.setContent(new BkEvePanel());
                 } catch (IOException ex) {
                     Logger.getLogger(DeleteBkEveDialog.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (ParseException ex) {
@@ -94,7 +93,7 @@ public class DeleteBkEveDialog extends JDialog{
             annulerBtn.addActionListener((ActionEvent ae) -> {
                 try {
                     dispose();
-                    parentPanel.setContenu(new BkEvePanel());
+                    parentPanel.setContent(new BkEvePanel());
                 } catch (IOException ex) {
                     Logger.getLogger(DeleteBkEveDialog.class.getName()).log(Level.SEVERE, null, ex);
                 }

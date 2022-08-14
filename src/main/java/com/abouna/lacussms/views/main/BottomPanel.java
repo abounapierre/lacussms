@@ -18,12 +18,11 @@ import javax.swing.JPanel;
  * @author Administrateur
  */
 public class BottomPanel extends JPanel{
-    private final JLabel signatureLabel;
     private JLabel label;
     private static JLabel info = new JLabel();
     
     public BottomPanel(){
-        signatureLabel = new JLabel("Design by SMILE SOFTWARE FONDATION");//Ing. ABOUNA P.E
+        JLabel signatureLabel = new JLabel("Design by SMILE SOFTWARE FONDATION");//Ing. ABOUNA P.E
         signatureLabel.setFont(new Font("",Font.ITALIC,8));
         signatureLabel.setForeground(Color.red);
         setBackground(new Color(166,202,240));

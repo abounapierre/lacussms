@@ -40,7 +40,6 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import org.jdesktop.swingx.JXSearchField;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  *
@@ -258,7 +257,7 @@ public class TypeMessagePanel extends JPanel{
                     }
                     dispose();
                     try {
-                        parentPanel.setContenu(new BkOpePanel());
+                        parentPanel.setContent(new BkOpePanel());
                     } catch (IOException ex) {
                         Logger.getLogger(BkOpePanel.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -268,7 +267,7 @@ public class TypeMessagePanel extends JPanel{
             annulerBtn.addActionListener((ActionEvent ae) -> {
                 dispose();
                 try {
-                    parentPanel.setContenu(new BkOpePanel());
+                    parentPanel.setContent(new BkOpePanel());
                 } catch (IOException ex) {
                     Logger.getLogger(BkOpePanel.class.getName()).log(Level.SEVERE, null, ex);
                 }

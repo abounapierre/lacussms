@@ -6,13 +6,8 @@
 
 package com.abouna.lacussms.entities;
 
+import javax.persistence.*;
 import java.io.Serializable;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.validation.constraints.Pattern;
 
 /**
  *
@@ -27,7 +22,6 @@ public class Employee implements Serializable {
     private Integer id;
     private String name;
     private String surname;
-    @Pattern(regexp = "")
     private String email;
     private long phone;
 

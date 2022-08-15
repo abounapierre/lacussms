@@ -29,6 +29,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -57,14 +58,12 @@ import org.springframework.stereotype.Component;
 public class CommandPanel extends JPanel {
 
     private DefaultTableModel tableModel;
-    private JTable table;
-    private final JButton nouveau, modifier, supprimer;
-    private final JButton filtre;
     @Autowired
-    private  MainMenuPanel parentPanel;
+    private final MainMenuPanel parentPanel;
     @Autowired
-    private  LacusSmsService serviceManager;
-    private  JXDatePicker dateDeb, dateFin;
+    private final LacusSmsService serviceManager;
+    private final JXDatePicker dateDeb;
+    private final JXDatePicker dateFin;
     private final JFileChooser fc = new JFileChooser();
 
     public CommandPanel() throws IOException {
@@ -82,16 +81,16 @@ public class CommandPanel extends JPanel {
         contenu.setLayout(new BorderLayout());
         JPanel bas = new JPanel();
         bas.setLayout(new FlowLayout());
-        Image ajouImg = ImageIO.read(getClass().getResource("/images/Ajouter.png"));
-        Image supprImg = ImageIO.read(getClass().getResource("/images/Cancel2.png"));
-        Image modifImg = ImageIO.read(getClass().getResource("/images/OK.png"));
-        nouveau = new JButton(new ImageIcon(ajouImg));
+        Image ajouImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Ajouter.png")));
+        Image supprImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Cancel2.png")));
+        Image modifImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/OK.png")));
+        JButton nouveau = new JButton(new ImageIcon(ajouImg));
         nouveau.setToolTipText("Ajouter un nouveau message");
-        supprimer = new JButton(new ImageIcon(supprImg));
+        JButton supprimer = new JButton(new ImageIcon(supprImg));
         supprimer.setToolTipText("Suprimer un message");
-        modifier = new JButton(new ImageIcon(modifImg));
+        JButton modifier = new JButton(new ImageIcon(modifImg));
         modifier.setToolTipText("Modifier un message");
-        filtre = new JButton("Filtrer");
+        JButton filtre = new JButton("Filtrer");
         
         JLabel labelNumber = new JLabel("Nombre de Messages");
         final JTextField numberText = new JTextField(10);
@@ -138,7 +137,7 @@ public class CommandPanel extends JPanel {
                 d2 = format.parse(format.format(dateFin.getDate()));
                 tableModel.setNumRows(0);
                 List<Message> messageList = serviceManager.getMessageFromPeriode(d1, d2);
-                messageList.stream().forEach((a) -> {
+                messageList.forEach((a) -> {
                     tableModel.addRow(new Object[]{
                         a.getId(),
                         a.getTitle(),
@@ -172,7 +171,7 @@ public class CommandPanel extends JPanel {
                     val = searchField.getText().toUpperCase();
                     tableModel.setNumRows(0);
                     List<Message> messageList = serviceManager.getAllMessages();
-                    messageList.stream().forEach((a) -> {
+                    messageList.forEach((a) -> {
                         tableModel.addRow(new Object[]{
                             a.getId(),
                             a.getTitle(),
@@ -192,14 +191,14 @@ public class CommandPanel extends JPanel {
         contenu.add(BorderLayout.BEFORE_FIRST_LINE, filtrePanel);
         tableModel = new DefaultTableModel(new Object[]{"ID","Code", "N° Compte", "Requete","Télépone", "Date envoie", "Date trmt", "Status", "desc. erreur"}, 0);
 
-        table = new JTable(tableModel);
+        JTable table = new JTable(tableModel);
         table.setBackground(Color.WHITE);
         //table.getColumnModel().getColumn(2).setPreferredWidth(280);
         table.removeColumn(table.getColumnModel().getColumn(0));
         contenu.add(BorderLayout.CENTER, new JScrollPane(table));
         add(BorderLayout.CENTER, contenu);
         try {
-            serviceManager.getAllCommands().stream().forEach((a) -> {
+            serviceManager.getAllCommands().forEach((a) -> {
                 tableModel.addRow(new Object[]{
                     a.getId(),
                     a.getOpe(),
@@ -220,9 +219,6 @@ public class CommandPanel extends JPanel {
 
     private class Nouveau extends JDialog {
 
-        private final JButton okBtn, annulerBtn;
-        private final JComboBox<String> etatBox;
-
         public Nouveau() {
             setTitle("TYPE DE RAPPORT");
             setModal(true);
@@ -234,9 +230,12 @@ public class CommandPanel extends JPanel {
             add(BorderLayout.BEFORE_FIRST_LINE, haut);
             DefaultFormBuilder builder = new DefaultFormBuilder(new FormLayout("right:max(40dlu;p), 12dlu, 110dlu:", ""));
             builder.setDefaultDialogBorder();
+            JComboBox<String> etatBox;
             builder.append("Etat", etatBox = new JComboBox<>());
             etatBox.addItem("Fichier CBS");
             etatBox.addItem("Rapport de requêtes");
+            JButton annulerBtn;
+            JButton okBtn;
             JPanel buttonBar = ButtonBarFactory.buildOKCancelBar(okBtn = new JButton("Imprimer"), annulerBtn = new JButton("Annuler"));
             builder.append(buttonBar, builder.getColumnCount());
             add(BorderLayout.CENTER, builder.getPanel());
@@ -279,8 +278,7 @@ public class CommandPanel extends JPanel {
                                     JOptionPane.showMessageDialog(CommandPanel.this, "Ce fichier n'existe pas");
                                     System.out.println("File is not exists!");
                                 }
-                            } catch (IOException ex) {
-                            } catch (HeadlessException ex) {
+                            } catch (IOException | HeadlessException ex) {
                             }
                         }
                     }

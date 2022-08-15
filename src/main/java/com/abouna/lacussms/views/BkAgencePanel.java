@@ -10,19 +10,16 @@ import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.entities.BkAgence;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.MainMenuPanel;
+import com.abouna.lacussms.views.utils.DialogUtils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Image;
+
+import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -30,7 +27,6 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -40,7 +36,6 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import org.jdesktop.swingx.JXSearchField;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  *
@@ -72,9 +67,9 @@ public class BkAgencePanel extends JPanel{
         contenu.setLayout(new BorderLayout());
         JPanel bas = new JPanel();
         bas.setLayout(new FlowLayout());
-        Image ajouImg = ImageIO.read(getClass().getResource("/images/Ajouter.png"));
-        Image supprImg = ImageIO.read(getClass().getResource("/images/Cancel2.png"));
-        Image modifImg = ImageIO.read(getClass().getResource("/images/OK.png"));
+        Image ajouImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Ajouter.png")));
+        Image supprImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Cancel2.png")));
+        Image modifImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/OK.png")));
         nouveau = new JButton(new ImageIcon(ajouImg));
         nouveau.setToolTipText("Ajouter une nouvelle agence");
         supprimer = new JButton(new ImageIcon(supprImg));
@@ -82,44 +77,53 @@ public class BkAgencePanel extends JPanel{
         modifier = new JButton(new ImageIcon(modifImg));
         modifier.setToolTipText("Modifier une agence");
         filtre = new JButton("Filtrer");
-        nouveau.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                Nouveau nouveau1 = new Nouveau(null);
-                nouveau1.setSize(400, 300);
-                nouveau1.setLocationRelativeTo(null);
-                nouveau1.setModal(true);
-                nouveau1.setResizable(false);
-                nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                nouveau1.setVisible(true);
-            }
+        nouveau.addActionListener(ae -> {
+            Nouveau nouveau1 = new Nouveau(null);
+            /*nouveau1.setSize(400, 300);
+            final Toolkit toolkit = Toolkit.getDefaultToolkit();
+            final Dimension screenSize = toolkit.getScreenSize();
+            final int x = (screenSize.width - nouveau1.getWidth()) / 2;
+            final int y = (screenSize.height - nouveau1.getHeight()) / 2;
+            nouveau1.setLocation(x, y);
+            nouveau1.setLocationRelativeTo(BkAgencePanel.this.getParent());
+            nouveau1.setModal(true);
+            nouveau1.setResizable(false);
+            nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            nouveau1.setVisible(true);*/
+            DialogUtils.initDialog(nouveau1, BkAgencePanel.this.getParent(), 400, 300);
         });
         modifier.addActionListener((ActionEvent ae) -> {
             int selected = table.getSelectedRow();
             if (selected >= 0) {
                 String id = (String) tableModel.getValueAt(selected, 0);
-                Nouveau nouveau1 = null;
+                Nouveau nouveau1;
                 try {
                     nouveau1 = new Nouveau(serviceManager.getBkAgenceById(id));
+                    DialogUtils.initDialog(nouveau1, BkAgencePanel.this.getParent(), 400, 300);
+                    /*nouveau1.setSize(400, 300);
+                    final Toolkit toolkit = Toolkit.getDefaultToolkit();
+                    final Dimension screenSize = toolkit.getScreenSize();
+                    final int x = (screenSize.width - nouveau1.getWidth()) / 2;
+                    final int y = (screenSize.height - nouveau1.getHeight()) / 2;
+                    nouveau1.setLocation(x, y);
+                    nouveau1.setLocationRelativeTo(BkAgencePanel.this.getParent());
+                    nouveau1.setModal(true);
+                    nouveau1.setResizable(false);
+                    nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                    nouveau1.setVisible(true);*/
                 } catch (Exception ex) {
                     Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                nouveau1.setSize(400, 300);
-                nouveau1.setLocationRelativeTo(null);
-                nouveau1.setModal(true);
-                nouveau1.setResizable(false);
-                nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                nouveau1.setVisible(true);
             } else {
-                JOptionPane.showMessageDialog(null, "Aucun élément n'est selectionné");
+                JOptionPane.showMessageDialog(BkAgencePanel.this.getParent(), "Aucun élément n'est selectionné");
             }
         });
+
         supprimer.addActionListener((ActionEvent ae) -> {
             int selected = table.getSelectedRow();
             if (selected >= 0) {
                 String id = (String) tableModel.getValueAt(selected, 0);
-                int res = JOptionPane.showConfirmDialog(null, "Etes vous sûr de suppimer le client courant?", "Confirmation",
+                int res = JOptionPane.showConfirmDialog(BkAgencePanel.this.getParent(), "Etes vous sûr de suppimer le client courant?", "Confirmation",
                         JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
                 if (res == JOptionPane.YES_OPTION) {
                     try {
@@ -130,7 +134,7 @@ public class BkAgencePanel extends JPanel{
                     tableModel.removeRow(selected);
                 }
             } else {
-                JOptionPane.showMessageDialog(null, "Aucun élément selectionné");
+                JOptionPane.showMessageDialog(BkAgencePanel.this.getParent(), "Aucun élément selectionné");
             }
         });
         bas.add(nouveau);
@@ -174,7 +178,7 @@ public class BkAgencePanel extends JPanel{
         contenu.add(BorderLayout.CENTER, new JScrollPane(table));
         add(BorderLayout.CENTER, contenu);
         try {
-            serviceManager.getAllBkAgences().stream().forEach((a) -> {
+            serviceManager.getAllBkAgences().forEach((a) -> {
                 tableModel.addRow(new Object[]{
                     a.getNuma(),
                     a.getNoma(),
@@ -227,12 +231,12 @@ public class BkAgencePanel extends JPanel{
                 if (!codeText.getText().equals("")) {
                     a.setNuma(codeText.getText());
                 } else {
-                    JOptionPane.showMessageDialog(null, "Le code est obligatoire");
+                    JOptionPane.showMessageDialog(BkAgencePanel.this.getParent(), "Le code est obligatoire");
                 }
                 if (!nameText.getText().equals("")) {
                     a.setNoma(nameText.getText());
                 } else {
-                    JOptionPane.showMessageDialog(null, "Le nom est obligatoire");
+                    JOptionPane.showMessageDialog(BkAgencePanel.this.getParent(), "Le nom est obligatoire");
                 }
                 a.setAddra(adrText.getText());
                 
@@ -253,7 +257,7 @@ public class BkAgencePanel extends JPanel{
                 }
                 dispose();
                 try {
-                    parentPanel.setContenu(new BkAgencePanel());
+                    parentPanel.setContent(new BkAgencePanel());
                 } catch (IOException ex) {
                     Logger.getLogger(BkAgencePanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -262,7 +266,7 @@ public class BkAgencePanel extends JPanel{
             annulerBtn.addActionListener((ActionEvent ae) -> {
                 dispose();
                 try {
-                    parentPanel.setContenu(new BkAgencePanel());
+                    parentPanel.setContent(new BkAgencePanel());
                 } catch (IOException ex) {
                     Logger.getLogger(BkAgencePanel.class.getName()).log(Level.SEVERE, null, ex);
                 }

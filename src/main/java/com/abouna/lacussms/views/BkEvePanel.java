@@ -13,6 +13,7 @@ import com.abouna.lacussms.entities.BkEve;
 import com.abouna.lacussms.entities.BkOpe;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.MainMenuPanel;
+import com.abouna.lacussms.views.utils.DialogUtils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
@@ -25,10 +26,10 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -37,7 +38,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -48,7 +48,6 @@ import javax.swing.table.DefaultTableModel;
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXSearchField;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  *
@@ -80,9 +79,9 @@ public class BkEvePanel extends JPanel{
         contenu.setLayout(new BorderLayout());
         JPanel bas = new JPanel();
         bas.setLayout(new FlowLayout());
-        Image ajouImg = ImageIO.read(getClass().getResource("/images/Ajouter.png"));
-        Image supprImg = ImageIO.read(getClass().getResource("/images/Cancel2.png"));
-        Image modifImg = ImageIO.read(getClass().getResource("/images/OK.png"));
+        Image ajouImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Ajouter.png")));
+        Image supprImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Cancel2.png")));
+        Image modifImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/OK.png")));
         nouveau = new JButton(new ImageIcon(ajouImg));
         nouveau.setToolTipText("Ajouter un nouvel évenement");
         supprimer = new JButton(new ImageIcon(supprImg));
@@ -92,12 +91,13 @@ public class BkEvePanel extends JPanel{
         filtre = new JButton("Filtrer");
         nouveau.addActionListener((ActionEvent ae) -> {
             Nouveau nouveau1 = new Nouveau(null);
-            nouveau1.setSize(400, 300);
+            DialogUtils.initDialog(nouveau1, BkEvePanel.this.getParent(), 400, 300);
+            /*nouveau1.setSize(400, 300);
             nouveau1.setLocationRelativeTo(null);
             nouveau1.setModal(true);
             nouveau1.setResizable(false);
             nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            nouveau1.setVisible(true);
+            nouveau1.setVisible(true);*/
         });
         modifier.addActionListener((ActionEvent ae) -> {
             int selected = table.getSelectedRow();
@@ -106,24 +106,25 @@ public class BkEvePanel extends JPanel{
                 Nouveau nouveau1 = null;
                 try {
                     nouveau1 = new Nouveau(serviceManager.getBkEveById(id));
+                    DialogUtils.initDialog(nouveau1, BkEvePanel.this.getParent(), 400, 300);
                 } catch (Exception ex) {
                     Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                nouveau1.setSize(400, 300);
+                /*nouveau1.setSize(400, 300);
                 nouveau1.setLocationRelativeTo(null);
                 nouveau1.setModal(true);
                 nouveau1.setResizable(false);
                 nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                nouveau1.setVisible(true);
+                nouveau1.setVisible(true);*/
             } else {
-                JOptionPane.showMessageDialog(null, "Aucun élément n'est selectionné");
+                JOptionPane.showMessageDialog(BkEvePanel.this.getParent(), "Aucun élément n'est selectionné");
             }
         });
         supprimer.addActionListener((ActionEvent ae) -> {
             int selected = table.getSelectedRow();
             if (selected >= 0) {
                 Integer id = (Integer) tableModel.getValueAt(selected, 0);
-                int res = JOptionPane.showConfirmDialog(null, "Etes vous sûr de suppimer l'évenement courant?", "Confirmation",
+                int res = JOptionPane.showConfirmDialog(BkEvePanel.this.getParent(), "Etes vous sûr de suppimer l'évenement courant?", "Confirmation",
                         JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
                 if (res == JOptionPane.YES_OPTION) {
                     try {
@@ -134,19 +135,20 @@ public class BkEvePanel extends JPanel{
                     tableModel.removeRow(selected);
                 }
             } else {
-                JOptionPane.showMessageDialog(null, "Aucun élément selectionné");
+                JOptionPane.showMessageDialog(BkEvePanel.this.getParent(), "Aucun élément selectionné");
             }
         });
         JButton purgerBtn = new JButton("Purger");
         purgerBtn.addActionListener((ActionEvent e) -> {
             DeleteBkEveDialog nouveau1;
             nouveau1 = new DeleteBkEveDialog();
-            nouveau1.setSize(450, 200);
+            DialogUtils.initDialog(nouveau1, BkEvePanel.this.getParent(), 450, 200);
+            /*nouveau1.setSize(450, 200);
             nouveau1.setLocationRelativeTo(null);
             nouveau1.setModal(true);
             nouveau1.setResizable(false);
             nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            nouveau1.setVisible(true);
+            nouveau1.setVisible(true);*/
         });
         bas.add(nouveau);
         bas.add(modifier);
@@ -398,7 +400,7 @@ public class BkEvePanel extends JPanel{
                     }
                     dispose();
                     try {
-                        parentPanel.setContenu(new BkEvePanel());
+                        parentPanel.setContent(new BkEvePanel());
                     } catch (IOException ex) {
                         Logger.getLogger(BkEvePanel.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -408,7 +410,7 @@ public class BkEvePanel extends JPanel{
             annulerBtn.addActionListener((ActionEvent ae) -> {
                 dispose();
                 try {
-                    parentPanel.setContenu(new BkEvePanel());
+                    parentPanel.setContent(new BkEvePanel());
                 } catch (IOException ex) {
                     Logger.getLogger(BkEvePanel.class.getName()).log(Level.SEVERE, null, ex);
                 }

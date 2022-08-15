@@ -6,21 +6,12 @@
 
 package com.abouna.lacussms.config;
 
-import com.abouna.lacussms.service.impl.SmsJob;
+import com.abouna.lacussms.views.main.LoggingPanel;
+import com.abouna.lacussms.views.utils.LogBean;
 import com.google.common.base.Preconditions;
-import java.io.IOException;
-import java.util.Properties;
-import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
-import org.quartz.SimpleTrigger;
-import org.quartz.spi.JobFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
@@ -29,11 +20,15 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.quartz.JobDetailFactoryBean;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
+import java.io.*;
+import java.nio.file.FileSystems;
+import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -42,7 +37,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableScheduling
 @EnableTransactionManagement
-@PropertySource({ "classpath:bd.properties" })
+@PropertySources({
+        @PropertySource("classpath:bd.properties"),
+        @PropertySource("classpath:application.properties")
+})
 @ComponentScan({ "com.abouna.lacussms.dao.impl",
     "com.abouna.lacussms.service.impl",
 "com.abouna.lacussms.views"})
@@ -59,7 +57,7 @@ public class SpringMainConfig {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         final LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource());
-        em.setPackagesToScan(new String[] { "com.abouna.lacussms.entities" });
+        em.setPackagesToScan("com.abouna.lacussms.entities");
         final HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         vendorAdapter.setShowSql(true);
         em.setJpaVendorAdapter(vendorAdapter);
@@ -101,29 +99,8 @@ public class SpringMainConfig {
     public Tache execute(){
         return new Tache();
     }
-  
-    @Bean
-    public JobFactory jobFactory(ApplicationContext applicationContext)
-    {
-        AutowiringSpringBeanJobFactory jobFactory = new AutowiringSpringBeanJobFactory();
-        jobFactory.setApplicationContext(applicationContext);
-        return jobFactory;
-    }
-    
-    @Bean
-    public SchedulerFactoryBean schedulerFactoryBean(@Autowired DataSource dataSource,
-                                                     @Autowired JobFactory jobFactory) throws IOException
-    {
-        SchedulerFactoryBean factory = new SchedulerFactoryBean();
-        factory.setOverwriteExistingJobs(true);
-        factory.setAutoStartup(true);
-        factory.setDataSource(dataSource);
-        //This is the place where we will wire Quartz and Spring together
-        factory.setJobFactory(jobFactory);
-        factory.setQuartzProperties(quartzProperties());
-        factory.setTriggers(smsJobTrigger().getObject());
-        return factory;
-    }
+
+
     @Bean
     public Properties quartzProperties() throws IOException
     {
@@ -132,26 +109,23 @@ public class SpringMainConfig {
         propertiesFactoryBean.afterPropertiesSet();
         return propertiesFactoryBean.getObject();
     }
-    
-     @Bean(name = "smsJobTrigger")
-    public SimpleTriggerFactoryBean smsJobTrigger() {
-        SimpleTriggerFactoryBean factoryBean = new SimpleTriggerFactoryBean();
-        factoryBean.setJobDetail(smsJobDetails().getObject());
-        factoryBean.setStartDelay(0);
-        factoryBean.setRepeatInterval(60000);
-        factoryBean.setRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY);
-        factoryBean.setMisfireInstruction(SimpleTrigger.MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT);
-        return factoryBean;
-    }
- 
-    @Bean(name = "smsJobDetails")
-    public JobDetailFactoryBean smsJobDetails() {
-        JobDetailFactoryBean jobDetailFactoryBean = new JobDetailFactoryBean();
-        jobDetailFactoryBean.setJobClass(SmsJob.class);
-        jobDetailFactoryBean.setDescription("Sample job");
-        jobDetailFactoryBean.setDurability(true);
-        jobDetailFactoryBean.setName("StatisticsJob");
-        return jobDetailFactoryBean;
+
+
+    @Bean("logPath")
+    public String logPath() {
+        String fileSeparator = FileSystems.getDefault().getSeparator();
+        return System.getProperty("user.home")
+                .concat(fileSeparator).concat(".lacuss")
+                .concat(fileSeparator).concat("lacuss-application.log");
     }
 
+    /*@Bean
+    public LogBean getLogger() {
+        return new LogBean();
+    }
+
+    @Bean
+    public LoggingPanel getLoggingPanel() {
+        return new LoggingPanel();
+    }*/
 }

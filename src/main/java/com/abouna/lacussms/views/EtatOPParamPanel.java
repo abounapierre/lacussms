@@ -7,7 +7,6 @@ package com.abouna.lacussms.views;
 
 import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.entities.BkEtatOp;
-import com.abouna.lacussms.entities.UrlMessage;
 import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.MainMenuPanel;
@@ -41,8 +40,6 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import org.jdesktop.swingx.JXSearchField;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  *
@@ -268,7 +265,7 @@ public class EtatOPParamPanel extends JPanel{
                 }
                 dispose();
                 try {
-                    parentPanel.setContenu(new EtatOPParamPanel());
+                    parentPanel.setContent(new EtatOPParamPanel());
                 } catch (IOException ex) {
                     Logger.getLogger(EtatOPParamPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -277,7 +274,7 @@ public class EtatOPParamPanel extends JPanel{
             annulerBtn.addActionListener((ActionEvent ae) -> {
                 dispose();
                 try {
-                    parentPanel.setContenu(new EtatOPParamPanel());
+                    parentPanel.setContent(new EtatOPParamPanel());
                 } catch (IOException ex) {
                     Logger.getLogger(EtatOPParamPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }

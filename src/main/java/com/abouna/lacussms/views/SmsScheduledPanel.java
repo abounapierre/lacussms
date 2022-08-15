@@ -10,56 +10,28 @@ import com.abouna.lacussms.dto.SmsScheduledDto;
 import com.abouna.lacussms.entities.MessageFormat;
 import com.abouna.lacussms.entities.SmsScheduled;
 import com.abouna.lacussms.service.LacusSmsService;
-import com.abouna.lacussms.service.impl.SchedulerSmsService;
 import com.abouna.lacussms.views.main.MainMenuPanel;
 import com.abouna.lacussms.views.utils.CheckListItem;
 import com.abouna.lacussms.views.utils.CheckListRenderer;
-import com.abouna.lacussms.views.utils.WordWrapCellRenderer;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Image;
+import org.jdesktop.swingx.JXSearchField;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import javax.swing.SpinnerDateModel;
-import javax.swing.table.DefaultTableModel;
-import org.jdesktop.swingx.JXSearchField;
-import org.quartz.SchedulerException;
 
 /**
  *
@@ -72,13 +44,13 @@ public class SmsScheduledPanel extends JPanel {
     private JButton nouveau, modifier, supprimer, ajoutCompte;
     private MainMenuPanel parentPanel;
     private LacusSmsService serviceManager;
-    private SchedulerSmsService schedulerSmsService;
+    //private SchedulerSmsService schedulerSmsService;
 
     public SmsScheduledPanel() {
         try {
             serviceManager = ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
             parentPanel = ApplicationConfig.getApplicationContext().getBean(MainMenuPanel.class);
-            schedulerSmsService = ApplicationConfig.getApplicationContext().getBean(SchedulerSmsService.class);
+            //schedulerSmsService = ApplicationConfig.getApplicationContext().getBean(SchedulerSmsService.class);
             setLayout(new BorderLayout());
             JPanel haut = new JPanel();
             haut.setLayout(new FlowLayout(FlowLayout.CENTER));
@@ -319,9 +291,9 @@ public class SmsScheduledPanel extends JPanel {
                     Long id = serviceManager.saveSmsScheduled(smsScheduledDto);
                     if (id != null) {
                         smsScheduledDto.getSmsScheduled().setId(id);
-                        result = schedulerSmsService.scheduledSms(smsScheduledDto);
+                        result = null;//schedulerSmsService.scheduledSms(smsScheduledDto);
                         dispose();
-                        parentPanel.setContenu(new SmsScheduledPanel());
+                        parentPanel.setContent(new SmsScheduledPanel());
                         String msg;
                         if (result != null) {
                             String key = result.get("jobId");
@@ -336,14 +308,14 @@ public class SmsScheduledPanel extends JPanel {
 
                         }
                     }
-                } catch (SchedulerException ex) {
+                } catch (Exception ex) {
                     Logger.getLogger(SmsScheduledPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
             });
             annulerBtn.addActionListener((ActionEvent e) -> {
                 dispose();
-                parentPanel.setContenu(SmsScheduledPanel.this);
+                parentPanel.setContent(SmsScheduledPanel.this);
             });
 
         }

@@ -15,7 +15,6 @@ import com.jgoodies.forms.layout.FormLayout;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -29,7 +28,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import org.jdesktop.swingx.JXDatePicker;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  *
@@ -84,7 +82,7 @@ public class DeleteBkMadPanel extends JDialog{
                         }
                     }
                     dispose();
-                    parentPanel.setContenu(new BkMadPanel());
+                    parentPanel.setContent(new BkMadPanel());
                 } catch (IOException ex) {
                     Logger.getLogger(DeleteBkEveDialog.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (ParseException ex) {
@@ -95,7 +93,7 @@ public class DeleteBkMadPanel extends JDialog{
             annulerBtn.addActionListener((ActionEvent ae) -> {
                 try {
                     dispose();
-                    parentPanel.setContenu(new BkMadPanel());
+                    parentPanel.setContent(new BkMadPanel());
                 } catch (IOException ex) {
                     Logger.getLogger(DeleteBkEveDialog.class.getName()).log(Level.SEVERE, null, ex);
                 }

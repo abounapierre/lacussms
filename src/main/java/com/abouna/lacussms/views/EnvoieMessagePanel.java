@@ -12,44 +12,26 @@ import com.abouna.lacussms.entities.Message;
 import com.abouna.lacussms.entities.MessageFormat;
 import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
-import com.abouna.lacussms.sms.SerialParameters;
-import com.abouna.lacussms.sms.SmsFinal;
 import com.abouna.lacussms.views.main.MainMenuPanel;
 import com.abouna.lacussms.views.tools.Utils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Image;
+import org.jdesktop.swingx.JXSearchField;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.comm.SerialPort;
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
-import org.jdesktop.swingx.JXSearchField;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  *
@@ -80,9 +62,9 @@ public class EnvoieMessagePanel extends JPanel{
         contenu.setLayout(new BorderLayout());
         JPanel bas = new JPanel();
         bas.setLayout(new FlowLayout());
-        Image ajouImg = ImageIO.read(getClass().getResource("/images/Ajouter.png"));
-        Image supprImg = ImageIO.read(getClass().getResource("/images/Cancel2.png"));
-        Image modifImg = ImageIO.read(getClass().getResource("/images/OK.png"));
+        Image ajouImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Ajouter.png")));
+        Image supprImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Cancel2.png")));
+        Image modifImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/OK.png")));
         nouveau = new JButton(new ImageIcon(ajouImg));
         nouveau.setText("Envoyer SMS");
         nouveau.setToolTipText("Ajouter un nouveau message");
@@ -255,29 +237,9 @@ public class EnvoieMessagePanel extends JPanel{
                     }
                     a.setBkEve(bkeve);
                     a.setSendDate(new Date());
-                    
-                    
-                    if (message == null) {
-                        try {
-                            SerialParameters params = new SerialParameters();
-                            params.setPortName("COM6"); // default COM1
-                            params.setBaudRate(115200); // default 115200
-                            params.setFlowControlIn(SerialPort.FLOWCONTROL_NONE); // default none flowcontrol
-                            params.setFlowControlOut(SerialPort.FLOWCONTROL_NONE); // default none flowcontrol
-                            params.setDatabits(SerialPort.DATABITS_8); // default data bits 8
-                            params.setStopbits(SerialPort.STOPBITS_1); // default stop bits 1
-                            params.setParity(SerialPort.PARITY_NONE); // default none parity bits 1
-
-                            // object sms client
-                            SmsFinal sms = new SmsFinal(params);
-                            serviceManager.enregistrer(a);
-                        } catch (Exception ex) {
-                            Logger.getLogger(EnvoieMessagePanel.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    } 
                     dispose();
                     try {
-                        parentPanel.setContenu(new BkEvePanel());
+                        parentPanel.setContent(new BkEvePanel());
                     } catch (IOException ex) {
                         Logger.getLogger(EnvoieMessagePanel.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -289,7 +251,7 @@ public class EnvoieMessagePanel extends JPanel{
                 public void actionPerformed(ActionEvent ae) {
                     dispose();
                     try {
-                        parentPanel.setContenu(new EnvoieMessagePanel());
+                        parentPanel.setContent(new EnvoieMessagePanel());
                     } catch (IOException ex) {
                         Logger.getLogger(EnvoieMessagePanel.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -372,7 +334,7 @@ public class EnvoieMessagePanel extends JPanel{
                     }
                     dispose();
                     try {
-                        parentPanel.setContenu(new EnvoieMessagePanel());
+                        parentPanel.setContent(new EnvoieMessagePanel());
                     } catch (IOException ex) {
                         Logger.getLogger(EnvoieMessagePanel.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -382,7 +344,7 @@ public class EnvoieMessagePanel extends JPanel{
             annulerBtn.addActionListener((ActionEvent ae) -> {
                 dispose();
                 try {
-                    parentPanel.setContenu(new EnvoieMessagePanel());
+                    parentPanel.setContent(new EnvoieMessagePanel());
                 } catch (IOException ex) {
                     Logger.getLogger(EnvoieMessagePanel.class.getName()).log(Level.SEVERE, null, ex);
                 }

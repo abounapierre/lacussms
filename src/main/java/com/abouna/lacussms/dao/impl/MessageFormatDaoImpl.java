@@ -10,7 +10,6 @@ import com.abouna.generic.dao.impl.GenericDao;
 import com.abouna.lacussms.dao.IMessageFormatDao;
 import com.abouna.lacussms.entities.BkOpe;
 import com.abouna.lacussms.entities.MessageFormat;
-import com.abouna.lacussms.entities.MessageFormat_;
 
 import java.util.List;
 import javax.persistence.NoResultException;
@@ -31,7 +30,7 @@ public class MessageFormatDaoImpl extends GenericDao<MessageFormat, Integer> imp
         CriteriaBuilder builder =  getManager().getCriteriaBuilder();
         CriteriaQuery<MessageFormat> cq = builder.createQuery(MessageFormat.class);
         Root<MessageFormat> messageRoot = cq.from(MessageFormat.class);
-        cq.where(builder.equal(messageRoot.get(MessageFormat_.ope), bkOpe));
+        cq.where(builder.equal(messageRoot.get("ope"), bkOpe));
         cq.select(messageRoot);
         return getManager().createQuery(cq).getResultList();
     }
@@ -42,8 +41,8 @@ public class MessageFormatDaoImpl extends GenericDao<MessageFormat, Integer> imp
             CriteriaBuilder builder =  getManager().getCriteriaBuilder();
         CriteriaQuery<MessageFormat> cq = builder.createQuery(MessageFormat.class);
         Root<MessageFormat> messageRoot = cq.from(MessageFormat.class);
-        cq.where(builder.and(builder.equal(messageRoot.get(MessageFormat_.ope), bkOpe),
-                builder.equal(messageRoot.get(MessageFormat_.langue), langue)));
+        cq.where(builder.and(builder.equal(messageRoot.get("ope"), bkOpe),
+                builder.equal(messageRoot.get("langue"), langue)));
         cq.select(messageRoot);
         return getManager().createQuery(cq).getSingleResult();
         } catch (NoResultException e) {

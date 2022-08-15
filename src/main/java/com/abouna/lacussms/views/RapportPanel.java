@@ -17,7 +17,6 @@ import com.abouna.lacussms.views.main.MainMenuPanel;
 import com.abouna.lacussms.views.tools.PrintReportPDF;
 import com.abouna.lacussms.views.utils.CustomTableCellRenderer;
 import com.abouna.lacussms.views.utils.CustomTableModel;
-import com.abouna.lacussms.views.utils.WordWrapCellRenderer;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
@@ -482,7 +481,7 @@ public class RapportPanel extends JPanel {
                 }
                 dispose();
                 try {
-                    parentPanel.setContenu(new BkEvePanel());
+                    parentPanel.setContent(new BkEvePanel());
                 } catch (IOException ex) {
                     Logger.getLogger(BkEvePanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -491,7 +490,7 @@ public class RapportPanel extends JPanel {
             annulerBtn.addActionListener((ActionEvent ae) -> {
                 dispose();
                 try {
-                    parentPanel.setContenu(new BkEvePanel());
+                    parentPanel.setContent(new BkEvePanel());
                 } catch (IOException ex) {
                     Logger.getLogger(BkEvePanel.class.getName()).log(Level.SEVERE, null, ex);
                 }

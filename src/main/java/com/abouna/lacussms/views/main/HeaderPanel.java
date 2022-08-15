@@ -10,6 +10,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
+import java.util.Objects;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -26,8 +27,6 @@ import org.jdesktop.swingx.JXButton;
  * @author Vincent Douwe <douwevincent@yahoo.fr>
  */
 public  class HeaderPanel extends JPanel{
-    private JButton adBtn;
-    private JButton cotBtn;
     private JButton runBtn;
     private JButton stopBtn;
     private JButton runParaBtn;
@@ -43,14 +42,14 @@ public  class HeaderPanel extends JPanel{
     }
     
     protected final void init() throws IOException{
-       ImageIcon img = new ImageIcon(ImageIO.read(getClass().getResource("/images/adherent.jpg")));
-       ImageIcon img1 = new ImageIcon(ImageIO.read(getClass().getResource("/images/icona.jpg")));
-       ImageIcon img2 = new ImageIcon(ImageIO.read(getClass().getResource("/images/run.JPG")));
-       ImageIcon img3 = new ImageIcon(ImageIO.read(getClass().getResource("/images/stop.PNG")));
-       ImageIcon img4 = new ImageIcon(ImageIO.read(getClass().getResource("/images/play.JPG")));
-        adBtn = new JXButton(img);
+       ImageIcon img = new ImageIcon(ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/adherent.jpg"))));
+       ImageIcon img1 = new ImageIcon(ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/icona.jpg"))));
+       ImageIcon img2 = new ImageIcon(ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/run.JPG"))));
+       ImageIcon img3 = new ImageIcon(ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/stop.PNG"))));
+       ImageIcon img4 = new ImageIcon(ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/play.JPG"))));
+        JButton adBtn = new JXButton(img);
         adBtn.setPreferredSize(new Dimension(40, 40));
-        cotBtn = new JXButton(img1);
+        JButton cotBtn = new JXButton(img1);
         cotBtn.setPreferredSize(new Dimension(40, 40));
         runBtn = new JXButton(img2);
         runBtn.setPreferredSize(new Dimension(40, 40));
@@ -112,17 +111,4 @@ public  class HeaderPanel extends JPanel{
             contact.setVisible(true);
        });
     }
-
-    /*@Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Font font = new Font("Serif", Font.PLAIN, 32);
-        GradientPaint gp = new GradientPaint(1f,1f,Color.DARK_GRAY,0f,30f,Color.CYAN);
-        ((Graphics2D)g).setPaint(gp);
-        g.setFont(font);
-        g.setColor(Color.BLACK);
-        g.drawString("GESTION DES COTISATIONS",310,40);
-       
-    }*/
-
 }

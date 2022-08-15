@@ -76,6 +76,8 @@ public class App {
     public static String licenceString = "";
     static boolean vl = false;
 
+    private static MainFrame frame;
+
     public App() {
     }
 
@@ -188,7 +190,7 @@ public class App {
     }
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException, IOException {
-        SplashFrame splashFrame = new SplashFrame();
+         new SplashFrame();
         initApp();
     }
 
@@ -228,7 +230,7 @@ public class App {
             vl = true;
             logger.info(" testtt     .....3");
         } catch (Exception var7) {
-            JOptionPane.showMessageDialog((Component)null, "Problème de connexion assurez vous que votre poste\r\n est connecté à internet ou verifiez votre parfeu\r\n s'il ne bloque pas le connexion vers le serveur (alwaysdata.com)!");
+            JOptionPane.showMessageDialog(frame.getParent(), "Problème de connexion assurez vous que votre poste\r\n est connecté à internet ou verifiez votre parfeu\r\n s'il ne bloque pas le connexion vers le serveur (alwaysdata.com)!");
             logger.error("Problème de connexion assurez vous que votre poste" +
                     " est connecté à internet ou verifiez votre parfeu" +
                     " s'il ne bloque pas le connexion vers le serveur (alwaysdata.com)!");
@@ -243,12 +245,12 @@ public class App {
         SwingUtilities.invokeLater(() -> {
             try {
                 if (!vl) {
-                    JOptionPane.showMessageDialog((Component)null, "Votre licence n'est plus valide\r\n merci de cliquer sur ok pour enregistrer une nouvelle\r\n ou contactez votre fournisseur!");
+                    JOptionPane.showMessageDialog(frame.getParent(), "Votre licence n'est plus valide\r\n merci de cliquer sur ok pour enregistrer une nouvelle\r\n ou contactez votre fournisseur!");
                 }
 
                 if (vl) {
                     appliRun = true;
-                    MainFrame frame = new MainFrame();
+                    frame = new MainFrame();
                     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
                     frame.setSize((int) screenSize.getWidth() - 100, (int) screenSize.getHeight() -100);
                     frame.setLocationRelativeTo(null);
@@ -294,7 +296,7 @@ public class App {
         NumberFormat formatnum = NumberFormat.getCurrencyInstance();
         formatnum.setMinimumFractionDigits(0);
         list.stream().peek((eve) -> logger.info(eve.toString())).forEach((eve) -> {
-            logger.info(" Montant : " + Double.toString(eve.getMont()) + " " + Utils.moveZero(eve.getMont()));
+            logger.info(" Montant : " + eve.getMont() + " " + Utils.moveZero(eve.getMont()));
         });
     }
 
@@ -303,10 +305,9 @@ public class App {
 
         try {
             String decryptedString = "";
-            TimeZone timeZone = TimeZone.getTimeZone("GMT");
-            TimeZone.setDefault(timeZone);
+            Utils.initDriver();
             RemoteDB remoteDB = serviceManager.getDefaultRemoteDB(true);
-            Class.forName("oracle.jdbc.driver.OracleDriver");
+
             if (remoteDB != null) {
                 logger.info("URL: " + remoteDB.getUrl());
                 logger.info("Username: " + remoteDB.getName());
@@ -325,21 +326,23 @@ public class App {
 
     public static void demarrerServiceData() {
         try {
-            TimeZone timeZone = TimeZone.getTimeZone("GMT");
-            TimeZone.setDefault(timeZone);
-            Class.forName("oracle.jdbc.driver.OracleDriver");
+            Utils.initDriver();
             Thread t = new Thread(() -> {
                 running1 = true;
-
+                String msg;
                 while(running1) {
                     Config config = (Config)serviceManager.getAllConfig().get(0);
                     if (config.isEvent()) {
                         try {
                             serviceEvenement();
                         } catch (SQLException var2) {
-                            BottomPanel.settextLabel("Echec de connexion à la base de données", Color.RED);
+                            msg = "Echec de connexion à la base de données";
+                            logger.error(msg);
+                            BottomPanel.settextLabel(msg, Color.RED);
                         } catch (ParseException var3) {
-                            BottomPanel.settextLabel("Problème de formatage de la date", Color.RED);
+                            msg = "Problème de formatage de la date";
+                            logger.error(msg);
+                            BottomPanel.settextLabel(msg, Color.RED);
                         }
                     }
 
@@ -348,9 +351,13 @@ public class App {
                             ServiceSalaire();
                             ServiceSalaireBKMVTI();
                         } catch (SQLException var4) {
-                            BottomPanel.settextLabel("Echec de connexion à la base de données", Color.RED);
+                            msg = "Echec de connexion à la base de données";
+                            logger.error(msg);
+                            BottomPanel.settextLabel(msg, Color.RED);
                         } catch (ParseException var5) {
-                            BottomPanel.settextLabel("Problème de formatage de la date", Color.RED);
+                            msg = "Problème de formatage de la date";
+                            logger.error(msg);
+                            BottomPanel.settextLabel(msg, Color.RED);
                         }
                     }
 
@@ -358,9 +365,13 @@ public class App {
                         try {
                             ServiceCredit();
                         } catch (SQLException var6) {
-                            BottomPanel.settextLabel("Echec de connexion à la base de données", Color.RED);
+                            msg = "Echec de connexion à la base de données";
+                            logger.error(msg);
+                            BottomPanel.settextLabel(msg, Color.RED);
                         } catch (ParseException var7) {
-                            BottomPanel.settextLabel("Problème de formatage de la date", Color.RED);
+                            msg = "Problème de formatage de la date";
+                            logger.error(msg);
+                            BottomPanel.settextLabel(msg, Color.RED);
                         }
                     }
 
@@ -368,9 +379,13 @@ public class App {
                         try {
                             ServiceMandat();
                         } catch (SQLException var8) {
-                            BottomPanel.settextLabel("Echec de connexion à la base de données", Color.RED);
+                            msg = "Echec de connexion à la base de données";
+                            logger.error(msg);
+                            BottomPanel.settextLabel(msg, Color.RED);
                         } catch (ParseException var9) {
-                            BottomPanel.settextLabel("Problème de formatage de la date", Color.RED);
+                            msg = "Problème de formatage de la date";
+                            logger.error(msg);
+                            BottomPanel.settextLabel(msg, Color.RED);
                         }
                     }
                 }
@@ -378,7 +393,9 @@ public class App {
             });
             t.start();
         } catch (ClassNotFoundException var2) {
-            BottomPanel.settextLabel("Problème de chargement du pilote", Color.red);
+            String msg = "Problème de chargement du pilote";
+            logger.error(msg);
+            BottomPanel.settextLabel(msg, Color.red);
         }
 
     }
@@ -389,7 +406,7 @@ public class App {
             running = true;
 
             while(running) {
-                Config config = (Config)serviceManager.getAllConfig().get(0);
+                Config config = serviceManager.getAllConfig().get(0);
                 if (config.isEvent()) {
                     envoieSMSEvenement();
                 }
@@ -420,7 +437,9 @@ public class App {
                 try {
                     ServiceRequete();
                 } catch (ParseException | SQLException var1) {
-                    BottomPanel.settextLabel("erreur lors de l'execution du service ...", Color.RED);
+                    String msg = "erreur lors de l'execution du service ...";
+                    logger.error(msg);
+                    BottomPanel.settextLabel(msg, Color.RED);
                 }
             }
 
@@ -454,11 +473,11 @@ public class App {
 
     public static void demarrerServiceSequenciel() {
         try {
-            TimeZone timeZone = TimeZone.getTimeZone("GMT");
-            TimeZone.setDefault(timeZone);
-            Class.forName("oracle.jdbc.driver.OracleDriver");
+            Utils.initDriver();
             Thread threads = new Thread(() -> {
-                BottomPanel.settextLabel("Démarrage du service...", Color.BLACK);
+                String msg = "Démarrage du service...";
+                logger.info(msg);
+                BottomPanel.settextLabel(msg, Color.BLACK);
                 running2 = true;
 
                 while(running2) {
@@ -467,9 +486,13 @@ public class App {
                         try {
                             serviceEvenement();
                         } catch (SQLException var8) {
-                            BottomPanel.settextLabel("Echec de connexion à la base de données", Color.RED);
+                            msg = "Echec de connexion à la base de données";
+                            logger.info(msg);
+                            BottomPanel.settextLabel(msg, Color.RED);
                         } catch (ParseException var9) {
-                            BottomPanel.settextLabel("Problème de formatage de la date", Color.RED);
+                            msg = "Problème de formatage de la date";
+                            logger.info(msg);
+                            BottomPanel.settextLabel(msg, Color.RED);
                         }
 
                         envoieSMSEvenement();
@@ -480,9 +503,13 @@ public class App {
                             ServiceSalaire();
                             ServiceSalaireBKMVTI();
                         } catch (SQLException var6) {
-                            BottomPanel.settextLabel("Problème de connexion sur la base de données", Color.RED);
+                            msg = "Problème de connexion sur la base de données";
+                            logger.error(msg);
+                            BottomPanel.settextLabel(msg, Color.RED);
                         } catch (ParseException var7) {
-                            BottomPanel.settextLabel("Problème de formatage de la date", Color.RED);
+                            msg = "Problème de formatage de la date";
+                            logger.error(msg);
+                            BottomPanel.settextLabel(msg, Color.RED);
                         }
 
                         envoieSMSSalaire();
@@ -492,9 +519,13 @@ public class App {
                         try {
                             ServiceCredit();
                         } catch (SQLException var4) {
-                            BottomPanel.settextLabel("Problème de connexion sur la base de données", Color.RED);
+                            msg = "Problème de connexion sur la base de données";
+                            logger.error(msg);
+                            BottomPanel.settextLabel(msg, Color.RED);
                         } catch (ParseException var5) {
-                            BottomPanel.settextLabel("Problème de formatage de la date", Color.RED);
+                            msg = "Problème de formatage de la date";
+                            logger.error(msg);
+                            BottomPanel.settextLabel(msg, Color.RED);
                         }
 
                         envoieSMSCredit();
@@ -504,9 +535,13 @@ public class App {
                         try {
                             ServiceMandat();
                         } catch (SQLException var2) {
-                            BottomPanel.settextLabel("Problème de connexion sur la base de données", Color.RED);
+                            msg = "Problème de connexion sur la base de données";
+                            logger.error(msg);
+                            BottomPanel.settextLabel(msg, Color.RED);
                         } catch (ParseException var3) {
-                            BottomPanel.settextLabel("Problème de formatage de la date", Color.RED);
+                            msg = "Problème de formatage de la date";
+                            logger.error(msg);
+                            BottomPanel.settextLabel(msg, Color.RED);
                         }
 
                         envoieSMSMandat();
@@ -522,13 +557,16 @@ public class App {
             });
             threads.start();
         } catch (ClassNotFoundException var2) {
-            BottomPanel.settextLabel("Problème de chargement du pilote", Color.red);
+            String msg = "Problème de chargement du pilote";
+            logger.error(msg);
+            BottomPanel.settextLabel(msg, Color.red);
         }
 
     }
 
     public static void serviceEvenement() throws SQLException, ParseException {
-        String secretKey = "LACUS2017";
+        String msg = "Début traitement des venements";
+        logger.info(msg);
         RemoteDB remoteDB = serviceManager.getDefaultRemoteDB(true);
         String decryptedString = AES.decrypt(remoteDB.getPassword(), "LACUS2017");
         conn = DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
@@ -665,7 +703,9 @@ public class App {
                     }
                 } while(!traitement);
 
-                BottomPanel.settextLabel("Chargement données évenement.... " + eve.getCompte(), Color.BLACK);
+                msg = "Chargement données évenement.... " + eve.getCompte();
+                logger.info(msg);
+                BottomPanel.settextLabel(msg, Color.BLACK);
                 serviceManager.enregistrer(eve);
                 String q = "SELECT b.NUM, b.CLI, b.TYP FROM bktelcli b WHERE b.CLI='" + cli + "'";
                 PreparedStatement pss = conn.prepareStatement(q);
@@ -691,7 +731,9 @@ public class App {
                                 if (bkCli.getPhone() != Long.parseLong(numero)) {
                                     bkCli.setPhone(Long.parseLong(numero));
                                     if (n == 0) {
-                                        BottomPanel.settextLabel("Mise à jour numero client.... " + bkCli.getCode(), Color.BLACK);
+                                        msg = "Mise à jour numero client.... " + bkCli.getCode();
+                                        logger.info(msg);
+                                        BottomPanel.settextLabel(msg, Color.BLACK);
                                         serviceManager.modifier(bkCli);
                                         ++n;
                                     }
@@ -702,7 +744,9 @@ public class App {
                                 if (bkCli.getPhone() != Long.parseLong(numero)) {
                                     bkCli.setPhone(Long.parseLong(numero));
                                     if (n == 0) {
-                                        BottomPanel.settextLabel("Mise à jour numero client.... " + bkCli.getCode(), Color.BLACK);
+                                        msg = "Mise à jour numero client.... " + bkCli.getCode();
+                                        logger.info(msg);
+                                        BottomPanel.settextLabel(msg, Color.BLACK);
                                         serviceManager.modifier(bkCli);
                                         ++n;
                                     }
@@ -759,18 +803,23 @@ public class App {
                     if (mf != null) {
                         String text = Utils.remplacerVariable(bkCli, eve.getOpe(), eve, mf);
                         String res = testConnexionInternet();
-                        BottomPanel.settextLabel("Test connexion ...." + res, Color.BLACK);
+                        String msg = "Test connexion ...." + res;
+                        logger.info(msg);
+                        BottomPanel.settextLabel(msg, Color.BLACK);
                         if (res.equals("OK")) {
-                            BottomPanel.settextLabel("Envoie du Message à.... " + eve.getCompte(), Color.BLACK);
+                            msg = "Envoie du Message à.... " + eve.getCompte();
+                            logger.info(msg);
+                            BottomPanel.settextLabel(msg, Color.BLACK);
                             switch (methode) {
                                 case "METHO1":
-                                    Sender.send(urlParam, "" + bkCli.getPhone(), text);
-                                    break;
                                 case "METHO2":
                                     Sender.send(urlParam, "" + bkCli.getPhone(), text);
+                                    break;
                             }
                         } else {
-                            BottomPanel.settextLabel("Message non envoyé à.... " + eve.getCompte() + " Problème de connexion internet!!", Color.RED);
+                            msg = "Message non envoyé à.... " + eve.getCompte() + " Problème de connexion internet!!";
+                            logger.info(msg);
+                            BottomPanel.settextLabel(msg, Color.RED);
                         }
 
                         Message message = new Message();
@@ -783,14 +832,18 @@ public class App {
                             serviceManager.enregistrer(message);
                             eve.setSent(true);
                             serviceManager.modifier(eve);
-                            BottomPanel.settextLabel("OK Message envoyé ", Color.BLACK);
+                            msg = "OK Message envoyé ";
+                            logger.info(msg);
+                            BottomPanel.settextLabel(msg, Color.BLACK);
                         }
                     }
                 }
 
             });
         } else {
-            BottomPanel.settextLabel("Message non envoyé Problème de Licence veuillez contacter le fournieur!!", Color.RED);
+            String msg = "Message non envoyé Problème de Licence veuillez contacter le fournieur!!";
+            logger.info(msg);
+            BottomPanel.settextLabel(msg, Color.RED);
         }
 
     }
@@ -932,7 +985,9 @@ public class App {
             conn1.connect();
             BufferedReader br = new BufferedReader(new InputStreamReader(conn1.getInputStream()));
             StringBuilder results = new StringBuilder();
-            BottomPanel.settextLabel("Récupération du résultat...", Color.black);
+            msg = "Récupération du résultat...";
+            logger.info(msg);
+            BottomPanel.settextLabel(msg, Color.black);
 
             String oneline;
             while((oneline = br.readLine()) != null) {
@@ -949,10 +1004,11 @@ public class App {
     }
 
     public static void ServiceSalaire() throws SQLException, ParseException {
-        BottomPanel.settextLabel("Traitement des salaires en cours.... ", Color.BLACK);
+        String msg = "Traitement des salaires en cours.... ";
+        logger.info(msg);
+        BottomPanel.settextLabel(msg, Color.BLACK);
         SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat f2 = new SimpleDateFormat("dd/MM/yyyy");
-        String secretKey = "LACUS2017";
         RemoteDB remoteDB = serviceManager.getDefaultRemoteDB(true);
         String decryptedString = AES.decrypt(remoteDB.getPassword(), "LACUS2017");
         conn = DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
@@ -964,7 +1020,9 @@ public class App {
 
             label357:
             while(rs.next()) {
-                BottomPanel.settextLabel("Recherche données salaires.... ", Color.BLACK);
+                msg = "Recherche données salaires.... ";
+                logger.info(msg);
+                BottomPanel.settextLabel(msg, Color.BLACK);
                 if (rs.getString("NCP1") != null && rs.getString("NCP1").trim().length() >= 10) {
                     BkEve eve = new BkEve();
                     BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString("AGE").trim());
@@ -995,7 +1053,9 @@ public class App {
                     eve.setId(serviceManager.getMaxIndexBkEve() + 1);
                     eve.setType(TypeEvent.salaire);
                     if (bkCli != null && serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getEventDate(), eve.getCompte()).isEmpty()) {
-                        BottomPanel.settextLabel("Chargement données salaires.... " + eve.getCompte(), Color.BLACK);
+                        msg = "Chargement données salaires.... " + eve.getCompte();
+                        logger.info(msg);
+                        BottomPanel.settextLabel(msg, Color.BLACK);
                         serviceManager.enregistrer(eve);
                         String q = "SELECT b.NUM, b.CLI, b.TYP FROM bktelcli b WHERE b.CLI='" + rs.getString("NCP1").trim().substring(3, 9) + "'";
                         PreparedStatement pss = conn.prepareStatement(q);
@@ -1021,7 +1081,9 @@ public class App {
                                         if (bkCli.getPhone() != Long.parseLong(numero)) {
                                             bkCli.setPhone(Long.parseLong(numero));
                                             if (n == 0) {
-                                                BottomPanel.settextLabel("Mise à jour numero client.... " + bkCli.getCode(), Color.BLACK);
+                                                msg = "Mise à jour numero client.... " + bkCli.getCode();
+                                                logger.info(msg);
+                                                BottomPanel.settextLabel(msg, Color.BLACK);
                                                 serviceManager.modifier(bkCli);
                                                 ++n;
                                             }
@@ -1032,7 +1094,9 @@ public class App {
                                         if (bkCli.getPhone() != Long.parseLong(numero)) {
                                             bkCli.setPhone(Long.parseLong(numero));
                                             if (n == 0) {
-                                                BottomPanel.settextLabel("Mise à jour numero client.... " + bkCli.getCode(), Color.BLACK);
+                                                msg = "Mise à jour numero client.... " + bkCli.getCode();
+                                                logger.info(msg);
+                                                BottomPanel.settextLabel(msg, Color.BLACK);
                                                 serviceManager.modifier(bkCli);
                                                 ++n;
                                             }
@@ -1082,10 +1146,11 @@ public class App {
     }
 
     public static void ServiceSalaireBKMVTI() throws SQLException, ParseException {
-        BottomPanel.settextLabel("Traitement des salaires BKMVTI en cours.... ", Color.BLACK);
+        String msg = "Traitement des salaires BKMVTI en cours.... ";
+        logger.info(msg);
+        BottomPanel.settextLabel(msg, Color.BLACK);
         SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat f2 = new SimpleDateFormat("dd/MM/yyyy");
-        String secretKey = "LACUS2017";
         RemoteDB remoteDB = serviceManager.getDefaultRemoteDB(true);
         String decryptedString = AES.decrypt(remoteDB.getPassword(), "LACUS2017");
         conn = DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
@@ -1098,7 +1163,9 @@ public class App {
 
             label357:
             while(rs.next()) {
-                BottomPanel.settextLabel("Recherche données salaires BKMVTI.... ", Color.BLACK);
+                msg = "Recherche données salaires BKMVTI.... ";
+                logger.info(msg);
+                BottomPanel.settextLabel(msg, Color.BLACK);
                 if (rs.getString("NCP1") != null && rs.getString("NCP1").trim().length() >= 10) {
                     BkEve eve = new BkEve();
                     BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString("AGE").trim());
@@ -1128,7 +1195,9 @@ public class App {
                     eve.setId(serviceManager.getMaxIndexBkEve() + 1);
                     eve.setType(TypeEvent.salaire);
                     if (bkCli != null && serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getEventDate(), eve.getCompte()).isEmpty()) {
-                        BottomPanel.settextLabel("Chargement données salaires BKMVTI.... " + eve.getCompte(), Color.BLACK);
+                        msg = "Chargement données salaires BKMVTI.... " + eve.getCompte();
+                        logger.info(msg);
+                        BottomPanel.settextLabel(msg, Color.BLACK);
                         serviceManager.enregistrer(eve);
                         String q = "SELECT b.NUM, b.CLI, b.TYP FROM bktelcli b WHERE b.CLI='" + rs.getString("NCP1").trim().substring(3, 9) + "'";
                         PreparedStatement pss = conn.prepareStatement(q);
@@ -1154,7 +1223,9 @@ public class App {
                                         if (bkCli.getPhone() != Long.parseLong(numero)) {
                                             bkCli.setPhone(Long.parseLong(numero));
                                             if (n == 0) {
-                                                BottomPanel.settextLabel("Mise à jour numero client.... " + bkCli.getCode(), Color.BLACK);
+                                                msg = "Mise à jour numero client.... " + bkCli.getCode();
+                                                logger.info(msg);
+                                                BottomPanel.settextLabel(msg, Color.BLACK);
                                                 serviceManager.modifier(bkCli);
                                                 ++n;
                                             }
@@ -1165,7 +1236,9 @@ public class App {
                                         if (bkCli.getPhone() != Long.parseLong(numero)) {
                                             bkCli.setPhone(Long.parseLong(numero));
                                             if (n == 0) {
-                                                BottomPanel.settextLabel("Mise à jour numero client.... " + bkCli.getCode(), Color.BLACK);
+                                                msg = "Mise à jour numero client.... " + bkCli.getCode();
+                                                logger.info(msg);
+                                                BottomPanel.settextLabel(msg, Color.BLACK);
                                                 serviceManager.modifier(bkCli);
                                                 ++n;
                                             }
@@ -1224,9 +1297,13 @@ public class App {
                     if (mf != null) {
                         String text = Utils.remplacerVariable(bkCli, eve.getOpe(), eve, mf);
                         String res = testConnexionInternet();
-                        BottomPanel.settextLabel("Test connexion ...." + res, Color.BLACK);
+                        String msg = "Test connexion ...." + res;
+                        logger.info(msg);
+                        BottomPanel.settextLabel(msg, Color.BLACK);
                         if (res.equals("OK")) {
-                            BottomPanel.settextLabel("Envoie du Message à.... " + eve.getCompte(), Color.BLACK);
+                            msg = "Envoie du Message à.... " + eve.getCompte();
+                            logger.info(msg);
+                            BottomPanel.settextLabel(msg, Color.BLACK);
                             switch (methode) {
                                 case "METHO1":
                                 case "METHO2":
@@ -1234,7 +1311,9 @@ public class App {
                                     break;
                             }
                         } else {
-                            BottomPanel.settextLabel("Message non envoyé à.... " + eve.getCompte() + " Problème de connexion internet!!", Color.RED);
+                            msg = "Message non envoyé à.... " + eve.getCompte() + " Problème de connexion internet!!";
+                            logger.info(msg);
+                            BottomPanel.settextLabel(msg, Color.RED);
                         }
 
                         Message message = new Message();
@@ -1247,6 +1326,8 @@ public class App {
                             serviceManager.enregistrer(message);
                             eve.setSent(true);
                             serviceManager.modifier(eve);
+                            msg = "OK Message envoyé ";
+                            logger.info(msg);
                             BottomPanel.settextLabel("OK Message envoyé ", Color.BLACK);
                         }
                     }
@@ -1260,9 +1341,10 @@ public class App {
     }
 
     public static void ServiceCredit() throws SQLException, ParseException {
-        BottomPanel.settextLabel("Traitement des credits en cours.... ", Color.BLACK);
+        String msg = "Traitement des credits en cours.... ";
+        logger.info(msg);
+        BottomPanel.settextLabel(msg, Color.BLACK);
         SimpleDateFormat f2 = new SimpleDateFormat("dd/MM/yyyy");
-        String secretKey = "LACUS2017";
         RemoteDB remoteDB = serviceManager.getDefaultRemoteDB(true);
         String decryptedString = AES.decrypt(remoteDB.getPassword(), "LACUS2017");
         conn = DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
@@ -1313,7 +1395,9 @@ public class App {
                                     break label766;
                                 }
 
-                                BottomPanel.settextLabel("Recherche évenements credits.... ", Color.BLACK);
+                                msg = "Recherche évenements credits.... ";
+                                logger.info(msg);
+                                BottomPanel.settextLabel(msg, Color.BLACK);
                             } while(rs.getString("NCP1") == null);
                         } while(rs.getString("CAI") == null);
                     } while(rs.getString("NCP1").trim().length() < 10);
@@ -1378,10 +1462,7 @@ public class App {
                     eve.setNumEve(rs.getString("EVE").trim());
                     eve.setId(serviceManager.getMaxIndexBkEve() + 1);
                     eve.setType(TypeEvent.credit);
-                    traitement = true;
-                    if (bkCli == null) {
-                        traitement = false;
-                    }
+                    traitement = bkCli != null;
 
                     if (!serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getEventDate(), eve.getCompte()).isEmpty()) {
                         traitement = false;
@@ -1396,7 +1477,9 @@ public class App {
                     }
                 } while(!traitement);
 
-                BottomPanel.settextLabel("Chargement données credits.... " + eve.getCompte(), Color.BLACK);
+                msg = "Chargement données credits.... " + eve.getCompte();
+                logger.info(msg);
+                BottomPanel.settextLabel(msg, Color.BLACK);
                 serviceManager.enregistrer(eve);
                 String q = "SELECT b.NUM, b.CLI, b.TYP FROM bktelcli b WHERE b.CLI='" + rs.getString("NCP1").trim().substring(3, 9) + "'";
                 PreparedStatement pss = conn.prepareStatement(q);
@@ -1422,7 +1505,9 @@ public class App {
                                 if (bkCli.getPhone() != Long.parseLong(numero)) {
                                     bkCli.setPhone(Long.parseLong(numero));
                                     if (n == 0) {
-                                        BottomPanel.settextLabel("Mise à jour numero client.... " + bkCli.getCode(), Color.BLACK);
+                                        msg = "Mise à jour numero client.... " + bkCli.getCode();
+                                        logger.info(msg);
+                                        BottomPanel.settextLabel(msg, Color.BLACK);
                                         serviceManager.modifier(bkCli);
                                         ++n;
                                     }
@@ -1433,7 +1518,9 @@ public class App {
                                 if (bkCli.getPhone() != Long.parseLong(numero)) {
                                     bkCli.setPhone(Long.parseLong(numero));
                                     if (n == 0) {
-                                        BottomPanel.settextLabel("Mise à jour numero client.... " + bkCli.getCode(), Color.BLACK);
+                                        msg = "Mise à jour numero client.... " + bkCli.getCode();
+                                        logger.info(msg);
+                                        BottomPanel.settextLabel(msg, Color.BLACK);
                                         serviceManager.modifier(bkCli);
                                         ++n;
                                     }
@@ -1483,7 +1570,7 @@ public class App {
     public static void envoieSMSCredit() {
         if (checkLicence()) {
             List<BkEve> list = serviceManager.getBkEveBySendParam(false, listString, TypeEvent.credit);
-            list.stream().forEach((eve) -> {
+            list.forEach((eve) -> {
                 BkCli bkCli = eve.getCli();
                 if (bkCli != null && eve.getOpe() != null && !"".equals(methode) && bkCli.isEnabled() && serviceManager.getBkCompCliByCriteria(bkCli, eve.getCompte(), true) != null && bkCli.getPhone() != 0L) {
                     MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), bkCli.getLangue());
@@ -1495,13 +1582,14 @@ public class App {
                             BottomPanel.settextLabel("Envoie du Message à.... " + eve.getCompte(), Color.BLACK);
                             switch (methode) {
                                 case "METHO1":
-                                    Sender.send(urlParam, "" + bkCli.getPhone(), text);
-                                    break;
                                 case "METHO2":
                                     Sender.send(urlParam, "" + bkCli.getPhone(), text);
+                                    break;
                             }
                         } else {
-                            BottomPanel.settextLabel("Message non envoyé à.... " + eve.getCompte() + " Problème de connexion internet!!", Color.RED);
+                            String msg1 = "Message non envoyé à.... " + eve.getCompte() + " Problème de connexion internet!!";
+                            logger.info(msg1);
+                            BottomPanel.settextLabel(msg1, Color.RED);
                         }
 
                         Message message = new Message();
@@ -1514,20 +1602,26 @@ public class App {
                             serviceManager.enregistrer(message);
                             eve.setSent(true);
                             serviceManager.modifier(eve);
-                            BottomPanel.settextLabel("OK Message envoyé ", Color.BLACK);
+                            String msg = "OK Message envoyé ";
+                            logger.info(msg);
+                            BottomPanel.settextLabel(msg, Color.BLACK);
                         }
                     }
                 }
 
             });
         } else {
-            BottomPanel.settextLabel("Message non envoyé Problème de Licence veuillez contacter le fournieur 1.2.5 !!", Color.RED);
+            String msg = "Message non envoyé Problème de Licence veuillez contacter le fournieur 2.0 !!";
+            logger.info(msg);
+            BottomPanel.settextLabel(msg, Color.RED);
         }
 
     }
 
     public static void ServiceMandat() throws SQLException, ParseException {
-        BottomPanel.settextLabel("Traitement des mandats en cours.... ", Color.BLACK);
+        String msg = "Traitement des mandats en cours.... ";
+        logger.info(msg);
+        BottomPanel.settextLabel(msg, Color.BLACK);
         SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat f2 = new SimpleDateFormat("dd/MM/yyyy");
         String secretKey = "LACUS2017";
@@ -1554,7 +1648,9 @@ public class App {
             ResultSet rs = ps.executeQuery();
 
             while(rs.next()) {
-                BottomPanel.settextLabel("Recherche données de manadats.... ", Color.BLACK);
+                msg = "Recherche données de manadats.... ";
+                logger.info(msg);
+                BottomPanel.settextLabel(msg, Color.BLACK);
                 BkMad bkMad = serviceManager.getBkMadByClesec(rs.getString("CLESEC").trim());
                 if (bkMad == null) {
                     BkMad eve = new BkMad();
@@ -1586,7 +1682,9 @@ public class App {
                     }
 
                     eve.setCtr(rs.getString("CTR").trim());
-                    BottomPanel.settextLabel("Chargement données salaires.... " + eve.getAd1p(), Color.BLACK);
+                    msg = "Chargement données salaires.... " + eve.getAd1p();
+                    logger.info(msg);
+                    BottomPanel.settextLabel(msg, Color.BLACK);
                     serviceManager.enregistrer(eve);
                 } else if (!bkMad.getCtr().equals("9") && rs.getString("CTR").trim().equals("9")) {
                     bkMad.setDbd(rs.getString("DBD").trim());
@@ -1619,13 +1717,14 @@ public class App {
 
     public static void envoieSMSMandat() {
         boolean bon = false;
-        BottomPanel.settextLabel("Debut envoie de message", Color.BLACK);
+        String msg;
+        msg = "Debut envoie de message";
+        logger.info(msg);
+        BottomPanel.settextLabel(msg, Color.BLACK);
         if (checkLicence()) {
             List<BkMad> list = serviceManager.getBkMadByTraite();
-            Iterator var2 = list.iterator();
 
-            while(var2.hasNext()) {
-                BkMad eve = (BkMad)var2.next();
+            for (BkMad eve : list) {
                 if (testPhone(eve.getAd1p()) != null && testPhone(eve.getAd2p()) != null && eve.getOpe() != null && !"".equals(methode)) {
                     MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), "FR");
                     if (mf != null) {
@@ -1658,7 +1757,9 @@ public class App {
                                 }
                             }
                         } else {
-                            BottomPanel.settextLabel("Message non envoyé problème de connexion internet!!", Color.RED);
+                            msg = "Message non envoyé problème de connexion internet!!";
+                            logger.info(msg);
+                            BottomPanel.settextLabel(msg, Color.RED);
                         }
 
                         MessageMandat message = new MessageMandat();
@@ -1679,13 +1780,16 @@ public class App {
                             }
 
                             serviceManager.modifier(eve);
-                            BottomPanel.settextLabel("OK Message envoyé ", Color.BLACK);
+                            msg = "OK Message envoyé ";
+                            logger.info(msg);
+                            BottomPanel.settextLabel(msg, Color.BLACK);
                         }
                     }
                 }
             }
         } else {
-            BottomPanel.settextLabel("Message non envoyé Problème de Licence veuillez contacter le fournieur 1.2.5 !!", Color.RED);
+            msg = "Message non envoyé Problème de Licence veuillez contacter le fournieur 2.0 !!";
+            BottomPanel.settextLabel(msg, Color.RED);
         }
 
     }
@@ -1713,11 +1817,11 @@ public class App {
         conn = DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
         List<Command> commands = serviceManager.getCommandByStatus(Status.PENDING);
         String query = null;
-        Iterator var7 = commands.iterator();
+        Iterator<Command> var7 = commands.iterator();
 
         while(true) {
             while(var7.hasNext()) {
-                Command command = (Command)var7.next();
+                Command command = var7.next();
                 ServiceOffert ser;
                 switch (command.getOpe()) {
                     case "SOLDE":
@@ -1797,6 +1901,7 @@ public class App {
     }
 
     public static void envoieSmsRequete(Command command) {
+        String msg;
         if (checkLicence()) {
             String res = testConnexionInternet();
             BottomPanel.settextLabel("Test connexion ...." + res, Color.BLACK);
@@ -1810,7 +1915,9 @@ public class App {
                         Sender.send(urlParam, "" + command.getPhone(), command.getMessage());
                 }
             } else {
-                BottomPanel.settextLabel("Message non envoyé à.... " + command.getCompte() + " Problème de connexion internet!!", Color.RED);
+                msg = "Message non envoyé à.... " + command.getCompte() + " Problème de connexion internet!!";
+                logger.info(msg);
+                BottomPanel.settextLabel(msg, Color.RED);
                 command.setErrorDescription("problème de connexion internet");
                 serviceManager.modifier(command);
             }
@@ -1822,7 +1929,9 @@ public class App {
                 BottomPanel.settextLabel("OK Message envoyé ", Color.BLACK);
             }
         } else {
-            BottomPanel.settextLabel("Message non envoyé Problème de Licence veuillez contacter le fournieur 1.2.5 !!", Color.RED);
+            msg = "Message non envoyé Problème de Licence veuillez contacter le fournieur 1.2.5 !!";
+            logger.info(msg);
+            BottomPanel.settextLabel(msg, Color.RED);
             command.setErrorDescription("problème de licence");
             serviceManager.modifier(command);
         }

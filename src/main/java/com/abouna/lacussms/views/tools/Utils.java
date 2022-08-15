@@ -38,14 +38,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.mail.Authenticator;
@@ -58,6 +51,7 @@ import javax.mail.Message.RecipientType;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.swing.*;
+import javax.swing.Timer;
 
 import com.abouna.lacussms.views.utils.LogBean;
 import com.abouna.lacussms.views.utils.LogParam;
@@ -755,4 +749,9 @@ public class Utils {
 
     }
 
+    public static void initDriver() throws ClassNotFoundException {
+        TimeZone timeZone = TimeZone.getTimeZone("GMT");
+        TimeZone.setDefault(timeZone);
+        Class.forName("oracle.jdbc.driver.OracleDriver");
+    }
 }

@@ -23,6 +23,7 @@ import com.abouna.lacussms.entities.ServiceOffert;
 import com.abouna.lacussms.entities.Status;
 import com.abouna.lacussms.entities.TypeEvent;
 import com.abouna.lacussms.service.LacusSmsService;
+import com.abouna.lacussms.service.ServiceRequete;
 import com.abouna.lacussms.views.LicencePanel;
 import com.abouna.lacussms.views.main.BottomPanel;
 import com.abouna.lacussms.views.main.MainFrame;
@@ -74,120 +75,16 @@ public class App {
     static boolean appliRun = false;
     public static String username = null;
     public static String licenceString = "";
+    public static String fixedDate = "30082022";
     static boolean vl = false;
 
     private static MainFrame frame;
 
-    public App() {
-    }
 
     public static boolean isAppliRun() {
         return appliRun;
     }
 
-    public static boolean compareDate(String d1, String d2) {
-        try {
-            int a = Integer.parseInt(d1.substring(0, 2));
-            int a1 = Integer.parseInt(d2.substring(0, 2));
-            int b = Integer.parseInt(d1.substring(2, 4));
-            int b1 = Integer.parseInt(d2.substring(2, 4));
-            int c = Integer.parseInt(d1.substring(4, 6));
-            int c1 = Integer.parseInt(d2.substring(4, 6));
-            boolean r;
-            if (c < c1) {
-                r = true;
-            } else if (c == c1) {
-                if (b < b1) {
-                    r = true;
-                } else if (b == b1) {
-                    r = a <= a1;
-                } else {
-                    r = false;
-                }
-            } else {
-                r = false;
-            }
-
-            return r;
-        } catch (NumberFormatException var9) {
-            return false;
-        }
-    }
-
-    public static String decript(String s) {
-        String result = "";
-
-        for(int i = 2; i < s.length(); i += 3) {
-            char c = s.charAt(i);
-            result = result + "" + c;
-            if (result.length() == 6) {
-                break;
-            }
-        }
-
-        return result;
-    }
-
-    public static void verifyComputer() throws IOException {
-        Utils.createAppDirectory();
-        if (!Utils.verify()) {
-            serviceManager.viderLicence();
-        }
-
-    }
-
-    public static boolean checkLicence() {
-        return true;
-    }
-
-    public static boolean verifierLicence() {
-        try {
-            boolean val = false;
-            String mac = Utils.getMacAddress();
-            String secretKey = Utils.hacher("MD5", "$!LACUS@2020!1.2.6$");
-            if (mac != null && !mac.isEmpty()) {
-                secretKey = secretKey + Utils.hacher("MD5", mac);
-                List<Licence> licences = serviceManager.getLicences();
-                SimpleDateFormat format = new SimpleDateFormat("ddMMyy");
-                Date date = null;
-                String dest = null;
-                String s = null;
-                if (!licences.isEmpty()) {
-                    Licence li = (Licence)licences.get(0);
-                    date = new Date();
-                    dest = format.format(date);
-
-                    String hache = Utils.hacher("MD5", secretKey);
-                    s = AES.decrypt(li.getValeur(), hache) == null ? "" : AES.decrypt(li.getValeur(), hache);
-
-                    if (s != null) {
-                        Date d1 = format.parse(s);
-                        Date d2 = format.parse(dest);
-                        val = d1.after(d2);
-                    }
-                }
-
-                return val;
-            } else {
-                return false;
-            }
-        } catch (Exception var10) {
-            serviceManager.viderLicence();
-            return false;
-        }
-    }
-
-    public static String bytesToHex(byte[] b) {
-        char[] hexDigits = new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-        StringBuilder buffer = new StringBuilder();
-
-        for (byte value : b) {
-            buffer.append(hexDigits[value >> 4 & 15]);
-            buffer.append(hexDigits[value & 15]);
-        }
-
-        return buffer.toString();
-    }
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException, IOException {
          new SplashFrame();
@@ -274,55 +171,6 @@ public class App {
         });
     }
 
-    public static boolean testLicence() {
-        boolean b = checkLicence();
-        if (!b) {
-            LicencePanel nouveau1 = new LicencePanel((Licence)null);
-            nouveau1.setSize(450, 150);
-            nouveau1.setLocationRelativeTo((Component)null);
-            nouveau1.setModal(true);
-            nouveau1.setResizable(false);
-            nouveau1.setDefaultCloseOperation(2);
-            nouveau1.setVisible(true);
-            nouveau1.setUndecorated(true);
-            nouveau1.getRootPane().setWindowDecorationStyle(0);
-        }
-
-        return b;
-    }
-
-    public static void test() {
-        List<BkEve> list = serviceManager.getBkEveBySendParam(true, listString);
-        NumberFormat formatnum = NumberFormat.getCurrencyInstance();
-        formatnum.setMinimumFractionDigits(0);
-        list.stream().peek((eve) -> logger.info(eve.toString())).forEach((eve) -> {
-            logger.info(" Montant : " + eve.getMont() + " " + Utils.moveZero(eve.getMont()));
-        });
-    }
-
-    public static boolean testConnexion() {
-        logger.info("### Test de connexion de la BD ###");
-
-        try {
-            String decryptedString = "";
-            Utils.initDriver();
-            RemoteDB remoteDB = serviceManager.getDefaultRemoteDB(true);
-
-            if (remoteDB != null) {
-                logger.info("URL: " + remoteDB.getUrl());
-                logger.info("Username: " + remoteDB.getName());
-                logger.info("Password: " + remoteDB.getPassword());
-                decryptedString = AES.decrypt(remoteDB.getPassword(), "LACUS2017");
-                conn = DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
-                return conn != null;
-            }
-
-            return false;
-        } catch (ClassNotFoundException | SQLException | NullPointerException var4) {
-            logger.info("problème de connexion bd " + var4.getMessage());
-            return false;
-        }
-    }
 
     public static void demarrerServiceData() {
         try {
@@ -435,7 +283,7 @@ public class App {
 
             while(running3) {
                 try {
-                    ServiceRequete();
+                    ServiceRequete.ServiceRequete();
                 } catch (ParseException | SQLException var1) {
                     String msg = "erreur lors de l'execution du service ...";
                     logger.error(msg);
@@ -447,29 +295,6 @@ public class App {
         thread.start();
     }
 
-    public static void testAffichage() {
-        Thread t = new Thread(() -> {
-            int i = 1;
-            logger.info("Démarrage....");
-            running = true;
-
-            while(running) {
-                try {
-                    BottomPanel.settextLabel("Traitement.... " + i, Color.BLACK);
-                    ++i;
-                    if (i % 10 == 0) {
-                        BottomPanel.settextLabel("Chargement des données.... " + i, Color.RED);
-                    }
-
-                    Thread.sleep(500L);
-                } catch (InterruptedException var2) {
-                    logger.error(var2.getMessage());
-                }
-            }
-
-        });
-        t.start();
-    }
 
     public static void demarrerServiceSequenciel() {
         try {
@@ -794,7 +619,7 @@ public class App {
     }
 
     public static void envoieSMSEvenement() {
-        if (checkLicence()) {
+        if (Utils.checkLicence()) {
             List<BkEve> list = serviceManager.getBkEveBySendParam(false, listString, TypeEvent.ordinaire);
             list.forEach((eve) -> {
                 BkCli bkCli = eve.getCli();
@@ -857,35 +682,6 @@ public class App {
         logger.info("le service a été arreté");
     }
 
-    public static void send(String username, String pass, String number, String msg, String sid, int fl, int mt, String ipcl) {
-        try {
-            String postBody = "username=" + URLEncoder.encode(username, "ISO-8859-1") + "&password=" + URLEncoder.encode(pass, "ISO-8859-1") + "&mno=" + URLEncoder.encode(number, "ISO-8859-1") + "&msg=" + URLEncoder.encode(msg, "ISO-8859-1") + "&Sid=" + URLEncoder.encode(sid, "ISO-8859-1") + "&fl=" + URLEncoder.encode("" + fl, "ISO-8859-1") + "&mt=" + URLEncoder.encode("" + mt, "ISO-8859-1") + "&ipcl=" + URLEncoder.encode(ipcl, "ISO-8859-1");
-            String link = "https://1s2u.com/sms/sendsms/sendsms.asp?" + postBody;
-            URL url = new URL(link);
-            HttpURLConnection conn1 = (HttpURLConnection)url.openConnection();
-            logger.info(postBody);
-            conn1.setRequestMethod("POST");
-            conn1.setDoOutput(true);
-            OutputStreamWriter wr = new OutputStreamWriter(conn1.getOutputStream());
-            wr.write(postBody);
-            wr.flush();
-            wr.close();
-            conn1.connect();
-            BufferedReader br = new BufferedReader(new InputStreamReader(conn1.getInputStream()));
-            StringBuilder results = new StringBuilder();
-
-            String oneline;
-            while((oneline = br.readLine()) != null) {
-                results.append(oneline);
-            }
-
-            br.close();
-            logger.info(URLDecoder.decode(results.toString(), "ISO-8859-1"));
-        } catch (IOException var16) {
-            logger.error(var16.getMessage() + var16.getCause());
-        }
-
-    }
 
     public static String testConnexionInternet() {
         String code = "KO";
@@ -904,104 +700,6 @@ public class App {
         }
     }
 
-    public static String send(String urlText, String number, String msg) {
-        String res = "";
-        String rCode = "KO";
-
-        try {
-            String link = urlText.replace("<num>", URLEncoder.encode(number, "UTF-8")).replace("<msg>", URLEncoder.encode(msg, "UTF-8"));
-            int i = 0;
-
-            String r;
-            for(r = ""; link.charAt(i) != '?'; ++i) {
-                r = r + link.charAt(i);
-            }
-
-            String r1 = link.replace(r + "?", "");
-            URL url = new URL(r + "?");
-            HttpURLConnection conn1 = (HttpURLConnection)url.openConnection();
-            logger.info(r + "?" + r1);
-            conn1.setRequestMethod("POST");
-            conn1.setReadTimeout(5000);
-            conn1.setDoOutput(true);
-            OutputStreamWriter wr = new OutputStreamWriter(conn1.getOutputStream());
-            wr.write(r1);
-            wr.flush();
-            wr.close();
-            conn1.connect();
-            BufferedReader br = new BufferedReader(new InputStreamReader(conn1.getInputStream()));
-            StringBuilder results = new StringBuilder();
-            BottomPanel.settextLabel("Récupération du résultat...", Color.black);
-
-            String oneline;
-            while((oneline = br.readLine()) != null) {
-                results.append(oneline);
-            }
-
-            br.close();
-            logger.info(URLDecoder.decode(results.toString(), "UTF-8"));
-            res = URLDecoder.decode(results.toString(), "UTF-8");
-            rCode = "OK";
-            return rCode;
-        } catch (IOException var15) {
-            logger.error(var15.getMessage() + var15.getCause());
-            return null;
-        }
-    }
-
-    public static void send2(String urlText, String number, String msg) {
-        String res = "";
-        String rCode = "KO";
-
-        try {
-            String link = urlText.replace("<num>", URLEncoder.encode(number, "UTF-8")).replace("<msg>", URLEncoder.encode(msg, "UTF-8"));
-            URL url = new URL(link);
-            HttpURLConnection conn1 = (HttpURLConnection)url.openConnection();
-            logger.info(link);
-            conn1.setRequestMethod("POST");
-            conn1.setDoOutput(true);
-            OutputStreamWriter wr = new OutputStreamWriter(conn1.getOutputStream());
-            Throwable var9 = null;
-
-            try {
-                wr.write(urlText);
-                wr.flush();
-            } catch (Throwable var19) {
-                var9 = var19;
-                throw var19;
-            } finally {
-                if (var9 != null) {
-                    try {
-                        wr.close();
-                    } catch (Throwable var18) {
-                        var9.addSuppressed(var18);
-                    }
-                } else {
-                    wr.close();
-                }
-
-            }
-
-            conn1.connect();
-            BufferedReader br = new BufferedReader(new InputStreamReader(conn1.getInputStream()));
-            StringBuilder results = new StringBuilder();
-            msg = "Récupération du résultat...";
-            logger.info(msg);
-            BottomPanel.settextLabel(msg, Color.black);
-
-            String oneline;
-            while((oneline = br.readLine()) != null) {
-                results.append(oneline);
-            }
-
-            br.close();
-            logger.info(URLDecoder.decode(results.toString(), "UTF-8"));
-            res = URLDecoder.decode(results.toString(), "UTF-8");
-            rCode = "OK";
-        } catch (IOException var21) {
-            logger.error(var21.getMessage() + var21.getCause());
-        }
-    }
 
     public static void ServiceSalaire() throws SQLException, ParseException {
         String msg = "Traitement des salaires en cours.... ";
@@ -1288,7 +986,7 @@ public class App {
     }
 
     public static void envoieSMSSalaire() {
-        if (checkLicence()) {
+        if (Utils.checkLicence()) {
             List<BkEve> list = serviceManager.getBkEveBySendParam(false, listString, TypeEvent.salaire);
             list.forEach((eve) -> {
                 BkCli bkCli = eve.getCli();
@@ -1568,7 +1266,7 @@ public class App {
     }
 
     public static void envoieSMSCredit() {
-        if (checkLicence()) {
+        if (Utils.checkLicence()) {
             List<BkEve> list = serviceManager.getBkEveBySendParam(false, listString, TypeEvent.credit);
             list.forEach((eve) -> {
                 BkCli bkCli = eve.getCli();
@@ -1721,7 +1419,7 @@ public class App {
         msg = "Debut envoie de message";
         logger.info(msg);
         BottomPanel.settextLabel(msg, Color.BLACK);
-        if (checkLicence()) {
+        if (Utils.checkLicence()) {
             List<BkMad> list = serviceManager.getBkMadByTraite();
 
             for (BkMad eve : list) {
@@ -1807,134 +1505,4 @@ public class App {
         return res;
     }
 
-    public static void ServiceRequete() throws SQLException, ParseException {
-        BottomPanel.settextLabel("Traitement des requetes en cours.... ", Color.BLACK);
-        new SimpleDateFormat("yyyy-MM-dd");
-        new SimpleDateFormat("dd/MM/yyyy");
-        String secretKey = "LACUS2017";
-        RemoteDB remoteDB = serviceManager.getDefaultRemoteDB(true);
-        String decryptedString = AES.decrypt(remoteDB.getPassword(), "LACUS2017");
-        conn = DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
-        List<Command> commands = serviceManager.getCommandByStatus(Status.PENDING);
-        String query = null;
-        Iterator<Command> var7 = commands.iterator();
-
-        while(true) {
-            while(var7.hasNext()) {
-                Command command = var7.next();
-                ServiceOffert ser;
-                switch (command.getOpe()) {
-                    case "SOLDE":
-                        ser = serviceManager.findServiceByCode("SOLDE");
-                        query = "SELECT b.SIN FROM BKCOM b WHERE b.NCP='" + command.getCompte() + "'";
-                        System.err.println("Resquete " + query);
-                        PreparedStatement ps = conn.prepareStatement(query);
-                        Throwable var28 = null;
-
-                        String solde;
-                        try {
-                            ResultSet rs = ps.executeQuery();
-
-                            for(solde = ""; rs.next(); solde = rs.getBigDecimal("SIN").toPlainString()) {
-                            }
-                        } catch (Throwable var23) {
-                            var28 = var23;
-                            throw var23;
-                        } finally {
-                            if (ps != null) {
-                                if (var28 != null) {
-                                    try {
-                                        ps.close();
-                                    } catch (Throwable var22) {
-                                        var28.addSuppressed(var22);
-                                    }
-                                } else {
-                                    ps.close();
-                                }
-                            }
-
-                        }
-
-                        String msg = "Cher client au compte " + command.getCompte() + " votre solde est de " + solde + ".";
-                        command.setMessage(msg);
-                        command.setMontant(ser.getMontant());
-                        envoieSmsRequete(command);
-                        break;
-                    case "HIST":
-                        ser = serviceManager.findServiceByCode("HIST");
-                        query = "SELECT b.MCTV, b.EVE, b.AGE, b.DVA, b.OPE FROM BKHIS b WHERE b.NCP='" + command.getCompte() + "' ORDER BY b.DVA ASC";
-                        PreparedStatement psmt = conn.prepareStatement(query);
-                        ResultSet rs = psmt.executeQuery();
-                        int i = 0;
-                        StringBuilder builder = new StringBuilder();
-                        builder.append("Cher client au compte ");
-                        builder.append(command.getCompte());
-                        builder.append(" ");
-                        builder.append("voici les 5 derières operations ");
-
-                        while(rs.next()) {
-                            BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString("AGE").trim());
-                            BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString("OPE").trim());
-                            builder.append(bkOpe.getLib());
-                            builder.append(" ");
-                            builder.append(rs.getString("MCTV").trim());
-                            builder.append(" ");
-                            builder.append(rs.getString("DVA").trim());
-                            builder.append(" ");
-                            builder.append(bkAgence.getNoma());
-                            builder.append("\n");
-                            ++i;
-                            if (i == 5) {
-                                break;
-                            }
-                        }
-
-                        command.setMontant(ser.getMontant());
-                        command.setMessage(builder.toString());
-                        envoieSmsRequete(command);
-                }
-            }
-
-            conn.close();
-            return;
-        }
-    }
-
-    public static void envoieSmsRequete(Command command) {
-        String msg;
-        if (checkLicence()) {
-            String res = testConnexionInternet();
-            BottomPanel.settextLabel("Test connexion ...." + res, Color.BLACK);
-            if (res.equals("OK")) {
-                BottomPanel.settextLabel("Envoie du Message à.... " + command.getCompte(), Color.BLACK);
-                switch (methode) {
-                    case "METHO1":
-                        Sender.send(urlParam, command.getPhone(), command.getMessage());
-                        break;
-                    case "METHO2":
-                        Sender.send(urlParam, "" + command.getPhone(), command.getMessage());
-                }
-            } else {
-                msg = "Message non envoyé à.... " + command.getCompte() + " Problème de connexion internet!!";
-                logger.info(msg);
-                BottomPanel.settextLabel(msg, Color.RED);
-                command.setErrorDescription("problème de connexion internet");
-                serviceManager.modifier(command);
-            }
-
-            if (res.equals("OK")) {
-                command.setStatus(Status.PROCESSED);
-                command.setProcessedDate(new Date());
-                serviceManager.modifier(command);
-                BottomPanel.settextLabel("OK Message envoyé ", Color.BLACK);
-            }
-        } else {
-            msg = "Message non envoyé Problème de Licence veuillez contacter le fournieur 1.2.5 !!";
-            logger.info(msg);
-            BottomPanel.settextLabel(msg, Color.RED);
-            command.setErrorDescription("problème de licence");
-            serviceManager.modifier(command);
-        }
-
-    }
 }

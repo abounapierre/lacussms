@@ -111,7 +111,7 @@ public class EnvoieSMSDialog extends JDialog {
                             String methode = urlMessage.getMethode();
                             List<String> list = Utils.getNumFromExcel(chemein);
                             System.out.println("Taille: " + list.size());
-                            if (App.checkLicence()) {
+                            if (Utils.checkLicence()) {
                                 for (String numero : list) {
                                     System.out.println("Numéro: " + numero);
                                     String res = testConnexionInternet();
@@ -119,9 +119,9 @@ public class EnvoieSMSDialog extends JDialog {
                                     if (res.equals("OK")) {
                                         BottomPanel.settextLabel("Envoie du Message à.... " + numero, java.awt.Color.BLACK);
                                         if (methode.equals("METHO1")) {
-                                            App.send(urlText, "" + Long.parseLong(numero), contenu);
+                                            Utils.send(urlText, "" + Long.parseLong(numero), contenu);
                                         } else if (methode.equals("METHO2")) {
-                                            App.send2(urlText, "" + Long.parseLong(numero), contenu);
+                                            Utils.send2(urlText, "" + Long.parseLong(numero), contenu);
                                         }
                                     } else {
                                         BottomPanel.settextLabel("Message non envoyé à.... " + numero + " Problème de connexion internet!!", java.awt.Color.RED);

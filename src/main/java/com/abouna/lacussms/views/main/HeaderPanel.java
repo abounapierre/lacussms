@@ -20,6 +20,8 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import com.abouna.lacussms.views.tools.Utils;
 import org.jdesktop.swingx.JXButton;
 
 /**
@@ -69,7 +71,7 @@ public  class HeaderPanel extends JPanel{
         //runParaBtn.setEnabled(false);
         
         runBtn.addActionListener((ActionEvent e) -> {
-            if (App.testConnexion()) {
+            if (Utils.testConnexion()) {
                 App.demarrerServiceSequenciel();
                 App.demarrerServiceRequete();
                 stopBtn.setEnabled(true);
@@ -81,7 +83,7 @@ public  class HeaderPanel extends JPanel{
             }
        });       
          runParaBtn.addActionListener((ActionEvent e) -> {
-             if(App.testConnexion()){
+             if(Utils.testConnexion()){
                  App.demarrerServiceData();
                  App.demarrerServiceSms();
                  App.demarrerServiceRequete();

@@ -325,11 +325,11 @@ public class EnvoieMessagePanel extends JPanel{
                         mes.setContent(contentText.getText());
                         mes.setSendDate(new Date());
                         if (tab1.length() == 9) {
-                            App.send(urlParam, "237" + tab1, contentText.getText());
-                        } else if (tab1.length() == 9) {
-                            App.send(urlParam, "241" + tab1, contentText.getText());
+                            Utils.send(urlParam, "237" + tab1, contentText.getText());
+                        } else if (tab1.length() == 8) {
+                            Utils.send(urlParam, "241" + tab1, contentText.getText());
                         } else {
-                            App.send(urlParam, tab1, contentText.getText());
+                            Utils.send(urlParam, tab1, contentText.getText());
                         }
                     }
                     dispose();

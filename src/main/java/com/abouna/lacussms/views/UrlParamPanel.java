@@ -10,6 +10,7 @@ import com.abouna.lacussms.entities.UrlMessage;
 import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.MainMenuPanel;
+import com.abouna.lacussms.views.tools.Utils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
@@ -42,6 +43,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.table.DefaultTableModel;
+
+import org.graalvm.compiler.core.common.util.Util;
 import org.jdesktop.swingx.JXSearchField;
 
 /**
@@ -128,7 +131,7 @@ public class UrlParamPanel extends JPanel{
         });
         JButton testBtn = new JButton("Test Connexion");
         testBtn.addActionListener((ActionEvent e) -> {
-            if(App.testConnexion()){
+            if(Utils.testConnexion()){
                 JOptionPane.showMessageDialog(parentPanel, "Connexion réussie");
             }else{
                 JOptionPane.showMessageDialog(parentPanel, "Erreur lors de l'établissement de la connexion!");

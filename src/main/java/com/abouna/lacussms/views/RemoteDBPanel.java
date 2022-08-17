@@ -12,6 +12,7 @@ import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.MainMenuPanel;
 import com.abouna.lacussms.views.tools.AES;
 import com.abouna.lacussms.views.tools.ConstantUtils;
+import com.abouna.lacussms.views.tools.Utils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
@@ -134,7 +135,7 @@ public class RemoteDBPanel extends JPanel {
         });
         JButton testBtn = new JButton("Test Connexion");
         testBtn.addActionListener((ActionEvent e) -> {
-            if (App.testConnexion()) {
+            if (Utils.testConnexion()) {
                 JOptionPane.showMessageDialog(parentPanel, "Connexion réussie");
             } else {
                 JOptionPane.showMessageDialog(parentPanel, "Erreur lors de l'établissement de la connexion!");

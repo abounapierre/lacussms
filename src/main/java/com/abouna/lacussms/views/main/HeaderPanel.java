@@ -1,28 +1,19 @@
 package com.abouna.lacussms.views.main;
 
 
-
-
 import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.views.ContactPanel;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.io.IOException;
-import java.util.Objects;
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-
 import com.abouna.lacussms.views.tools.Utils;
 import org.jdesktop.swingx.JXButton;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.sql.Connection;
+import java.util.Objects;
 
 /**
  *
@@ -44,23 +35,23 @@ public  class HeaderPanel extends JPanel{
     }
     
     protected final void init() throws IOException{
-       ImageIcon img = new ImageIcon(ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/adherent.jpg"))));
-       ImageIcon img1 = new ImageIcon(ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/icona.jpg"))));
-       ImageIcon img2 = new ImageIcon(ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/run.JPG"))));
-       ImageIcon img3 = new ImageIcon(ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/stop.PNG"))));
-       ImageIcon img4 = new ImageIcon(ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/play.JPG"))));
-        JButton adBtn = new JXButton(img);
+       ImageIcon img1 = new ImageIcon(ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/adherent.jpg"))));
+       ImageIcon img2 = new ImageIcon(ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/icona.jpg"))));
+       ImageIcon img3 = new ImageIcon(ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/run.JPG"))));
+       ImageIcon img4 = new ImageIcon(ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/stop.PNG"))));
+       ImageIcon img5 = new ImageIcon(ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/play.JPG"))));
+        JButton adBtn = new JXButton(img1);
         adBtn.setPreferredSize(new Dimension(40, 40));
-        JButton cotBtn = new JXButton(img1);
+        JButton cotBtn = new JXButton(img2);
         cotBtn.setPreferredSize(new Dimension(40, 40));
-        runBtn = new JXButton(img2);
+        runBtn = new JXButton(img3);
         runBtn.setPreferredSize(new Dimension(40, 40));
-        stopBtn = new JXButton(img3);
+        stopBtn = new JXButton(img4);
         stopBtn.setPreferredSize(new Dimension(40, 40));
         stopBtn.setEnabled(false);
         runBtn.setToolTipText("Démarrer le service SMS Séquentiel");
         stopBtn.setToolTipText("Arrêter le service SMS");
-        runParaBtn = new JXButton(img4);
+        runParaBtn = new JXButton(img5);
         runParaBtn.setPreferredSize(new Dimension(40, 40));
         runParaBtn.setToolTipText("Démarrer le service SMS Parallèle");
         add(adBtn);
@@ -71,28 +62,32 @@ public  class HeaderPanel extends JPanel{
         //runParaBtn.setEnabled(false);
         
         runBtn.addActionListener((ActionEvent e) -> {
-            if (Utils.testConnexion()) {
+            Connection connection = Utils.testConnexion(App.SECRET);
+            if (connection != null) {
+                App.setConnexion(connection);
                 App.demarrerServiceSequenciel();
-                App.demarrerServiceRequete();
+                //App.demarrerServiceRequete();
                 stopBtn.setEnabled(true);
                 runBtn.setEnabled(false);
                 runParaBtn.setEnabled(false);
-                JOptionPane.showMessageDialog(null, "Le service a démarré avec succès");
+                JOptionPane.showMessageDialog(HeaderPanel.this.getParent(), "Le service a démarré avec succès");
             } else {
-                JOptionPane.showMessageDialog(null, "Erreur lors du démarrage du service, la connexion à la base de donnees n'est pas prête!!");
+                JOptionPane.showMessageDialog(HeaderPanel.this.getParent(), "Erreur lors du démarrage du service, la connexion à la base de donnees n'est pas prête!!");
             }
        });       
          runParaBtn.addActionListener((ActionEvent e) -> {
-             if(Utils.testConnexion()){
+             Connection connection = Utils.testConnexion(App.SECRET);
+             if(connection != null){
+                 App.setConnexion(connection);
                  App.demarrerServiceData();
                  App.demarrerServiceSms();
-                 App.demarrerServiceRequete();
+                 //App.demarrerServiceRequete();
                  stopBtn.setEnabled(true);
                  runBtn.setEnabled(false);
                  runParaBtn.setEnabled(false);
-                 JOptionPane.showMessageDialog(null, "Le service a démarré avec succès");
+                 JOptionPane.showMessageDialog(HeaderPanel.this.getParent(), "Le service a démarré avec succès");
              }else{
-                 JOptionPane.showMessageDialog(null, "Erreur lors du démarrage du service, la connexion à la base de donnees n'est pas prête!!");
+                 JOptionPane.showMessageDialog(HeaderPanel.this.getParent(), "Erreur lors du démarrage du service, la connexion à la base de donnees n'est pas prête!!");
              }
        });
        
@@ -101,7 +96,7 @@ public  class HeaderPanel extends JPanel{
             stopBtn.setEnabled(false);
             runBtn.setEnabled(true);
             runParaBtn.setEnabled(true);
-            JOptionPane.showMessageDialog(null, "Le service a été arrêté");
+            JOptionPane.showMessageDialog(HeaderPanel.this.getParent(), "Le service a été arrêté");
        });      
         cotBtn.addActionListener((ActionEvent e) -> {
             JDialog contact = new ContactPanel();

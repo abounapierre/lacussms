@@ -6,19 +6,14 @@
 
 package com.abouna.lacussms.views.main;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  *
  * @author Administrateur
  */
 public class BottomPanel extends JPanel{
-    private JLabel label;
     private static JLabel info = new JLabel();
     
     public BottomPanel(){
@@ -36,14 +31,6 @@ public class BottomPanel extends JPanel{
         leftPanel.add(info);
         add(leftPanel,BorderLayout.BEFORE_LINE_BEGINS);
         add(rightPanel,BorderLayout.AFTER_LINE_ENDS);
-    }
-
-    public JLabel getLabel() {
-        return label;
-    }
-
-    public void setLabel(JLabel label) {
-        this.label = label;
     }
 
     public static JLabel getInfo() {

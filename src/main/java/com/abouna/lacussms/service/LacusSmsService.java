@@ -6,34 +6,8 @@
 package com.abouna.lacussms.service;
 
 import com.abouna.lacussms.dto.SmsScheduledDto;
-import com.abouna.lacussms.entities.BkAgence;
-import com.abouna.lacussms.entities.BkCli;
-import com.abouna.lacussms.entities.BkCompCli;
-import com.abouna.lacussms.entities.BkEtatOp;
-import com.abouna.lacussms.entities.BkEve;
-import com.abouna.lacussms.entities.BkMad;
-import com.abouna.lacussms.entities.BkOpe;
-import com.abouna.lacussms.entities.BkTelCli;
-import com.abouna.lacussms.entities.Command;
-import com.abouna.lacussms.entities.Config;
-import com.abouna.lacussms.entities.CutOff;
-import com.abouna.lacussms.entities.Holiday;
-import com.abouna.lacussms.entities.Licence;
-import com.abouna.lacussms.entities.Message;
-import com.abouna.lacussms.entities.MessageFormat;
-import com.abouna.lacussms.entities.MessageMandat;
-import com.abouna.lacussms.entities.ParametreRequete;
-import com.abouna.lacussms.entities.RemoteDB;
-import com.abouna.lacussms.entities.SentMail;
-import com.abouna.lacussms.entities.ServiceOffert;
-import com.abouna.lacussms.entities.SmsProgramming;
-import com.abouna.lacussms.entities.SmsScheduled;
-import com.abouna.lacussms.entities.Status;
-import com.abouna.lacussms.entities.TypeEvent;
-import com.abouna.lacussms.entities.TypeMessage;
-import com.abouna.lacussms.entities.TypeService;
-import com.abouna.lacussms.entities.UrlMessage;
-import com.abouna.lacussms.entities.User;
+import com.abouna.lacussms.entities.*;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;

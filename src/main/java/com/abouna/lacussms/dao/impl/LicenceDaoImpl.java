@@ -9,8 +9,9 @@ package com.abouna.lacussms.dao.impl;
 import com.abouna.generic.dao.impl.GenericDao;
 import com.abouna.lacussms.dao.ILicenceDao;
 import com.abouna.lacussms.entities.Licence;
-import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
+
+import javax.persistence.Query;
 
 /**
  *

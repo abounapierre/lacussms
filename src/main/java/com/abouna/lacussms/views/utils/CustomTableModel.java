@@ -5,10 +5,10 @@
  */
 package com.abouna.lacussms.views.utils;
 
-import java.awt.Color;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
-import javax.swing.table.DefaultTableModel;
 
 /**
  *

@@ -7,7 +7,7 @@
     <version>2.0</version>
     <packaging>jar</packaging>
 
-    <name>Lacus sms ${project.version}</name>
+    <name>Lacus sms</name>
     
     <url>http://maven.apache.org</url>
 
@@ -40,7 +40,7 @@
     
     <build>
         <plugins>
-            <plugin>
+            <!--<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
@@ -73,6 +73,10 @@
                             </manifestEntries>
                         </archive>
                 </configuration>
+            </plugin>-->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
@@ -80,7 +84,6 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <dbh2.version>1.4.191</dbh2.version>
-        <spring.version>4.3.13.RELEASE</spring.version>
     </properties>
 
     <dependencies>
@@ -100,11 +103,15 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-logging</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-quartz</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.3.6</version>
+            <version>4.5.13</version>
         </dependency>
 
         <dependency>

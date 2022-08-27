@@ -5,16 +5,8 @@
  */
 package com.abouna.lacussms.config.service;
 
-import com.abouna.lacussms.entities.RequeteAgence;
-import com.abouna.lacussms.entities.RequeteClient;
-import com.abouna.lacussms.entities.RequeteCredit;
-import com.abouna.lacussms.entities.RequeteEvenement;
-import com.abouna.lacussms.entities.RequeteHistorique;
-import com.abouna.lacussms.entities.RequeteMandat;
-import com.abouna.lacussms.entities.RequeteSalaire1;
-import com.abouna.lacussms.entities.RequeteSalaire2;
-import com.abouna.lacussms.entities.RequeteSolde;
-import com.abouna.lacussms.entities.TypeService;
+import com.abouna.lacussms.entities.*;
+
 import java.util.Map;
 
 /**

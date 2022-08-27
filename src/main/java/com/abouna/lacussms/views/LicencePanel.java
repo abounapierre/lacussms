@@ -14,25 +14,16 @@ import com.abouna.lacussms.views.tools.Utils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import java.awt.BorderLayout;
-import java.awt.Font;
-import java.awt.HeadlessException;
+
+import javax.swing.*;
+import javax.swing.text.DefaultEditorKit;
+import javax.swing.text.JTextComponent;
+import javax.swing.text.TextAction;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import javax.swing.Action;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-import javax.swing.text.DefaultEditorKit;
-import javax.swing.text.JTextComponent;
-import javax.swing.text.TextAction;
 
 /**
  *
@@ -40,13 +31,8 @@ import javax.swing.text.TextAction;
  */
 public class LicencePanel extends JDialog {
 
-    private  JButton okBtn, annulerBtn;
-    private  JTextField nameText;
+    private final JTextField nameText;
     private final  LacusSmsService serviceManager;
-
-    public LicencePanel() {
-        serviceManager = ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
-    }
 
     public LicencePanel(final Licence licence) {
         serviceManager = ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
@@ -82,6 +68,8 @@ public class LicencePanel extends JDialog {
 
         nameText.setComponentPopupMenu(menu);
 
+        JButton okBtn;
+        JButton annulerBtn;
         JPanel buttonBar = ButtonBarFactory.buildOKCancelBar(okBtn = new JButton("Enrégistrer"), annulerBtn = new JButton("Annuler"));
         builder.append(buttonBar, builder.getColumnCount());
         add(BorderLayout.CENTER, builder.getPanel());
@@ -107,21 +95,13 @@ public class LicencePanel extends JDialog {
                                     System.out.println("Enregistrement");
                                     serviceManager.enregistrer(a);
                                 } else {
-                                    serviceManager.getLicences().stream().map((lic) -> {
-                                        lic.setValeur(nameText.getText());
-                                        return lic;
-                                    }).map((lic) -> {
-                                        System.out.println("Modification");
-                                        return lic;
-                                    }).forEach((lic) -> {
-                                        serviceManager.modifier(lic);
-                                    });
+                                    serviceManager.getLicences().stream().peek((lic) -> lic.setValeur(nameText.getText())).peek((lic) -> System.out.println("Modification")).forEach(serviceManager::modifier);
                                 }
                                 Utils.ecrire("pid 1");
                                 Utils.updateLic(a.getValeur(), conn);
                                 JOptionPane.showMessageDialog(null, "Success!");
                                 dispose();
-                                if (!App.isAppliRun()) {
+                                if (App.appliRun) {
                                     App.initApp();
                                 }
                                 BottomPanel.settextLabel("", java.awt.Color.BLACK);
@@ -133,13 +113,9 @@ public class LicencePanel extends JDialog {
                                     + "est connecté à internet ou verifiez votre parfeu\r\n "
                                     + "s'il ne bloque pas le connexion vers le serveur (alwaysdata.com)!");
                         }
-                    } catch (SQLException ex) {
+                    } catch (SQLException | IOException ex) {
                         JOptionPane.showMessageDialog(null, "Problème de connexion à la base de données");
-                    } catch (IOException ex) {
-                        JOptionPane.showMessageDialog(null, "Problème de connexion à la base de données");
-                    } catch (ClassNotFoundException ex) {
-                        
-                    } catch (HeadlessException ex) {
+                    } catch (ClassNotFoundException | HeadlessException ignored) {
                         
                     }
                 } else {
@@ -151,7 +127,7 @@ public class LicencePanel extends JDialog {
                                 serviceManager.modifier(a);
                                 JOptionPane.showMessageDialog(null, "Licence enregistrée avec success!");
                                 dispose();
-                                if (!App.isAppliRun()) {
+                                if (App.appliRun) {
                                     App.initApp();
                                 }
                             } else {
@@ -162,9 +138,7 @@ public class LicencePanel extends JDialog {
                                     + "est connecté à internet ou verifiez votre parfeu\r\n "
                                     + "s'il ne bloque pas le connexion vers le serveur (alwaysdata.com)!");
                         }
-                    } catch (SQLException ex) {
-                        JOptionPane.showMessageDialog(null, "Problème de connexion à la base de données");
-                    } catch (IOException ex) {
+                    } catch (SQLException | IOException ex) {
                         JOptionPane.showMessageDialog(null, "Problème de connexion à la base de données");
                     }
                 }
@@ -180,7 +154,7 @@ public class LicencePanel extends JDialog {
                 System.exit(0);
             } else if (serviceManager.getLicences().get(0).getJour() == 0) {
                 System.exit(0);
-            }else if(!App.isAppliRun()){
+            }else if(App.appliRun){
                 System.exit(0);
             }
         });

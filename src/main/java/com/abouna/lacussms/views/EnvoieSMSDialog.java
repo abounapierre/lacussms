@@ -8,36 +8,23 @@ package com.abouna.lacussms.views;
 import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.entities.Message;
 import com.abouna.lacussms.entities.UrlMessage;
-import com.abouna.lacussms.main.App;
-import static com.abouna.lacussms.main.App.testConnexionInternet;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.BottomPanel;
 import com.abouna.lacussms.views.main.HeaderMenu;
-import com.abouna.lacussms.views.main.MainMenuPanel;
 import com.abouna.lacussms.views.tools.Utils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import java.awt.BorderLayout;
-import java.awt.Font;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  *
@@ -45,17 +32,13 @@ import org.springframework.stereotype.Component;
  */
 public class EnvoieSMSDialog extends JDialog {
 
-    private final JButton okBtn, annulerBtn;
     private final JTextField nameText;
     private final JTextArea contentText;
-    private int c = 0, rang = 0, c1 = 0, rang1 = 0;
-    private LacusSmsService serviceManager;
-    private  MainMenuPanel parentPanel;
+    private final LacusSmsService serviceManager;
     private String titre, contenu;
 
     public EnvoieSMSDialog() {
         serviceManager = ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
-        parentPanel = ApplicationConfig.getApplicationContext().getBean(MainMenuPanel.class);
         setTitle("ENVOIE DE MESSAGE PUSH");
         setModal(true);
         setLayout(new BorderLayout(10, 10));
@@ -71,6 +54,8 @@ public class EnvoieSMSDialog extends JDialog {
         //builder.append("Contacts", contentText = new JTextArea(5, 20));
         contentText.setLineWrap(true);
         contentText.setWrapStyleWord(true);
+        JButton okBtn;
+        JButton annulerBtn;
         JPanel buttonBar = ButtonBarFactory.buildOKCancelBar(okBtn = new JButton("Envoyer"), annulerBtn = new JButton("Annuler"));
         builder.append(buttonBar, builder.getColumnCount());
         add(BorderLayout.CENTER, builder.getPanel());
@@ -79,20 +64,20 @@ public class EnvoieSMSDialog extends JDialog {
             if (!contentText.getText().equals("")) {
                 contenu = contentText.getText();
             } else {
-                JOptionPane.showMessageDialog(null, "Le contenu est obligatoire");
+                JOptionPane.showMessageDialog(EnvoieSMSDialog.this.getParent(), "Le contenu est obligatoire");
                 return;
             }
             if (!nameText.getText().equals("")) {
                 titre = nameText.getText();
             } else {
-                JOptionPane.showMessageDialog(null, "Le titre est obligatoire");
+                JOptionPane.showMessageDialog(EnvoieSMSDialog.this.getParent(), "Le titre est obligatoire");
                 return;
             }
             
             dispose();
             
             try {
-                File repertoireCourant = null;
+                File repertoireCourant;
                 repertoireCourant = new File(".").getCanonicalFile();
                 System.out.println("Répertoire courant : " + repertoireCourant);
                 JFileChooser dialogue = new JFileChooser(repertoireCourant);
@@ -110,11 +95,12 @@ public class EnvoieSMSDialog extends JDialog {
                             String urlText = urlMessage.getUrlValue();
                             String methode = urlMessage.getMethode();
                             List<String> list = Utils.getNumFromExcel(chemein);
+                            assert list != null;
                             System.out.println("Taille: " + list.size());
                             if (Utils.checkLicence()) {
                                 for (String numero : list) {
                                     System.out.println("Numéro: " + numero);
-                                    String res = testConnexionInternet();
+                                    String res = Utils.testConnexionInternet();
                                     BottomPanel.settextLabel("Test connexion ...." + res, java.awt.Color.BLACK);
                                     if (res.equals("OK")) {
                                         BottomPanel.settextLabel("Envoie du Message à.... " + numero, java.awt.Color.BLACK);
@@ -138,12 +124,12 @@ public class EnvoieSMSDialog extends JDialog {
                                 }
                                 BottomPanel.settextLabel("", java.awt.Color.RED);
                             }
-                            JOptionPane.showMessageDialog(null, "Envoie PUSH terminé avec success!!");
+                            JOptionPane.showMessageDialog(EnvoieSMSDialog.this.getParent(), "Envoie PUSH terminé avec success!!");
                         });
                         t.start();
                         
                     } else {
-                        JOptionPane.showMessageDialog(null, "Fichier non valide");
+                        JOptionPane.showMessageDialog(EnvoieSMSDialog.this.getParent(), "Fichier non valide");
                     }
                 }
             } catch (IOException ex) {
@@ -151,8 +137,6 @@ public class EnvoieSMSDialog extends JDialog {
             }
         });
 
-        annulerBtn.addActionListener((ActionEvent ae) -> {
-            dispose();
-        });
+        annulerBtn.addActionListener((ActionEvent ae) -> dispose());
     }
 }

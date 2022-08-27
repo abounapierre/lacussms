@@ -6,10 +6,9 @@
 
 package com.abouna.lacussms.views.utils;
 
-import java.awt.Component;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
+import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
+import java.awt.*;
 
 /**
  *

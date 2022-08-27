@@ -6,61 +6,48 @@
 package com.abouna.lacussms.views.tools;
 
 import com.abouna.lacussms.config.ApplicationConfig;
-import com.abouna.lacussms.entities.*;
 import com.abouna.lacussms.entities.Licence;
+import com.abouna.lacussms.entities.*;
 import com.abouna.lacussms.service.LacusSmsService;
-
-import java.awt.*;
-import java.io.*;
-import java.net.*;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import javax.mail.Authenticator;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.Message.RecipientType;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.swing.*;
-import javax.swing.Timer;
-
 import com.abouna.lacussms.views.LicencePanel;
 import com.abouna.lacussms.views.main.BottomPanel;
-import com.abouna.lacussms.views.utils.LogBean;
+import com.abouna.lacussms.views.main.LogFile;
 import com.abouna.lacussms.views.utils.LogParam;
 import org.apache.commons.net.ntp.NTPUDPClient;
 import org.apache.commons.net.ntp.TimeInfo;
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DataFormatter;
-import org.apache.poi.ss.usermodel.FormulaEvaluator;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.Message.RecipientType;
+import javax.mail.PasswordAuthentication;
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.swing.Timer;
+import java.awt.Color;
+import java.awt.*;
+import java.io.*;
+import java.net.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.sql.*;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.*;
+import java.util.function.Function;
 
 public class Utils {
     static final Logger logger = LoggerFactory.getLogger(Utils.class);
@@ -733,14 +720,9 @@ public class Utils {
     };
 
     public static String getLog() {
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new FileReader((String) ApplicationConfig.getApplicationContext().getBean("logPath")));
-            return reader.lines().collect(Collectors.joining("\n"));
-        } catch (FileNotFoundException e) {
-            logger.error("Fichier introuvable");
-            return "";
-        }
+        logger.info("Recuperation des logs .......");
+        LogFile logBean = ApplicationConfig.getApplicationContext().getBean(LogFile.class);
+        return logBean.getLog();
 
     }
 
@@ -869,7 +851,7 @@ public class Utils {
         });
     }
 
-    public static boolean testConnexion() {
+    public static Connection testConnexion(String secret) {
         logger.info("### Test de connexion de la BD ###");
 
         try {
@@ -881,15 +863,14 @@ public class Utils {
                 logger.info("URL: " + remoteDB.getUrl());
                 logger.info("Username: " + remoteDB.getName());
                 logger.info("Password: " + remoteDB.getPassword());
-                decryptedString = AES.decrypt(remoteDB.getPassword(), "LACUS2017");
-                Connection conn = DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
-                return conn != null;
+                decryptedString = AES.decrypt(remoteDB.getPassword(), secret);
+                return DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
             }
 
-            return false;
-        } catch (ClassNotFoundException | SQLException | NullPointerException var4) {
-            logger.info("problème de connexion bd " + var4.getMessage());
-            return false;
+            return null;
+        } catch (ClassNotFoundException | SQLException | NullPointerException ex) {
+            logger.info("problème de connexion bd " + ex.getMessage());
+            return null;
         }
     }
 
@@ -1030,21 +1011,38 @@ public class Utils {
             logger.info("Démarrage....");
             boolean running = true;
 
-            while(running) {
-                try {
-                    BottomPanel.settextLabel("Traitement.... " + i, Color.BLACK);
-                    ++i;
-                    if (i % 10 == 0) {
-                        BottomPanel.settextLabel("Chargement des données.... " + i, Color.RED);
-                    }
-
-                    Thread.sleep(500L);
-                } catch (InterruptedException var2) {
-                    logger.error(var2.getMessage());
+            while(true) {
+                BottomPanel.settextLabel("Traitement.... " + i, Color.BLACK);
+                ++i;
+                if (i % 10 == 0) {
+                    BottomPanel.settextLabel("Chargement des données.... " + i, Color.RED);
                 }
             }
 
         });
         t.start();
+    }
+
+    public static Connection initConnection(LacusSmsService service, String secret) throws SQLException {
+        RemoteDB remoteDB = service.getDefaultRemoteDB(true);
+        if(remoteDB == null) {
+            return null;
+        }
+        logger.info("remote{}", remoteDB);
+        String decryptedString = AES.decrypt(remoteDB.getPassword(), secret);
+        return DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
+    }
+
+
+    public static String testPhone(String num) {
+        String res = null;
+        if (Utils.estUnEntier(num)) {
+            if (num.length() == 8) {
+                res = "241" + num;
+            } else if (num.length() == 9) {
+                res = "237" + num;
+            }
+        }
+        return res;
     }
 }

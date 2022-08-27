@@ -10,7 +10,6 @@ import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.entities.BkEve;
 import com.abouna.lacussms.entities.Message;
 import com.abouna.lacussms.entities.MessageFormat;
-import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.MainMenuPanel;
 import com.abouna.lacussms.views.tools.Utils;

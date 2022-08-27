@@ -9,6 +9,7 @@ package com.abouna.lacussms.dao;
 import com.abouna.generic.dao.IDao;
 import com.abouna.lacussms.entities.BkEve;
 import com.abouna.lacussms.entities.TypeEvent;
+
 import java.util.Date;
 import java.util.List;
 

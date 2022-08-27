@@ -11,36 +11,22 @@ import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.MainMenuPanel;
 import com.abouna.lacussms.views.tools.Utils;
+import com.abouna.lacussms.views.utils.DialogUtils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Image;
+import org.jdesktop.swingx.JXSearchField;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
-import org.jdesktop.swingx.JXSearchField;
 
 /**
  *
@@ -49,10 +35,8 @@ import org.jdesktop.swingx.JXSearchField;
 public class EtatOPParamPanel extends JPanel{
     private DefaultTableModel tableModel;
     private JTable table;
-    private final JButton nouveau, modifier, supprimer;
-    private final JButton filtre;
-    private  MainMenuPanel parentPanel;
-    private  LacusSmsService serviceManager;
+    private final MainMenuPanel parentPanel;
+    private final LacusSmsService serviceManager;
     
     public EtatOPParamPanel() throws IOException{
         serviceManager = ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
@@ -69,79 +53,56 @@ public class EtatOPParamPanel extends JPanel{
         contenu.setLayout(new BorderLayout());
         JPanel bas = new JPanel();
         bas.setLayout(new FlowLayout());
-        Image ajouImg = ImageIO.read(getClass().getResource("/images/Ajouter.png"));
-        Image supprImg = ImageIO.read(getClass().getResource("/images/Cancel2.png"));
-        Image modifImg = ImageIO.read(getClass().getResource("/images/OK.png"));
-        nouveau = new JButton(new ImageIcon(ajouImg));
+        Image ajouImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Ajouter.png")));
+        Image supprImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Cancel2.png")));
+        Image modifImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/OK.png")));
+        JButton nouveau = new JButton(new ImageIcon(ajouImg));
         nouveau.setToolTipText("Ajouter une nouvel etat");
-        supprimer = new JButton(new ImageIcon(supprImg));
+        JButton supprimer = new JButton(new ImageIcon(supprImg));
         supprimer.setToolTipText("Suprimer un etat");
-        modifier = new JButton(new ImageIcon(modifImg));
+        JButton modifier = new JButton(new ImageIcon(modifImg));
         modifier.setToolTipText("Modifier un etat");
-        filtre = new JButton("Filtrer");
+        JButton filtre = new JButton("Filtrer");
         nouveau.addActionListener((ActionEvent ae) -> {
-            Nouveau nouveau1 = new Nouveau(null);
-            nouveau1.setSize(400, 200);
-            nouveau1.setLocationRelativeTo(null);
-            nouveau1.setModal(true);
-            nouveau1.setResizable(false);
-            nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            nouveau1.setVisible(true);
+            DialogUtils.initDialog(new EtatOPParamPanel.Nouveau(null), EtatOPParamPanel.this.getParent(), 400, 200);
         });
-        modifier.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                int selected = table.getSelectedRow();
-                if (selected >= 0) {
-                    Integer id = (Integer) tableModel.getValueAt(selected, 0);
-                    Nouveau nouveau1 = null;
+        modifier.addActionListener(ae -> {
+            int selected = table.getSelectedRow();
+            if (selected >= 0) {
+                Integer id = (Integer) tableModel.getValueAt(selected, 0);
+                try {
+                    DialogUtils.initDialog(new Nouveau(serviceManager.getBkEtatOpById(id)), EtatOPParamPanel.this.getParent(), 400, 200);
+                } catch (Exception ex) {
+                    Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                JOptionPane.showMessageDialog(EtatOPParamPanel.this.getParent(), "Aucun élément n'est selectionné");
+            }
+        });
+        supprimer.addActionListener(ae -> {
+            int selected = table.getSelectedRow();
+            if (selected >= 0) {
+                Integer id = (Integer) tableModel.getValueAt(selected, 0);
+                int res = JOptionPane.showConfirmDialog(EtatOPParamPanel.this.getParent(), "Etes vous sûr de suppimer l'etat courant?", "Confirmation",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                if (res == JOptionPane.YES_OPTION) {
                     try {
-                        nouveau1 = new Nouveau(serviceManager.getBkEtatOpById(id));
+                        serviceManager.supprimerBkEtatOp(id);
                     } catch (Exception ex) {
                         Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    nouveau1.setSize(400, 200);
-                    nouveau1.setLocationRelativeTo(null);
-                    nouveau1.setModal(true);
-                    nouveau1.setResizable(false);
-                    nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                    nouveau1.setVisible(true);
-                } else {
-                    JOptionPane.showMessageDialog(null, "Aucun élément n'est selectionné");
+                    tableModel.removeRow(selected);
                 }
-            }
-        });
-        supprimer.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                int selected = table.getSelectedRow();
-                if (selected >= 0) {
-                    Integer id = (Integer) tableModel.getValueAt(selected, 0);
-                    int res = JOptionPane.showConfirmDialog(null, "Etes vous sûr de suppimer l'etat courant?", "Confirmation",
-                            JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-                    if (res == JOptionPane.YES_OPTION) {
-                        try {
-                            serviceManager.supprimerBkEtatOp(id);
-                        } catch (Exception ex) {
-                            Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        tableModel.removeRow(selected);
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(null, "Aucun élément selectionné");
-                }
+            } else {
+                JOptionPane.showMessageDialog(EtatOPParamPanel.this.getParent(), "Aucun élément selectionné");
             }
         });
         JButton testBtn = new JButton("Test Connexion");
-        testBtn.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(Utils.testConnexion()){
-                    JOptionPane.showMessageDialog(parentPanel, "Connexion réussie");
-                }else{
-                    JOptionPane.showMessageDialog(parentPanel, "Erreur lors de l'établissement de la connexion!");
-                }
+        testBtn.addActionListener(e -> {
+            if(Utils.testConnexion(App.SECRET) != null){
+                JOptionPane.showMessageDialog(parentPanel, "Connexion réussie");
+            }else{
+                JOptionPane.showMessageDialog(parentPanel, "Erreur lors de l'établissement de la connexion!");
             }
         });
         bas.add(nouveau);
@@ -155,27 +116,23 @@ public class EtatOPParamPanel extends JPanel{
         filtrePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createRaisedBevelBorder(), "Zone de recherche"));
         filtrePanel.add(searchField);
          filtrePanel.setBackground(new Color(166, 202, 240));
-        searchField.addActionListener(new ActionListener() {
+        searchField.addActionListener(e -> {
+            String val = null;
+            if (searchField.getText() != null) {
+                try {
+                    val = searchField.getText().toUpperCase();
+                    tableModel.setNumRows(0);
+                    List<BkEtatOp> bkEtatOpList = serviceManager.getAllBkEtatOps();
+                    for (BkEtatOp a : bkEtatOpList) {
+                        tableModel.addRow(new Object[]{
+                            a.getId(),
+                            a.getValeur(),
+                            a.isActif()
+                        });
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String val = null;
-                if (searchField.getText() != null) {
-                    try {
-                        val = searchField.getText().toUpperCase();
-                        tableModel.setNumRows(0);
-                        List<BkEtatOp> bkEtatOpList = serviceManager.getAllBkEtatOps();
-                        for (BkEtatOp a : bkEtatOpList) {
-                            tableModel.addRow(new Object[]{
-                                a.getId(),
-                                a.getValeur(),
-                                a.isActif()
-                            });
-
-                        }
-                    } catch (Exception ex) {
-                        Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
                     }
+                } catch (Exception ex) {
+                    Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
@@ -190,7 +147,7 @@ public class EtatOPParamPanel extends JPanel{
         contenu.add(BorderLayout.CENTER, new JScrollPane(table));
         add(BorderLayout.CENTER, contenu);
         try {
-            serviceManager.getAllBkEtatOps().stream().forEach((a) -> {
+            serviceManager.getAllBkEtatOps().forEach((a) -> {
                 tableModel.addRow(new Object[]{
                     a.getId(),
                     a.getValeur(),
@@ -204,11 +161,11 @@ public class EtatOPParamPanel extends JPanel{
 
     private class Nouveau extends JDialog {
 
-        private final JButton okBtn, annulerBtn;
         private final JTextField valeurText;
         private final JCheckBox chkBox;
        
-        private int c = 0, rang =0;
+        private final int c = 0;
+        private final int rang =0;
 
         public Nouveau(final BkEtatOp etat) {
             setTitle("NOUVEL ETAT OPERATION");
@@ -223,16 +180,15 @@ public class EtatOPParamPanel extends JPanel{
             builder.setDefaultDialogBorder();
             builder.append("Valeur", valeurText = new JTextField(10));
             builder.append("est actif?", chkBox = new JCheckBox());
+            JButton annulerBtn;
+            JButton okBtn;
             JPanel buttonBar = ButtonBarFactory.buildOKCancelBar(okBtn = new JButton("Enrégistrer"), annulerBtn = new JButton("Annuler"));
             builder.append(buttonBar, builder.getColumnCount());
             add(BorderLayout.CENTER, builder.getPanel());
             
             if (etat != null) {
                valeurText.setText(etat.getValeur());
-               if(etat.isActif())
-                  chkBox.setSelected(true);
-               else
-                   chkBox.setSelected(false);
+                chkBox.setSelected(etat.isActif());
             }
 
             okBtn.addActionListener((ActionEvent ae) -> {
@@ -241,14 +197,11 @@ public class EtatOPParamPanel extends JPanel{
                 if (!valeurText.getText().equals("")) {
                     a.setValeur(valeurText.getText());
                 } else {
-                    JOptionPane.showMessageDialog(null, "La valeur est obligatoire");
+                    JOptionPane.showMessageDialog(EtatOPParamPanel.this.getParent(), "La valeur est obligatoire");
                     return;
                 }
-                
-                if(chkBox.isSelected())
-                    a.setActif(true);
-                else
-                    a.setActif(false);
+
+                a.setActif(chkBox.isSelected());
                 
                 if (etat == null) {
                     try {

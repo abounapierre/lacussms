@@ -7,16 +7,14 @@
 package com.abouna.lacussms.main;
 
 import com.abouna.lacussms.dao.IRemoteDBDao;
-import com.abouna.lacussms.entities.BkAgence;
-import com.abouna.lacussms.entities.BkCli;
-import com.abouna.lacussms.entities.BkEve;
-import com.abouna.lacussms.entities.BkOpe;
-import com.abouna.lacussms.entities.RemoteDB;
-import com.abouna.lacussms.entities.RequeteClient;
-import com.abouna.lacussms.entities.RequeteEvenement;
-import com.abouna.lacussms.entities.TypeEvent;
-import com.abouna.lacussms.entities.TypeService;
+import com.abouna.lacussms.entities.*;
 import com.abouna.lacussms.service.LacusSmsService;
+import org.easymock.EasyMock;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.springframework.test.util.ReflectionTestUtils;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -26,11 +24,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import org.easymock.EasyMock;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  *
@@ -124,6 +117,6 @@ public class AppTest {
         EasyMock.expect(serviceManager.getParametreRequeteValues(TypeService.TELEPHONE_CLIENT)).andReturn(mapClient);
         EasyMock.expect(serviceManager.modifier(EasyMock.isA(BkCli.class))).andReturn(bkCli);
         EasyMock.replay(serviceManager);
-        App.serviceEvenement();
+        //App.serviceEvenement();
     }
 }

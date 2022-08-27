@@ -7,26 +7,23 @@ package com.abouna.lacussms.config;
 
 import com.abouna.lacussms.entities.Licence;
 import com.abouna.lacussms.service.LacusSmsService;
+import com.abouna.lacussms.views.main.LogFile;
 import com.abouna.lacussms.views.tools.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.nio.file.FileSystems;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
-
-import com.abouna.lacussms.views.utils.LogBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 /**
  *
@@ -72,12 +69,14 @@ public class Tache {
 
     }
 
-    //@Scheduled(cron = "*/1 * * * * *")
-    public void logTask() throws FileNotFoundException {
-        String path = (String) ApplicationConfig.getApplicationContext().getBean("logPath");
-        File file = new File(path);
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        LogBean logBean = ApplicationConfig.getApplicationContext().getBean(LogBean.class);
-        logBean.setLogs(reader.lines().collect(Collectors.joining("\n")));
+    @Scheduled(cron = "*/1 * * * * *")
+    public void logTask() {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader((String) ApplicationConfig.getApplicationContext().getBean("logPath")));
+            LogFile logBean = ApplicationConfig.getApplicationContext().getBean(LogFile.class);
+            logBean.setLog(reader.lines().collect(Collectors.joining("\n")));
+        } catch (FileNotFoundException e) {
+            logger.error(e.getMessage());
+        }
     }
 }

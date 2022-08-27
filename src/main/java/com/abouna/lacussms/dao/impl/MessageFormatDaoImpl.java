@@ -10,13 +10,13 @@ import com.abouna.generic.dao.impl.GenericDao;
 import com.abouna.lacussms.dao.IMessageFormatDao;
 import com.abouna.lacussms.entities.BkOpe;
 import com.abouna.lacussms.entities.MessageFormat;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 
 /**
  *

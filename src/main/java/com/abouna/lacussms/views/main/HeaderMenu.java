@@ -13,26 +13,17 @@ import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.tools.Utils;
 import com.abouna.lacussms.views.tools.XlsGenerator;
-import java.awt.Desktop;
-import java.awt.HeadlessException;
-import java.awt.Window;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  *
@@ -47,8 +38,8 @@ public class HeaderMenu extends JMenuBar {
     private final JFileChooser fc = new JFileChooser();
     private Config config ;
              
-    public HeaderMenu() {
-        serviceManager = ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
+    public HeaderMenu(LacusSmsService service) {
+       this.serviceManager = service;//ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
         initComponent();
     }
 
@@ -98,7 +89,9 @@ public class HeaderMenu extends JMenuBar {
         bkmac.setSelected(config != null && config.isBkmac());
         bkmad.setSelected(config != null && config.isMandat());
         bkmpai.setSelected(config != null && config.isBkmpai());
-        System.out.println(config.toString());
+        if(config != null) {
+            System.out.println(config.toString());
+        }
         event.addActionListener((ActionEvent e) -> {
             if(event.isSelected()){
                 config.setEvent(true);
@@ -179,7 +172,7 @@ public class HeaderMenu extends JMenuBar {
                  }
                  try {
                      App.initApp();
-                 } catch (IOException | ClassNotFoundException ex) {
+                 } catch (IOException | ClassNotFoundException | SQLException ex) {
                      Logger.getLogger(HeaderMenu.class.getName()).log(Level.SEVERE, null, ex);
                  }
              }

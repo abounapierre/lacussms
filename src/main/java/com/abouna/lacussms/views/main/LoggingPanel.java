@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import javax.swing.*;
 import java.awt.*;
 
-@Component
+//@Component
 public class LoggingPanel extends JPanel {
     private final Timer timer;
     private final JTextArea textArea;
@@ -24,7 +24,7 @@ public class LoggingPanel extends JPanel {
         setLayout(new BorderLayout(10, 10));
         add(new JScrollPane(textArea), BorderLayout.CENTER);
 
-        timer = new Timer(100, e -> textArea.setText(Utils.getLog()));
+        timer = new Timer(1000, e -> textArea.setText(Utils.getLog()));
     }
 
     public void printLogging() {
@@ -32,4 +32,7 @@ public class LoggingPanel extends JPanel {
         timer.start();
     }
 
+    public Timer getTimer() {
+        return timer;
+    }
 }

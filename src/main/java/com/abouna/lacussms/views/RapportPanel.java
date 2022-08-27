@@ -7,27 +7,22 @@
 package com.abouna.lacussms.views;
 
 import com.abouna.lacussms.config.ApplicationConfig;
-import com.abouna.lacussms.entities.BkAgence;
-import com.abouna.lacussms.entities.BkCli;
-import com.abouna.lacussms.entities.BkEve;
-import com.abouna.lacussms.entities.BkOpe;
-import com.abouna.lacussms.entities.Message;
+import com.abouna.lacussms.entities.*;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.MainMenuPanel;
 import com.abouna.lacussms.views.tools.PrintReportPDF;
 import com.abouna.lacussms.views.utils.CustomTableCellRenderer;
 import com.abouna.lacussms.views.utils.CustomTableModel;
+import com.abouna.lacussms.views.utils.DialogUtils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.HeadlessException;
-import java.awt.Image;
+import org.jdesktop.swingx.JXDatePicker;
+import org.jdesktop.swingx.JXSearchField;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -36,25 +31,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import org.jdesktop.swingx.JXDatePicker;
-import org.jdesktop.swingx.JXSearchField;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
@@ -64,12 +43,8 @@ public class RapportPanel extends JPanel {
 
     private CustomTableModel tableModel;
     private JTable table;
-    private final JButton nouveau, modifier, supprimer;
-    private final JButton filtre;
-    @Autowired
-    private MainMenuPanel parentPanel;
-    @Autowired
-    private LacusSmsService serviceManager;
+    private final MainMenuPanel parentPanel;
+    private final LacusSmsService serviceManager;
     private final JXDatePicker dateDeb, dateFin;
     private final JFileChooser fc = new JFileChooser();
 
@@ -88,24 +63,18 @@ public class RapportPanel extends JPanel {
         contenu.setLayout(new BorderLayout());
         JPanel bas = new JPanel();
         bas.setLayout(new FlowLayout());
-        Image ajouImg = ImageIO.read(getClass().getResource("/images/Ajouter.png"));
-        Image supprImg = ImageIO.read(getClass().getResource("/images/Cancel2.png"));
-        Image modifImg = ImageIO.read(getClass().getResource("/images/OK.png"));
-        nouveau = new JButton(new ImageIcon(ajouImg));
+        Image ajouImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Ajouter.png")));
+        Image supprImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Cancel2.png")));
+        Image modifImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/OK.png")));
+        JButton nouveau = new JButton(new ImageIcon(ajouImg));
         nouveau.setToolTipText("Ajouter un nouveau message");
-        supprimer = new JButton(new ImageIcon(supprImg));
+        JButton supprimer = new JButton(new ImageIcon(supprImg));
         supprimer.setToolTipText("Suprimer un message");
-        modifier = new JButton(new ImageIcon(modifImg));
+        JButton modifier = new JButton(new ImageIcon(modifImg));
         modifier.setToolTipText("Modifier un message");
-        filtre = new JButton("Filtrer");
+        JButton filtre = new JButton("Filtrer");
         nouveau.addActionListener((ActionEvent ae) -> {
-            Nouveau nouveau1 = new Nouveau(null);
-            nouveau1.setSize(400, 300);
-            nouveau1.setLocationRelativeTo(null);
-            nouveau1.setModal(true);
-            nouveau1.setResizable(false);
-            nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            nouveau1.setVisible(true);
+            DialogUtils.initDialog(new RapportPanel.Nouveau(null), RapportPanel.this.getParent(), 400, 300);
         });
         modifier.addActionListener((ActionEvent ae) -> {
             int selected = table.getSelectedRow();
@@ -113,26 +82,20 @@ public class RapportPanel extends JPanel {
                 Integer id = (Integer) tableModel.getValueAt(selected, 0);
                 Nouveau nouveau1;
                 try {
-                    nouveau1 = new Nouveau(serviceManager.getBkEveById(id));
-                    nouveau1.setSize(400, 300);
-                    nouveau1.setLocationRelativeTo(null);
-                    nouveau1.setModal(true);
-                    nouveau1.setResizable(false);
-                    nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                    nouveau1.setVisible(true);
+                    DialogUtils.initDialog(new RapportPanel.Nouveau(serviceManager.getBkEveById(id)), RapportPanel.this.getParent(), 400, 300);
                 } catch (Exception ex) {
                     Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
             } else {
-                JOptionPane.showMessageDialog(null, "Aucun élément n'est selectionné");
+                JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "Aucun élément n'est selectionné");
             }
         });
         supprimer.addActionListener((ActionEvent ae) -> {
             int selected = table.getSelectedRow();
             if (selected >= 0) {
                 String id = (String) tableModel.getValueAt(selected, 0);
-                int res = JOptionPane.showConfirmDialog(null, "Etes vous sûr de suppimer l'évenement courant?", "Confirmation",
+                int res = JOptionPane.showConfirmDialog(RapportPanel.this.getParent(), "Etes vous sûr de suppimer l'évenement courant?", "Confirmation",
                         JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
                 if (res == JOptionPane.YES_OPTION) {
                     try {
@@ -143,7 +106,7 @@ public class RapportPanel extends JPanel {
                     tableModel.removeRow(selected);
                 }
             } else {
-                JOptionPane.showMessageDialog(null, "Aucun élément selectionné");
+                JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "Aucun élément selectionné");
             }
         });
         JLabel labelNumber = new JLabel("Nombre de Messages");
@@ -184,7 +147,7 @@ public class RapportPanel extends JPanel {
                 SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
 
                 if (dateDeb.getDate() == null || dateFin.getDate() == null) {
-                    JOptionPane.showMessageDialog(null, "la date de début ou de fin ne doit pas etre vide");
+                    JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "la date de début ou de fin ne doit pas etre vide");
                     return;
                 }
                 d1 = format.parse(format.format(dateDeb.getDate()));
@@ -213,7 +176,7 @@ public class RapportPanel extends JPanel {
                 SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
 
                 if (dateDeb.getDate() == null || dateFin.getDate() == null) {
-                    JOptionPane.showMessageDialog(null, "la date de début ou de fin ne doit pas etre vide");
+                    JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "la date de début ou de fin ne doit pas etre vide");
                     return;
                 }
                 d1 = format.parse(format.format(dateDeb.getDate()));
@@ -230,7 +193,7 @@ public class RapportPanel extends JPanel {
                         } catch (FileNotFoundException ex) {
                             Logger.getLogger(RapportPanel.class.getName()).log(Level.SEVERE, null, ex);
                         }
-                        int response = JOptionPane.showConfirmDialog(null, "<html>Rapport généré avec success!!<br>Voulez vous l'ouvrir?", "Confirmation",
+                        int response = JOptionPane.showConfirmDialog(RapportPanel.this.getParent(), "<html>Rapport généré avec success!!<br>Voulez vous l'ouvrir?", "Confirmation",
                                 JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
                         if (response == JOptionPane.YES_OPTION) {
                             try {
@@ -239,11 +202,11 @@ public class RapportPanel extends JPanel {
                                     if (Desktop.isDesktopSupported()) {
                                         Desktop.getDesktop().open(pdfFile);
                                     } else {
-                                        JOptionPane.showMessageDialog(RapportPanel.this, "Ce type de fichier n'est pas pris en charge");
+                                        JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "Ce type de fichier n'est pas pris en charge");
                                         System.out.println("Awt Desktop is not supported!");
                                     }
                                 } else {
-                                    JOptionPane.showMessageDialog(RapportPanel.this, "Ce fichier n'existe pas");
+                                    JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "Ce fichier n'existe pas");
                                     System.out.println("File is not exists!");
                                 }
                             } catch (IOException | HeadlessException ex) {
@@ -271,7 +234,7 @@ public class RapportPanel extends JPanel {
                     val = searchField.getText().toUpperCase();
                     tableModel.setNumRows(0);
                     List<Message> messageList = serviceManager.getAllMessages();
-                    messageList.stream().forEach((a) -> {
+                    messageList.forEach((a) -> {
                         tableModel.addRow(new Object[]{
                             a.getId(),
                             a.getTitle(),
@@ -302,7 +265,7 @@ public class RapportPanel extends JPanel {
         contenu.add(BorderLayout.CENTER, new JScrollPane(table));
         add(BorderLayout.CENTER, contenu);
         try {
-            serviceManager.getAllMessages().stream().forEach((a) -> {
+            serviceManager.getAllMessages().forEach((a) -> {
                 tableModel.addRow(new Object[]{
                     a.getId(),
                     a.getTitle(),
@@ -321,14 +284,18 @@ public class RapportPanel extends JPanel {
 
     private class Nouveau extends JDialog {
 
-        private final JButton okBtn, annulerBtn;
         private final JTextField compteText;
         private final JComboBox<String> etatBox;
         private final JComboBox<BkOpe> bkOpeBox;
         private final JComboBox<BkCli> bkCliBox;
         private final JComboBox<BkAgence> bkAgenceBox;
         private final JTextField montText;
-        private int c = 0, rang = 0, c1 = 0, rang1 = 0, c2 = 0, rang2 = 0;
+        private int c = 0;
+        private int rang = 0;
+        private int c1 = 0;
+        private int rang1 = 0;
+        private final int c2 = 0;
+        private int rang2 = 0;
 
         public Nouveau(final BkEve bkeve) {
             setTitle("NOUVEL EVENEMENT");
@@ -356,45 +323,35 @@ public class RapportPanel extends JPanel {
             etatBox.addItem("AB");
             etatBox.addItem("AN");
             etatBox.addItem("TR");
-            serviceManager.getAllCli().stream().map((bkCli) -> {
-                bkCliBox.addItem(bkCli);
-                return bkCli;
-            }).map((bkCli) -> {
+            serviceManager.getAllCli().stream().peek(bkCliBox::addItem).peek((bkCli) -> {
                 if (bkeve != null) {
                     if (bkeve.getCli().getCode().equals(bkCli.getCode())) {
                         rang = c;
                     }
                 }
-                return bkCli;
             }).forEach((_item) -> {
                 c++;
             });
-            serviceManager.getAllBkAgences().stream().map((bkagence) -> {
-                bkAgenceBox.addItem(bkagence);
-                return bkagence;
-            }).map((bkagence) -> {
+            serviceManager.getAllBkAgences().stream().peek(bkAgenceBox::addItem).peek((bkagence) -> {
                 if (bkeve != null) {
                     if (bkeve.getBkAgence().getNuma().equals(bkagence.getNuma())) {
                         rang2 = c2;
                     }
                 }
-                return bkagence;
             }).forEach((_item) -> {
                 c++;
             });
-            serviceManager.getAllBkOpes().stream().map((bkOpe) -> {
-                bkOpeBox.addItem(bkOpe);
-                return bkOpe;
-            }).map((bkOpe) -> {
+            serviceManager.getAllBkOpes().stream().peek(bkOpeBox::addItem).peek((bkOpe) -> {
                 if (bkeve != null) {
                     if (bkeve.getOpe().getOpe().equals(bkOpe.getOpe())) {
                         rang1 = c1;
                     }
                 }
-                return bkOpe;
             }).forEach((_item) -> {
                 c1++;
             });
+            JButton okBtn;
+            JButton annulerBtn;
             JPanel buttonBar = ButtonBarFactory.buildOKCancelBar(okBtn = new JButton("Enrégistrer"), annulerBtn = new JButton("Annuler"));
             builder.append(buttonBar, builder.getColumnCount());
             add(BorderLayout.CENTER, builder.getPanel());
@@ -413,17 +370,9 @@ public class RapportPanel extends JPanel {
                         etatBox.setSelectedIndex(1);
                         break;
                     case "FO":
-                        etatBox.setSelectedIndex(2);
-                        break;
                     case "VF":
-                        etatBox.setSelectedIndex(2);
-                        break;
                     case "IG":
-                        etatBox.setSelectedIndex(2);
-                        break;
                     case "IF":
-                        etatBox.setSelectedIndex(2);
-                        break;
                     case "AB":
                         etatBox.setSelectedIndex(2);
                         break;
@@ -441,13 +390,13 @@ public class RapportPanel extends JPanel {
                 if (!compteText.getText().equals("")) {
                     a.setCompte(compteText.getText());
                 } else {
-                    JOptionPane.showMessageDialog(null, "Le compte est obligatoire");
+                    JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "Le compte est obligatoire");
                     return;
                 }
                 if (!montText.getText().equals("")) {
                     a.setMont(Double.parseDouble(montText.getText()));
                 } else {
-                    JOptionPane.showMessageDialog(null, "Le compte est obligatoire");
+                    JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "Le compte est obligatoire");
                     return;
                 }
                 

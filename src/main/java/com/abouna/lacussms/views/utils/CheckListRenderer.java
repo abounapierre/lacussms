@@ -6,10 +6,8 @@
 
 package com.abouna.lacussms.views.utils;
 
-import java.awt.Component;
-import javax.swing.JCheckBox;
-import javax.swing.JList;
-import javax.swing.ListCellRenderer;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  *

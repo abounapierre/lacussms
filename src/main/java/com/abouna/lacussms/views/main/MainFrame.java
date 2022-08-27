@@ -1,39 +1,46 @@
 package com.abouna.lacussms.views.main;
 
 import com.abouna.lacussms.config.ApplicationConfig;
+import com.abouna.lacussms.main.App;
+import com.abouna.lacussms.service.LacusSmsService;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.Environment;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author Vincent Douwe <douwevincent@yahoo.fr>
  */
+@SpringBootApplication
+@ComponentScan({ "com.abouna.lacussms"})
 public class MainFrame extends JFrame {
+    private static final Logger logger = LoggerFactory.getLogger(MainFrame.class);
     private Image img;
-    private HeaderMenu menu = new HeaderMenu();
     private final BottomPanel bottomPanel = new BottomPanel();
 
-    public MainFrame() throws IOException, XmlPullParserException {
-        MainMenuPanel mainMenuPanel = ApplicationConfig.getApplicationContext().getBean(MainMenuPanel.class);
+    public MainFrame(MainMenuPanel mainMenuPanel, LacusSmsService service, Environment env) throws IOException, XmlPullParserException {
         mainMenuPanel.setContent(new HomePanel());
-        Environment env = ApplicationConfig.getApplicationContext().getBean(Environment.class);
         this.setTitle("SMILE SMS BANKING VERSION " + env.getProperty("application.version"));
+        HeaderMenu menu = new HeaderMenu(service);
         this.setJMenuBar(menu);
         this.remove(menu);
         try {
             img = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/smile2.png")));
         } catch (IOException ex) {
-            Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Erreur de chargement de l'image");
         }
         setIconImage(img);
         getContentPane().setLayout(new BorderLayout(10, 10));
@@ -72,12 +79,30 @@ public class MainFrame extends JFrame {
         return mainPanel;
     }
 
-    public HeaderMenu getMenu() {
-        return menu;
-    }
 
-    public void setMenu(HeaderMenu menu) {
-        this.menu = menu;
+    public static void main(String[] args) {
+
+        ApplicationConfig.setApplicationContext(new SpringApplicationBuilder(MainFrame.class)
+                .headless(false).run(args));
+
+        try {
+            App.initApp();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "Erreur de démarrage de l'application ");
+        } catch (ClassNotFoundException e) {
+            JOptionPane.showMessageDialog(null, "Erreur de démarrage de l'application fichier introuvable");
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Erreur de démarrage de l'application problème de connexion à la base de données");
+        }
+
+        EventQueue.invokeLater(() -> {
+            MainFrame frame = ApplicationConfig.getApplicationContext().getBean(MainFrame.class);
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            frame.setSize((int) screenSize.getWidth() - 100, (int) screenSize.getHeight() - 100);
+            frame.setLocationRelativeTo(null);
+            frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+            frame.setVisible(true);
+        });
     }
 
 }

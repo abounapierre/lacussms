@@ -1,7 +1,6 @@
 package com.abouna.lacussms.service;
 
 import com.abouna.lacussms.entities.*;
-import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.main.Sender;
 import com.abouna.lacussms.views.main.BottomPanel;
 import com.abouna.lacussms.views.tools.AES;
@@ -18,14 +17,20 @@ import java.util.Iterator;
 import java.util.List;
 
 public class ServiceRequete {
-private static LacusSmsService serviceManager;
-private static String methode;
+private LacusSmsService serviceManager;
+private String methode;
 
-private static String urlParam;
+private String urlParam;
 
 private static final Logger logger = LoggerFactory.getLogger(ServiceRequete.class);
 
-    public static void ServiceRequete() throws SQLException, ParseException {
+    public ServiceRequete(LacusSmsService serviceManager, String methode, String urlParam) {
+        this.serviceManager = serviceManager;
+        this.methode = methode;
+        this.urlParam = urlParam;
+    }
+
+    public void serviceRequete() throws SQLException, ParseException {
         BottomPanel.settextLabel("Traitement des requetes en cours.... ", Color.BLACK);
         new SimpleDateFormat("yyyy-MM-dd");
         new SimpleDateFormat("dd/MM/yyyy");
@@ -117,7 +122,7 @@ private static final Logger logger = LoggerFactory.getLogger(ServiceRequete.clas
         }
     }
 
-    public static void envoieSmsRequete(Command command) {
+    public void envoieSmsRequete(Command command) {
         String msg;
         if (Utils.checkLicence()) {
             String res = Utils.testConnexionInternet();
@@ -155,4 +160,6 @@ private static final Logger logger = LoggerFactory.getLogger(ServiceRequete.clas
 
     }
 
+    public void setConn(Connection connexion) {
+    }
 }

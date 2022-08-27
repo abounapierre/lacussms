@@ -9,11 +9,7 @@ package com.abouna.lacussms.views.main;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.SplashScreen;
+import java.awt.*;
 
 /**
  *

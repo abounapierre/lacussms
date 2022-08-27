@@ -6,11 +6,8 @@
 
 package com.abouna.lacussms.views;
 
-import java.awt.Color;
-import java.awt.Font;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JTextArea;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  *

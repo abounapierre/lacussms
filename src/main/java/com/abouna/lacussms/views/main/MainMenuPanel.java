@@ -5,6 +5,8 @@ import com.abouna.lacussms.views.*;
 import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.swing.*;
@@ -20,10 +22,8 @@ import java.lang.reflect.InvocationTargetException;
  */
 @Component
 public class MainMenuPanel extends JPanel {
-
-
-
-    private final JPanel container;
+    private static final Logger logger = LoggerFactory.getLogger(MainMenuPanel.class);
+    private final ContainerPanel container;
 
     public MainMenuPanel() throws IOException {
         setLayout(new BorderLayout());
@@ -122,7 +122,7 @@ public class MainMenuPanel extends JPanel {
         menu.setBorder(defautBorder);
         JScrollPane jScrollPane = new JScrollPane(menu);
 
-        container = new JPanel();
+        container = new ContainerPanel();
         container.setLayout(new BorderLayout());
         container.setBorder(defautBorder);
         setBackground(Color.red);
@@ -133,9 +133,21 @@ public class MainMenuPanel extends JPanel {
     }
 
     public void setContent(JPanel pan) {
+        stopTimer(pan);
         container.removeAll();
-        container.add(BorderLayout.CENTER, pan);
+        container.add(pan);
         container.validate();
+    }
+
+    private void stopTimer(JPanel pan) {
+        if(container.getCurrent() != null) {
+            if(!(pan instanceof HomePanel) && container.getCurrent() instanceof HomePanel) {
+                HomePanel current = (HomePanel) container.getCurrent();
+                if(current.getLoggingPanel().getTimer().isRunning()) {
+                    current.getLoggingPanel().getTimer().stop();
+                }
+            }
+        }
     }
 
     private <T  extends JPanel> JXHyperlink createLink(String text, Class<T>  panelClass) {
@@ -152,6 +164,7 @@ public class MainMenuPanel extends JPanel {
                     setContent(panelClass.getDeclaredConstructor().newInstance());
                 } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                          NoSuchMethodException e) {
+                    logger.error("Erreur: ", e);
                     JOptionPane.showMessageDialog(MainMenuPanel.this.getParent(), "Erreur lors de la création du panneau");
                 }
             });

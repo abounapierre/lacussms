@@ -10,9 +10,10 @@ import com.abouna.generic.dao.impl.GenericDao;
 import com.abouna.lacussms.dao.ICommandDao;
 import com.abouna.lacussms.entities.Command;
 import com.abouna.lacussms.entities.Status;
+import org.springframework.stereotype.Repository;
+
 import java.util.Date;
 import java.util.List;
-import org.springframework.stereotype.Repository;
 
 /**
  *

@@ -13,35 +13,19 @@ import com.abouna.lacussms.views.main.MainMenuPanel;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Image;
+import org.jdesktop.swingx.JXSearchField;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
-import org.jdesktop.swingx.JXSearchField;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
@@ -84,18 +68,14 @@ public class UserPanel extends JPanel{
         modifier = new JButton(new ImageIcon(modifImg));
         modifier.setToolTipText("Modifier un client");
         filtre = new JButton("Filtrer");
-        nouveau.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                Nouveau nouveau1 = new Nouveau(null);
-                nouveau1.setSize(400, 400);
-                nouveau1.setLocationRelativeTo(null);
-                nouveau1.setModal(true);
-                nouveau1.setResizable(false);
-                nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                nouveau1.setVisible(true);
-            }
+        nouveau.addActionListener(ae -> {
+            Nouveau nouveau1 = new Nouveau(null);
+            nouveau1.setSize(400, 400);
+            nouveau1.setLocationRelativeTo(null);
+            nouveau1.setModal(true);
+            nouveau1.setResizable(false);
+            nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            nouveau1.setVisible(true);
         });
         modifier.addActionListener(new ActionListener() {
             @Override

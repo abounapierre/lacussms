@@ -1,7 +1,6 @@
 package com.abouna.lacussms.views.utils;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 

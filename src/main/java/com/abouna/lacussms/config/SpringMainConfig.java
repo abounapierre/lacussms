@@ -6,14 +6,11 @@
 
 package com.abouna.lacussms.config;
 
-import com.abouna.lacussms.views.main.LoggingPanel;
-import com.abouna.lacussms.views.utils.LogBean;
+import com.abouna.lacussms.views.main.LogFile;
 import com.google.common.base.Preconditions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -25,10 +22,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
-import java.io.*;
 import java.nio.file.FileSystems;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -41,9 +36,6 @@ import java.util.stream.Collectors;
         @PropertySource("classpath:bd.properties"),
         @PropertySource("classpath:application.properties")
 })
-@ComponentScan({ "com.abouna.lacussms.dao.impl",
-    "com.abouna.lacussms.service.impl",
-"com.abouna.lacussms.views"})
 public class SpringMainConfig {
     
     @Autowired
@@ -101,16 +93,6 @@ public class SpringMainConfig {
     }
 
 
-    @Bean
-    public Properties quartzProperties() throws IOException
-    {
-        PropertiesFactoryBean propertiesFactoryBean = new PropertiesFactoryBean();
-        propertiesFactoryBean.setLocation(new ClassPathResource("quartz.properties"));
-        propertiesFactoryBean.afterPropertiesSet();
-        return propertiesFactoryBean.getObject();
-    }
-
-
     @Bean("logPath")
     public String logPath() {
         String fileSeparator = FileSystems.getDefault().getSeparator();
@@ -119,12 +101,12 @@ public class SpringMainConfig {
                 .concat(fileSeparator).concat("lacuss-application.log");
     }
 
-    /*@Bean
-    public LogBean getLogger() {
-        return new LogBean();
+    @Bean
+    public LogFile getLogger() {
+        return new LogFile();
     }
 
-    @Bean
+    /*@Bean
     public LoggingPanel getLoggingPanel() {
         return new LoggingPanel();
     }*/

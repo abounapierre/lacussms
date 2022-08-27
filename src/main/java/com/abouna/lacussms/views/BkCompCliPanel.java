@@ -16,14 +16,13 @@ import com.abouna.lacussms.views.utils.DialogUtils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.HeadlessException;
-import java.awt.Image;
+import org.jdesktop.swingx.JXSearchField;
+import org.slf4j.LoggerFactory;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -32,24 +31,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
-import org.jdesktop.swingx.JXSearchField;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
@@ -59,17 +40,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class BkCompCliPanel extends JPanel{
     private DefaultTableModel tableModel;
     private JTable table;
-    private final JButton nouveau, modifier, supprimer,exportBtn;
-    private final JButton filtre;
-    @Autowired
-    private  MainMenuPanel parentPanel;
-    @Autowired
-    private  LacusSmsService serviceManager;
+    private final MainMenuPanel parentPanel;
+    private final LacusSmsService serviceManager;
     private final JFileChooser fc = new JFileChooser();
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(BkCompCliPanel.class);
     
     public BkCompCliPanel() throws IOException{
         serviceManager = ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
+        parentPanel = ApplicationConfig.getApplicationContext().getBean(MainMenuPanel.class);
         setLayout(new BorderLayout());
         JPanel haut = new JPanel();
         haut.setLayout(new FlowLayout(FlowLayout.CENTER));
@@ -86,112 +64,80 @@ public class BkCompCliPanel extends JPanel{
         Image supprImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Cancel2.png")));
         Image modifImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/OK.png")));
         Image excelImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/excel.PNG")));
-        exportBtn = new JButton(new ImageIcon(excelImg));
-        nouveau = new JButton(new ImageIcon(ajouImg));
+        JButton exportBtn = new JButton(new ImageIcon(excelImg));
+        JButton nouveau = new JButton(new ImageIcon(ajouImg));
         exportBtn.setToolTipText("Exporter la liste des comptes Excel");
         nouveau.setToolTipText("Ajouter un nouveau compte client");
-        supprimer = new JButton(new ImageIcon(supprImg));
+        JButton supprimer = new JButton(new ImageIcon(supprImg));
         supprimer.setToolTipText("Suprimer un compte client");
-        modifier = new JButton(new ImageIcon(modifImg));
+        JButton modifier = new JButton(new ImageIcon(modifImg));
         modifier.setToolTipText("Modifier un compte client");
-        filtre = new JButton("Filtrer");
-        nouveau.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                Nouveau nouveau1 = new Nouveau(null);
-                DialogUtils.initDialog(nouveau1, BkCompCliPanel.this.getParent(), 400, 400);
-                /*nouveau1.setSize(400, 400);
-                nouveau1.setLocationRelativeTo(null);
-                nouveau1.setModal(true);
-                nouveau1.setResizable(false);
-                nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                nouveau1.setVisible(true);*/
+        JButton filtre = new JButton("Filtrer");
+        nouveau.addActionListener(ae -> DialogUtils.initDialog(new Nouveau(null), BkCompCliPanel.this.getParent(), 400, 400));
+        modifier.addActionListener(ae -> {
+            int selected = table.getSelectedRow();
+            if (selected >= 0) {
+                String id = (String) tableModel.getValueAt(selected, 0);
+                try {
+                    DialogUtils.initDialog(new Nouveau(serviceManager.getBkCompCliById(id)), BkCompCliPanel.this.getParent(), 400, 400);
+                } catch (Exception ex) {
+                    Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                JOptionPane.showMessageDialog(BkCompCliPanel.this.getParent(), "Aucun élément n'est selectionné");
             }
         });
-        modifier.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                int selected = table.getSelectedRow();
-                if (selected >= 0) {
-                    String id = (String) tableModel.getValueAt(selected, 0);
-                    Nouveau nouveau1 = null;
+        supprimer.addActionListener(ae -> {
+            int selected = table.getSelectedRow();
+            if (selected >= 0) {
+                String id = (String) tableModel.getValueAt(selected, 0);
+                int res = JOptionPane.showConfirmDialog(BkCompCliPanel.this.getParent(), "Etes vous sûr de suppimer le compte client courant?", "Confirmation",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                if (res == JOptionPane.YES_OPTION) {
                     try {
-                        nouveau1 = new Nouveau(serviceManager.getBkCompCliById(id));
-                        DialogUtils.initDialog(nouveau1, BkCompCliPanel.this.getParent(), 400, 400);
+                        serviceManager.supprimerBkCompCli(id);
                     } catch (Exception ex) {
                         Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    /*nouveau1.setSize(400, 400);
-                    nouveau1.setLocationRelativeTo(null);
-                    nouveau1.setModal(true);
-                    nouveau1.setResizable(false);
-                    nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                    nouveau1.setVisible(true);*/
-                } else {
-                    JOptionPane.showMessageDialog(BkCompCliPanel.this.getParent(), "Aucun élément n'est selectionné");
+                    tableModel.removeRow(selected);
                 }
-            }
-        });
-        supprimer.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                int selected = table.getSelectedRow();
-                if (selected >= 0) {
-                    String id = (String) tableModel.getValueAt(selected, 0);
-                    int res = JOptionPane.showConfirmDialog(BkCompCliPanel.this.getParent(), "Etes vous sûr de suppimer le compte client courant?", "Confirmation",
-                            JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-                    if (res == JOptionPane.YES_OPTION) {
-                        try {
-                            serviceManager.supprimerBkCompCli(id);
-                        } catch (Exception ex) {
-                            Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        tableModel.removeRow(selected);
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(BkCompCliPanel.this.getParent(), "Aucun élément selectionné");
-                }
+            } else {
+                JOptionPane.showMessageDialog(BkCompCliPanel.this.getParent(), "Aucun élément selectionné");
             }
         });
         
-        exportBtn.addActionListener(new ActionListener() {
+        exportBtn.addActionListener(e -> {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                
-                int val_retour = fc.showSaveDialog(BkCompCliPanel.this);
-                if (val_retour == JFileChooser.APPROVE_OPTION) {
-                    File fichier = fc.getSelectedFile();
-                    final String path = fichier.getAbsolutePath() + ".xls";
-                    Thread t = new Thread(new Runnable() {
+            int val_retour = fc.showSaveDialog(BkCompCliPanel.this);
+            if (val_retour == JFileChooser.APPROVE_OPTION) {
+                File fichier = fc.getSelectedFile();
+                final String path = fichier.getAbsolutePath() + ".xls";
+                Thread t = new Thread(new Runnable() {
 
-                        @Override
-                        public void run() {
-                            List<BkCompCli> bkCompClis = serviceManager.getAllBkCompClis();
-                            XlsGenerator xlsGenerator = new XlsGenerator(bkCompClis, path);
-                        }
-                    });
-                    t.start();
-                    int response = JOptionPane.showConfirmDialog(null, "<html>Rapport généré avec success!!<br>Voulez vous l'ouvrir?", "Confirmation",
-                            JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-                    if (response == JOptionPane.YES_OPTION) {
-                        try {
-                            File pdfFile = new File(path);
-                            if (pdfFile.exists()) {
-                                if (Desktop.isDesktopSupported()) {
-                                    Desktop.getDesktop().open(pdfFile);
-                                } else {
-                                    JOptionPane.showMessageDialog(BkCompCliPanel.this, "Ce type de fichier n'est pas pris en charge");
-                                    logger.info("Awt Desktop is not supported!");
-                                }
+                    @Override
+                    public void run() {
+                        List<BkCompCli> bkCompClis = serviceManager.getAllBkCompClis();
+                        new XlsGenerator(bkCompClis, path);
+                    }
+                });
+                t.start();
+                int response = JOptionPane.showConfirmDialog(BkCompCliPanel.this.getParent(), "<html>Rapport généré avec success!!<br>Voulez vous l'ouvrir?", "Confirmation",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                if (response == JOptionPane.YES_OPTION) {
+                    try {
+                        File pdfFile = new File(path);
+                        if (pdfFile.exists()) {
+                            if (Desktop.isDesktopSupported()) {
+                                Desktop.getDesktop().open(pdfFile);
                             } else {
-                                JOptionPane.showMessageDialog(BkCompCliPanel.this, "Ce fichier n'existe pas");
-                                logger.error("File is not exists!");
+                                JOptionPane.showMessageDialog(BkCompCliPanel.this.getParent(), "Ce type de fichier n'est pas pris en charge");
+                                logger.info("Awt Desktop is not supported!");
                             }
-                        } catch (IOException ex) {
-                        } catch (HeadlessException ex) {
+                        } else {
+                            JOptionPane.showMessageDialog(BkCompCliPanel.this.getParent(), "Ce fichier n'existe pas");
+                            logger.error("File is not exists!");
                         }
+                    } catch (IOException | HeadlessException ignored) {
                     }
                 }
             }
@@ -296,50 +242,43 @@ public class BkCompCliPanel extends JPanel{
                codeText.setText(bkCompCli.getNumc());
                codeText.setEditable(false);
                clientBox.setSelectedIndex(0);
-               
-               if(bkCompCli.isEnabled())
-                   chkBox.setSelected(true);
-               else
-                   chkBox.setSelected(false);
+
+                chkBox.setSelected(bkCompCli.isEnabled());
             }
 
-            okBtn.addActionListener(new ActionListener() {
+            okBtn.addActionListener(ae -> {
+                BkCompCli a = new BkCompCli();
+                 if (!codeText.getText().equals("")) {
+                    a.setNumc(codeText.getText());
+                } else {
+                    JOptionPane.showMessageDialog(null, "Le num compte est obligatoire");
+                }
 
-                @Override
-                public void actionPerformed(ActionEvent ae) {
-                    BkCompCli a = new BkCompCli();
-                     if (!codeText.getText().equals("")) {
-                        a.setNumc(codeText.getText());
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Le num compte est obligatoire");
-                    }
-                    
-                    a.setEnabled(false);
-                    if(chkBox.isSelected())
-                        a.setEnabled(true);
-                    
-                    a.setCli((BkCli) clientBox.getSelectedItem());
-                    
-                    if (bkCompCli == null) {
-                        try {
-                            serviceManager.enregistrer(a);
-                        } catch (Exception ex) {
-                            Logger.getLogger(BkCompCliPanel.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    } else {
-                        a.setNumc(bkCompCli.getNumc());
-                        try {
-                            serviceManager.modifier(a);
-                        } catch (Exception ex) {
-                            Logger.getLogger(BkCompCliPanel.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
-                    dispose();
+                a.setEnabled(false);
+                if(chkBox.isSelected())
+                    a.setEnabled(true);
+
+                a.setCli((BkCli) clientBox.getSelectedItem());
+
+                if (bkCompCli == null) {
                     try {
-                        parentPanel.setContent(new BkCompCliPanel());
-                    } catch (IOException ex) {
+                        serviceManager.enregistrer(a);
+                    } catch (Exception ex) {
                         Logger.getLogger(BkCompCliPanel.class.getName()).log(Level.SEVERE, null, ex);
                     }
+                } else {
+                    a.setNumc(bkCompCli.getNumc());
+                    try {
+                        serviceManager.modifier(a);
+                    } catch (Exception ex) {
+                        Logger.getLogger(BkCompCliPanel.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                dispose();
+                try {
+                    parentPanel.setContent(new BkCompCliPanel());
+                } catch (IOException ex) {
+                    Logger.getLogger(BkCompCliPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             });
 

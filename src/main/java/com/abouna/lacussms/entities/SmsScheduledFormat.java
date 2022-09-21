@@ -23,6 +23,8 @@ public class SmsScheduledFormat implements Serializable{
     @ManyToOne
     @JoinColumn(name = "SMS_SCHEDULED_ID")
     private SmsScheduled smsScheduled;
+    @Column(name = "quartz_id")
+    private String quartzId;
     @ManyToOne
     @JoinColumn(name = "SMS_FORMAT_ID")
     private MessageFormat messageFormat;
@@ -52,6 +54,14 @@ public class SmsScheduledFormat implements Serializable{
 
     public void setMessageFormat(MessageFormat messageFormat) {
         this.messageFormat = messageFormat;
+    }
+
+    public String getQuartzId() {
+        return quartzId;
+    }
+
+    public void setQuartzId(String quartzId) {
+        this.quartzId = quartzId;
     }
 
     @Override

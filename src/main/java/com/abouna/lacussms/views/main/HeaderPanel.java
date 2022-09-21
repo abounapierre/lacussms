@@ -3,6 +3,7 @@ package com.abouna.lacussms.views.main;
 
 import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.views.ContactPanel;
+import com.abouna.lacussms.views.tools.ConstantUtils;
 import com.abouna.lacussms.views.tools.Utils;
 import org.jdesktop.swingx.JXButton;
 
@@ -62,7 +63,7 @@ public  class HeaderPanel extends JPanel{
         //runParaBtn.setEnabled(false);
         
         runBtn.addActionListener((ActionEvent e) -> {
-            Connection connection = Utils.testConnexion(App.SECRET);
+            Connection connection = Utils.testConnexion(ConstantUtils.SECRET_KEY);
             if (connection != null) {
                 App.setConnexion(connection);
                 App.demarrerServiceSequenciel();
@@ -76,7 +77,7 @@ public  class HeaderPanel extends JPanel{
             }
        });       
          runParaBtn.addActionListener((ActionEvent e) -> {
-             Connection connection = Utils.testConnexion(App.SECRET);
+             Connection connection = Utils.testConnexion(ConstantUtils.SECRET_KEY);
              if(connection != null){
                  App.setConnexion(connection);
                  App.demarrerServiceData();

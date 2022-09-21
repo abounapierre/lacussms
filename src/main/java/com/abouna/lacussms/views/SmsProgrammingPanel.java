@@ -11,7 +11,9 @@ import com.abouna.lacussms.entities.UrlMessage;
 import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.MainMenuPanel;
+import com.abouna.lacussms.views.tools.ConstantUtils;
 import com.abouna.lacussms.views.tools.Utils;
+import com.abouna.lacussms.views.utils.DialogUtils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
@@ -27,6 +29,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,9 +40,8 @@ import java.util.logging.Logger;
 public class SmsProgrammingPanel extends JPanel{
     private DefaultTableModel tableModel;
     private JTable table;
-    private final JButton nouveau, modifier, supprimer;
-    private  MainMenuPanel parentPanel;
-    private  LacusSmsService serviceManager;
+    private final MainMenuPanel parentPanel;
+    private final LacusSmsService serviceManager;
     
     public SmsProgrammingPanel() throws IOException{
         serviceManager = ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
@@ -56,49 +58,34 @@ public class SmsProgrammingPanel extends JPanel{
         contenu.setLayout(new BorderLayout());
         JPanel bas = new JPanel();
         bas.setLayout(new FlowLayout());
-        Image ajouImg = ImageIO.read(getClass().getResource("/images/Ajouter.png"));
-        Image supprImg = ImageIO.read(getClass().getResource("/images/Cancel2.png"));
-        Image modifImg = ImageIO.read(getClass().getResource("/images/OK.png"));
-        nouveau = new JButton(new ImageIcon(ajouImg));
+        Image ajouImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Ajouter.png")));
+        Image supprImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Cancel2.png")));
+        Image modifImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/OK.png")));
+        JButton nouveau = new JButton(new ImageIcon(ajouImg));
         nouveau.setToolTipText("Programmer l'envoie des messages");
-        supprimer = new JButton(new ImageIcon(supprImg));
+        JButton supprimer = new JButton(new ImageIcon(supprImg));
         supprimer.setToolTipText("Suprimer un programme");
-        modifier = new JButton(new ImageIcon(modifImg));
+        JButton modifier = new JButton(new ImageIcon(modifImg));
         modifier.setToolTipText("Modifier un programme");
-        nouveau.addActionListener((ActionEvent ae) -> {
-            Nouveau nouveau1 = new Nouveau(null);
-            nouveau1.setSize(500, 250);
-            nouveau1.setLocationRelativeTo(null);
-            nouveau1.setModal(true);
-            nouveau1.setResizable(false);
-            nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            nouveau1.setVisible(true);
-        });
+        nouveau.addActionListener((ActionEvent ae) -> DialogUtils.initDialog(new Nouveau(null), SmsProgrammingPanel.this.getParent(), 700, 500));
         modifier.addActionListener((ActionEvent ae) -> {
             int selected = table.getSelectedRow();
             if (selected >= 0) {
                 Integer id = (Integer) tableModel.getValueAt(selected, 0);
-                Nouveau nouveau1;
                 try {
-                    nouveau1 = new Nouveau(serviceManager.getUrlMessageById(id));
-                    nouveau1.setSize(500, 250);
-                    nouveau1.setLocationRelativeTo(null);
-                    nouveau1.setModal(true);
-                    nouveau1.setResizable(false);
-                    nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                    nouveau1.setVisible(true);
+                    DialogUtils.initDialog(new Nouveau(serviceManager.getUrlMessageById(id)), SmsProgrammingPanel.this.getParent(), 700, 500);
                 } catch (Exception ex) {
                     Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } else {
-                JOptionPane.showMessageDialog(null, "Aucun élément n'est selectionné");
+                JOptionPane.showMessageDialog(SmsProgrammingPanel.this.getParent(), "Aucun élément n'est selectionné");
             }
         });
         supprimer.addActionListener((ActionEvent ae) -> {
             int selected = table.getSelectedRow();
             if (selected >= 0) {
                 Integer id = (Integer) tableModel.getValueAt(selected, 0);
-                int res = JOptionPane.showConfirmDialog(null, "Etes vous sûr de suppimer ce programme?", "Confirmation",
+                int res = JOptionPane.showConfirmDialog(SmsProgrammingPanel.this.getParent(), "Etes vous sûr de suppimer ce programme?", "Confirmation",
                         JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
                 if (res == JOptionPane.YES_OPTION) {
                     try {
@@ -109,12 +96,12 @@ public class SmsProgrammingPanel extends JPanel{
                     tableModel.removeRow(selected);
                 }
             } else {
-                JOptionPane.showMessageDialog(null, "Aucun élément selectionné");
+                JOptionPane.showMessageDialog(SmsProgrammingPanel.this.getParent(), "Aucun élément selectionné");
             }
         });
         JButton testBtn = new JButton("Test Connexion");
         testBtn.addActionListener((ActionEvent e) -> {
-            if(Utils.testConnexion(App.SECRET) != null){
+            if(Utils.testConnexion(ConstantUtils.SECRET_KEY) != null){
                 JOptionPane.showMessageDialog(parentPanel, "Connexion réussie");
             }else{
                 JOptionPane.showMessageDialog(parentPanel, "Erreur lors de l'établissement de la connexion!");
@@ -131,20 +118,16 @@ public class SmsProgrammingPanel extends JPanel{
         filtrePanel.add(searchField);
          filtrePanel.setBackground(new Color(166, 202, 240));
         searchField.addActionListener((ActionEvent e) -> {
-            String val = null;
             if (searchField.getText() != null) {
                 try {
-                    val = searchField.getText().toUpperCase();
                     tableModel.setNumRows(0);
                     List<UrlMessage> urlMessageList = serviceManager.getAllUrlMessages();
-                    urlMessageList.stream().forEach((a) -> {
-                        tableModel.addRow(new Object[]{
-                            a.getId(),
-                            a.getUrlValue(),
-                            a.getMethode().equals("METHO1")?"Méthode 1":"Méthode 2",
-                            a.isDefaultUrl()
-                        });
-                    });
+                    urlMessageList.forEach((a) -> tableModel.addRow(new Object[]{
+                        a.getId(),
+                        a.getUrlValue(),
+                        a.getMethode().equals("METHO1") ? "Méthode 1" : "Méthode 2",
+                        a.isDefaultUrl()
+                    }));
                 } catch (Exception ex) {
                     Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -161,7 +144,7 @@ public class SmsProgrammingPanel extends JPanel{
         contenu.add(BorderLayout.CENTER, new JScrollPane(table));
         add(BorderLayout.CENTER, contenu);
         try {
-            serviceManager.getAllUrlMessages().stream().forEach((a) -> {
+            serviceManager.getAllUrlMessages().forEach((a) -> {
                 tableModel.addRow(new Object[]{
                     a.getId(),
                     a.getUrlValue(),
@@ -176,15 +159,12 @@ public class SmsProgrammingPanel extends JPanel{
 
     private class Nouveau extends JDialog {
 
-        private final JButton okBtn, annulerBtn;
-        private final JTextArea urlText;
-        private final JCheckBox chkBox;
-        private final JComboBox<String> methodeBox;
-       
-        private int c = 0, rang =0;
+        private final JTextArea contactsText;
+        //private final JCheckBox chkBox;
+        //private final JComboBox<String> methodeBox;
 
         public Nouveau(final UrlMessage url) {
-            setTitle("NOUVELLE URL");
+            setTitle("PROG SMS");
             setModal(true);
             setLayout(new BorderLayout(10, 10));
             JPanel haut = new JPanel();
@@ -194,17 +174,23 @@ public class SmsProgrammingPanel extends JPanel{
             add(BorderLayout.BEFORE_FIRST_LINE, haut);
             DefaultFormBuilder builder = new DefaultFormBuilder(new FormLayout("right:max(40dlu;p), 12dlu, 180dlu:", ""));
             builder.setDefaultDialogBorder();
-            builder.append("URL", urlText = new JTextArea(5, 20));
-            builder.append("Methode d'envoie", methodeBox = new JComboBox<>());
-            builder.append("Par défaut?", chkBox = new JCheckBox());
-            urlText.setSize(5, 20);
-            urlText.setLineWrap(true);
-            urlText.setWrapStyleWord(true);
+            contactsText = new JTextArea(20, 80);
+            builder.append("Contacts", new JScrollPane(contactsText));
+            JFileChooser chooser = new JFileChooser();
+            int returnVal = chooser.showOpenDialog(null);
+            builder.append("", chooser);
+            //builder.append("Methode d'envoie", methodeBox = new JComboBox<>());
+            //builder.append("Par défaut?", chkBox = new JCheckBox());
+            contactsText.setSize(20, 80);
+            contactsText.setLineWrap(true);
+            contactsText.setWrapStyleWord(true);
+            JButton okBtn;
+            JButton annulerBtn;
             JPanel buttonBar = ButtonBarFactory.buildOKCancelBar(okBtn = new JButton("Enrégistrer"), annulerBtn = new JButton("Annuler"));
             builder.append(buttonBar, builder.getColumnCount());
             add(BorderLayout.CENTER, new JScrollPane(builder.getPanel()));
-            methodeBox.addItem("Méthode 1");
-            methodeBox.addItem("Méthode 2");
+            //methodeBox.addItem("Méthode 1");
+            //methodeBox.addItem("Méthode 2");
             if (url != null) {
                String url1 = url.getUrlValue();
                         String[] tab = url1.split("=");
@@ -221,29 +207,13 @@ public class SmsProgrammingPanel extends JPanel{
                                 }
                             }
                         }
-               urlText.setText(url1);
-               if(url.isDefaultUrl())
-                  chkBox.setSelected(true);
-               else
-                   chkBox.setSelected(false);
-               
-               if(url.getMethode()!=null){
-                   switch (url.getMethode()) {
-                       case "METHO1":
-                           methodeBox.setSelectedIndex(0);
-                           break;
-                       case "METHO2":
-                           methodeBox.setSelectedIndex(1);
-                           break;
-                   }
-               }
-               
+               contactsText.setText(url1);
             }
 
             okBtn.addActionListener((ActionEvent ae) -> {
                 UrlMessage a = new UrlMessage();
-                if (!urlText.getText().equals("")) {
-                    String url1 = urlText.getText();
+                if (!contactsText.getText().equals("")) {
+                    String url1 = contactsText.getText();
                     String[] tab = url1.split("=");
                     for (int i = 1; i<tab.length; i++) {
                         String[] t2 = tab[i].split("&");
@@ -264,32 +234,20 @@ public class SmsProgrammingPanel extends JPanel{
                     JOptionPane.showMessageDialog(null, "L'url est obligatoire");
                     return;
                 }
-                if(methodeBox.getSelectedItem().equals("Méthode 1"))
-                    a.setMethode("METHO1");
-                else if(methodeBox.getSelectedItem().equals("Méthode 2"))
-                    a.setMethode("METHO2");
-                if(chkBox.isSelected())
-                    a.setDefaultUrl(true);
-                else
-                    a.setDefaultUrl(false);
+
                 if(a.isDefaultUrl()){
-                    serviceManager.getAllUrlMessages().stream().map((r) -> {
-                        r.setDefaultUrl(false);
-                        return r;
-                    }).forEach((r) -> {
-                        serviceManager.modifier(r);
-                    });
+                    serviceManager.getAllUrlMessages().stream().peek((r) -> r.setDefaultUrl(false)).forEach(serviceManager::modifier);
                 }
                 int i = 0;
-                String r = "";
-                String var = urlText.getText();
-                while (urlText.getText().charAt(i) != '?') {
-                    r += urlText.getText().charAt(i);
-                    var = var.replace(""+urlText.getText().charAt(i), "");
+                StringBuilder r = new StringBuilder();
+                String var = contactsText.getText();
+                while (contactsText.getText().charAt(i) != '?') {
+                    r.append(contactsText.getText().charAt(i));
+                    var = var.replace(""+contactsText.getText().charAt(i), "");
                     i++;
                 }
                 var = var.replace("?", "");
-                a.setRoot(r);
+                a.setRoot(r.toString());
                 a.setParamString(var);
                 if (url == null) {
                     try {

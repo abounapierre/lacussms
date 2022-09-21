@@ -10,6 +10,7 @@ import com.abouna.lacussms.entities.BkEtatOp;
 import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.MainMenuPanel;
+import com.abouna.lacussms.views.tools.ConstantUtils;
 import com.abouna.lacussms.views.tools.Utils;
 import com.abouna.lacussms.views.utils.DialogUtils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -99,7 +100,7 @@ public class EtatOPParamPanel extends JPanel{
         });
         JButton testBtn = new JButton("Test Connexion");
         testBtn.addActionListener(e -> {
-            if(Utils.testConnexion(App.SECRET) != null){
+            if(Utils.testConnexion(ConstantUtils.SECRET_KEY) != null){
                 JOptionPane.showMessageDialog(parentPanel, "Connexion réussie");
             }else{
                 JOptionPane.showMessageDialog(parentPanel, "Erreur lors de l'établissement de la connexion!");

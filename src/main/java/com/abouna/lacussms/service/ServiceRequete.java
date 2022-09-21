@@ -1,7 +1,9 @@
 package com.abouna.lacussms.service;
 
 import com.abouna.lacussms.entities.*;
-import com.abouna.lacussms.main.Sender;
+import com.abouna.lacussms.main.App;
+import com.abouna.lacussms.views.tools.ConstantUtils;
+import com.abouna.lacussms.views.tools.Sender;
 import com.abouna.lacussms.views.main.BottomPanel;
 import com.abouna.lacussms.views.tools.AES;
 import com.abouna.lacussms.views.tools.Utils;
@@ -17,10 +19,10 @@ import java.util.Iterator;
 import java.util.List;
 
 public class ServiceRequete {
-private LacusSmsService serviceManager;
-private String methode;
+private final LacusSmsService serviceManager;
+private final String methode;
 
-private String urlParam;
+private final String urlParam;
 
 private static final Logger logger = LoggerFactory.getLogger(ServiceRequete.class);
 
@@ -35,7 +37,7 @@ private static final Logger logger = LoggerFactory.getLogger(ServiceRequete.clas
         new SimpleDateFormat("yyyy-MM-dd");
         new SimpleDateFormat("dd/MM/yyyy");
         RemoteDB remoteDB = serviceManager.getDefaultRemoteDB(true);
-        String decryptedString = AES.decrypt(remoteDB.getPassword(), "LACUS2017");
+        String decryptedString = AES.decrypt(remoteDB.getPassword(), ConstantUtils.SECRET_KEY);
         Connection conn = DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
         List<Command> commands = serviceManager.getCommandByStatus(Status.PENDING);
         String query = null;

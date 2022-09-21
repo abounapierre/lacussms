@@ -1537,9 +1537,7 @@ public class LacusSmsServiceImpl implements LacusSmsService {
     @Override
     public Map<String, String> getParametreRequeteValues(TypeService typeService) {
         Map<String, String> map = new HashMap<>();
-        parametreRequeteDao.getParametersByService(typeService).forEach((p) -> {
-            map.put(p.getCode(), p.getValeur());
-        });
+        parametreRequeteDao.getParametersByService(typeService).forEach(p -> map.put(p.getCode(), p.getValeur()));
         return map;
     }
 

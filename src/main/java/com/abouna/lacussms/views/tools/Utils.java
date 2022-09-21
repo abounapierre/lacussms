@@ -58,17 +58,9 @@ public class Utils {
     public Utils() {
     }
 
-    public static int anneeDate(Date d) {
-        Date maDate = new Date();
-        SimpleDateFormat maDateLongue = new SimpleDateFormat("yyyy");
-        return new Integer(maDateLongue.format(maDate));
-    }
-
     public static Date getTimeFromInternet() {
-        logger.info("Test connexion internet");
-
         try {
-            Date date = null;
+            Date date;
             String TIME_SERVER = "time-a.nist.gov";
             NTPUDPClient timeClient = new NTPUDPClient();
             InetAddress inetAddress = InetAddress.getByName(TIME_SERVER);
@@ -82,10 +74,6 @@ public class Utils {
         }
     }
 
-    public boolean compareDate(Date fixedDate) {
-        Date date = getTimeFromInternet();
-        return !date.after(fixedDate);
-    }
 
     public static String moveZero(Double d) {
         String res = "";
@@ -98,7 +86,7 @@ public class Utils {
     }
 
     public static List<String> getNumFromExcel(String path) {
-        List<String> list = new ArrayList();
+        List<String> list = new ArrayList<>();
         FileInputStream fichier = null;
 
         try {
@@ -141,9 +129,7 @@ public class Utils {
 
                 list.add(data);
             }
-        } catch (FileNotFoundException var10) {
-            return null;
-        } catch (IOException var11) {
+        } catch (IOException var10) {
             return null;
         }
     }
@@ -308,13 +294,13 @@ public class Utils {
         List<String> list = new ArrayList<>();
 
         for(int i = 0; i < text.length(); ++i) {
-            String result = "";
+            StringBuilder result = new StringBuilder();
             if (text.charAt(i) == '<') {
                 for(int j = i + 1; text.charAt(j) != '>'; ++j) {
-                    result = result + text.charAt(j);
+                    result.append(text.charAt(j));
                 }
 
-                list.add(result);
+                list.add(result.toString());
             }
         }
 
@@ -439,14 +425,12 @@ public class Utils {
 
     public static String testConnexionInternet() {
         String code = "KO";
-
         try {
             URL url = new URL("http://www.google.com");
             HttpURLConnection conn1 = (HttpURLConnection)url.openConnection();
             if (conn1.getResponseCode() == 200) {
                 code = "OK";
             }
-
             return code;
         } catch (IOException var3) {
             return "KO";
@@ -475,27 +459,9 @@ public class Utils {
 
     }
 
-    public static void ecrireFichier(File f, String chaine) {
-        try {
-            FileWriter fw = new FileWriter(f);
-            fw.write(chaine);
-            fw.write("\r\n");
-            fw.close();
-        } catch (IOException var3) {
-           logger.error("Erreur lors de la lecture : " + var3.getMessage());
-        }
-
-    }
-
     public static Date add(Date d, long a) {
         Date d2 = new Date(d.getTime() + a * 86400000L);
         return d2;
-    }
-
-    public static Calendar dateToCalendar(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        return calendar;
     }
 
     public static String day(int i) {
@@ -597,7 +563,7 @@ public class Utils {
     public static Date getDate(String encrypt) {
         if (encrypt != null && !encrypt.isEmpty()) {
             SimpleDateFormat sdf = new SimpleDateFormat("ddMMyy");
-            String original = AES.decrypt(encrypt, "$!LACUS@2020!1.2.6$");
+            String original = AES.decrypt(encrypt, ConstantUtils.SECRET_KEY);
             assert original != null;
             original = original.replace("AB-", "").replace("-PI", "");
             Date date = null;
@@ -618,8 +584,16 @@ public class Utils {
         SimpleDateFormat sdf = new SimpleDateFormat("ddMMyy");
         String formatDate = sdf.format(date);
         formatDate = "AB-" + formatDate + "-PI";
-        String val = AES.encrypt(formatDate, "$!LACUS@2020!1.2.6$");
-        return val;
+        return AES.encrypt(formatDate, ConstantUtils.SECRET_KEY);
+    }
+
+    public static Date getDateSimpleFormat(String format, String value) {
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        try {
+            return sdf.parse(value);
+        } catch (ParseException e) {
+            return null;
+        }
     }
 
     public static String getMacAdress2() {
@@ -634,16 +608,14 @@ public class Utils {
             }
 
             return sb.toString();
-        } catch (UnknownHostException var5) {
-            return null;
-        } catch (SocketException var6) {
+        } catch (UnknownHostException | SocketException var5) {
             return null;
         }
     }
 
     public static String getMacAddress() {
         try {
-            List<String> macs = new ArrayList();
+            List<String> macs = new ArrayList<>();
             Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
 
             while(true) {
@@ -678,9 +650,11 @@ public class Utils {
         try {
             MessageDigest sha = MessageDigest.getInstance(algorithme);
             digest = sha.digest(monMessage.getBytes());
-        } catch (NoSuchAlgorithmException var4) {
+        } catch (NoSuchAlgorithmException ignored) {
+            return null;
         }
 
+        assert digest != null;
         return bytesToHex(digest);
     }
 
@@ -688,9 +662,9 @@ public class Utils {
         char[] hexDigits = new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
         StringBuilder buffer = new StringBuilder();
 
-        for(int j = 0; j < b.length; ++j) {
-            buffer.append(hexDigits[b[j] >> 4 & 15]);
-            buffer.append(hexDigits[b[j] & 15]);
+        for (byte value : b) {
+            buffer.append(hexDigits[value >> 4 & 15]);
+            buffer.append(hexDigits[value & 15]);
         }
 
         return buffer.toString();
@@ -762,17 +736,17 @@ public class Utils {
     }
 
     public static String decript(String s) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
 
         for(int i = 2; i < s.length(); i += 3) {
             char c = s.charAt(i);
-            result = result + "" + c;
+            result.append(c);
             if (result.length() == 6) {
                 break;
             }
         }
 
-        return result;
+        return result.toString();
     }
 
     public static void verifyComputer() throws IOException {

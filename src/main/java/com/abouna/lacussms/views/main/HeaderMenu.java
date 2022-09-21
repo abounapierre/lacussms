@@ -169,12 +169,14 @@ public class HeaderMenu extends JMenuBar {
                      JFrame frame = (JFrame) window;
                      frame.setVisible(false);
                      frame.dispose();
+                     App.appliRun = false;
                  }
-                 try {
-                     App.initApp();
+                 MainFrame.main(new String[]{});
+                 /*try {
+                     MainFrame.main(null);
                  } catch (IOException | ClassNotFoundException | SQLException ex) {
                      Logger.getLogger(HeaderMenu.class.getName()).log(Level.SEVERE, null, ex);
-                 }
+                 }*/
              }
         });
         

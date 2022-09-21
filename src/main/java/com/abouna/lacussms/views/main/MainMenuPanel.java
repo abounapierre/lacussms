@@ -1,6 +1,5 @@
 package com.abouna.lacussms.views.main;
 
-import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.views.*;
 import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXTaskPane;
@@ -47,7 +46,7 @@ public class MainMenuPanel extends JPanel {
         JXHyperlink commandBtn = createLink("Requêtes", CommandPanel.class);
         JXHyperlink serviceBtn = createLink("Services", ServiceOffertPanel.class);
         //JXHyperlink programBtn = createLink("Prog. Mail");
-        //JXHyperlink programSmsBtn = createLink("Prog. SMS");
+        JXHyperlink programSmsBtn = createLink("Prog. SMS", SmsProgrammingPanel.class);
         JXHyperlink configReqBtn = createLink("Conf. req.", ParametreRequetePanel.class);
         JXHyperlink accueilBtn = createLink("Accueil", HomePanel.class);
         JXHyperlink paramTblBtn = createLink("Param Table", MessageFormatPanel.class);
@@ -91,7 +90,7 @@ public class MainMenuPanel extends JPanel {
         donneesPane.add(eveBtn);
         //donneesPane.add(holidayBtn);
         //donneesPane.add(programBtn);
-        //donneesPane.add(programSmsBtn);
+        donneesPane.add(programSmsBtn);
         donneesPane.add(envoieMsgBtn);
         donneesPane.add(remoteBdBtn);
         donneesPane.add(configReqBtn);

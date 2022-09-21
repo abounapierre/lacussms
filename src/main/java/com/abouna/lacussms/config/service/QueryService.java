@@ -20,7 +20,7 @@ public class QueryService {
             return null;
         }
         if(service.equals(TypeService.EVENEMENT)){
-            String val = query
+            return query
                 .replace("NCP1", map.get(RequeteEvenement.NUMERO_COMPTE.name()))
                 .replace("AGE", map.get(RequeteEvenement.CODE_AGENCE.name()))
                 .replace("CLI1", map.get(RequeteEvenement.CODE_CLIENT.name()))
@@ -32,9 +32,8 @@ public class QueryService {
                 .replace("HSAI", map.get(RequeteEvenement.HEURE_EVENEMENT.name()))
                 .replace("BKEVE", map.get(RequeteEvenement.NOM_TABLE.name()))
                 .replace("MON1", map.get(RequeteEvenement.MONTANT_OPERATION.name()));
-        return val;
         } else if(service.equals(TypeService.CREDIT)){
-            String val = query
+            return query
                 .replace("NCP", map.get(RequeteCredit.NUMERO_COMPTE.name()))
                 .replace("CAI", map.get(RequeteCredit.CODE_AI.name()))
                 .replace("AGE", map.get(RequeteCredit.CODE_AGENCE.name()))
@@ -44,9 +43,8 @@ public class QueryService {
                 .replace("HEU", map.get(RequeteCredit.HEURE_EVENEMENT.name()))
                 .replace("BKMAC", map.get(RequeteCredit.NOM_TABLE.name()))
                 .replace("MNT", map.get(RequeteCredit.MONTANT_OPERATION.name()));
-        return val;
         } else if(service.equals(TypeService.HISTORIQUE)){
-            String val = query
+            return query
                 .replace("NCP", map.get(RequeteHistorique.NUMERO_COMPTE.name()))
                 .replace("AGE", map.get(RequeteHistorique.CODE_AGENCE.name()))
                 .replace("EVE", map.get(RequeteHistorique.CODE_EVENEMENT.name()))
@@ -54,9 +52,8 @@ public class QueryService {
                 .replace("DVA", map.get(RequeteHistorique.DATE_VALEUR.name()))
                 .replace("BKHIS", map.get(RequeteHistorique.NOM_TABLE.name()))
                 .replace("MCTV", map.get(RequeteHistorique.MONTANT_OPERATION.name()));
-        return val;
         } else if(service.equals(TypeService.MANDAT)){
-            String val = query
+            return query
                 .replace("CLESEC", map.get(RequeteMandat.CODE_OPERATION.name()))
                 .replace("AGE", map.get(RequeteMandat.CODE_AGENCE.name()))
                 .replace("CTR", map.get(RequeteMandat.CODE_CONFIRMATION.name()))
@@ -68,9 +65,8 @@ public class QueryService {
                 .replace("AD2P", map.get(RequeteMandat.DATE_RETRAIT.name()))
                 .replace("BKMAD", map.get(RequeteMandat.NOM_TABLE.name()))
                 .replace("MNT", map.get(RequeteMandat.MONTANT_OPERATION.name()));
-        return val;
         }else if(service.equals(TypeService.SALAIRE1)){
-            String val = query
+            return query
                 .replace("NCP", map.get(RequeteSalaire1.NUMERO_COMPTE.name()))
                 .replace("AGE", map.get(RequeteSalaire1.CODE_AGENCE.name()))
                 .replace("EVE", map.get(RequeteSalaire1.CODE_EVENEMENT.name()))
@@ -78,9 +74,8 @@ public class QueryService {
                 .replace("DCO", map.get(RequeteSalaire1.DATE_COMPTABLE.name()))
                 .replace("BKMPAI", map.get(RequeteSalaire1.NOM_TABLE.name()))
                 .replace("MON", map.get(RequeteSalaire1.MONTANT_OPERATION.name()));
-        return val;
         }else if(service.equals(TypeService.SALAIRE2)){
-            String val = query
+            return query
                 .replace("NCP", map.get(RequeteSalaire2.NUMERO_COMPTE.name()))
                 .replace("AGE", map.get(RequeteSalaire2.CODE_AGENCE.name()))
                 .replace("EVE", map.get(RequeteSalaire2.CODE_EVENEMENT.name()))
@@ -89,28 +84,23 @@ public class QueryService {
                 .replace("DCO", map.get(RequeteSalaire2.DATE_COMPTABLE.name()))
                 .replace("BKMVTI", map.get(RequeteSalaire2.NOM_TABLE.name()))
                 .replace("MON", map.get(RequeteSalaire2.MONTANT_OPERATION.name()));
-        return val;
         }else if(service.equals(TypeService.SOLDE)){
-            String val = query
+            return query
                 .replace("NCP", map.get(RequeteSolde.NUMERO_COMPTE.name()))
                 .replace("SIN", map.get(RequeteSolde.SOLDE.name()))
                 .replace("BKCOM", map.get(RequeteSolde.NOM_TABLE.name()));
-        return val;
         } else if(service.equals(TypeService.TELEPHONE_CLIENT)){
-            String val = query
+            return query
                 .replace("NUM", map.get(RequeteClient.NUMERO_TELEPHONE.name()))
                 .replace("CLI", map.get(RequeteClient.CODE_CLIENT.name()))
                 .replace("TYP", map.get(RequeteClient.TYPE_CLIENT.name()))
                 .replace("BKTELCLI", map.get(RequeteClient.NOM_TABLE.name()));
-        return val;
         } else if(service.equals(TypeService.AGENCE)){
-            String val = query
+            return query
                 .replace("NCP", map.get(RequeteAgence.NUMERO_COMPTE.name()))
                 .replace("AGE", map.get(RequeteAgence.CODE_AGENCE.name()))
                 .replace("BKCOM", map.get(RequeteAgence.NOM_TABLE.name()));
-        return val;
         }
         return null;
-        
     }
 }

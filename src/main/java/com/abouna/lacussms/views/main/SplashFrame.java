@@ -16,7 +16,7 @@ import java.awt.*;
  * @author SATELLITE
  */
 public class SplashFrame {
-    final SplashScreen splash = SplashScreen.getSplashScreen();
+    final java.awt.SplashScreen splash = java.awt.SplashScreen.getSplashScreen();
     private final Logger logger = LoggerFactory.getLogger(SplashFrame.class);
     
     public SplashFrame(){

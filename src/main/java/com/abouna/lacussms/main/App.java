@@ -10,10 +10,9 @@ import com.abouna.lacussms.entities.BkEtatOp;
 import com.abouna.lacussms.entities.Config;
 import com.abouna.lacussms.service.*;
 import com.abouna.lacussms.views.main.BottomPanel;
-import com.abouna.lacussms.views.main.MainFrame;
-import com.abouna.lacussms.views.main.SplashFrame;
+import com.abouna.lacussms.views.tools.ConstantUtils;
+import com.abouna.lacussms.views.tools.Sender;
 import com.abouna.lacussms.views.tools.Utils;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,32 +29,20 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class App {
     private static final Logger logger = LoggerFactory.getLogger(App.class);
     private static ScheduledExecutorService firstExecutor;
-    private static ScheduledExecutorService secondExecutor;
     public static boolean appliRun = false;
     static boolean vl = false;
-    private static MainFrame frame;
     private static ServiceRequete serviceRequete;
     private static ServiceEvenement serviceEvenement;
     private static ServiceSalaireBKMVTI serviceSalaireBKMVTI;
     private static ServiceSalaire serviceSalaire;
     private static ServiceCredit serviceCredit;
     private static ServiceMandat serviceMandat;
-    public static final String SECRET = "LACUS2017";
-    private static volatile boolean running;
     private static LacusSmsService serviceManager;
-
-
-    /*public static void main(String[] args) {
-        try {
-            initApp();
-        } catch (IOException | ClassNotFoundException | SQLException e) {
-            JOptionPane.showMessageDialog(null, "erreur lors du démarrage de l'application");
-        }
-    }*/
 
     public static void initApp() throws IOException, ClassNotFoundException, SQLException {
         serviceManager = ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
@@ -106,29 +93,13 @@ public class App {
         serviceSalaire = new ServiceSalaire(serviceManager, methode, urlParam, listString);
 
         /* initialisation de la connexion de la base de données */
-        Connection conn = Utils.initConnection(serviceManager, SECRET);
+        Connection conn = Utils.initConnection(serviceManager, ConstantUtils.SECRET_KEY);
         if(conn != null) {
             setConnexion(conn);
         } else {
             BottomPanel.settextLabel("Attention la base données du CBS n'est pas connectée veuillez la paramétrer avant de commencer !!!", Color.RED);
         }
-
-        /*SwingUtilities.invokeLater(() -> {
-            try {
-                frame = new MainFrame();
-                Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-                frame.setSize((int) screenSize.getWidth() - 100, (int) screenSize.getHeight() - 100);
-                frame.setLocationRelativeTo(null);
-                frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-                frame.setVisible(true);
-                if(conn == null) {
-                    BottomPanel.settextLabel("Attention la base données du CBS n'est pas connectée veuillez la paramétrer avant de commencer !!!", Color.RED);
-                }
-            } catch (IOException | XmlPullParserException e) {
-                logger.error("Error " , e);
-            }
-            appliRun = true;
-        });*/
+        appliRun = true;
     }
 
 
@@ -137,20 +108,20 @@ public class App {
             Utils.initDriver();
 
             Config config = serviceManager.getAllConfig().get(0);
-            String msg;
+            AtomicReference<String> msg = new AtomicReference<>();
             firstExecutor.scheduleAtFixedRate(() -> {
                 logger.info("Démarrage du service de données .....");
-                    /*if (config.isEvent()) {
+                    if (config.isEvent()) {
                         try {
                             serviceEvenement.serviceEvenement();
                         } catch (SQLException var2) {
-                            msg = "Echec de connexion à la base de données";
-                            logger.error(msg);
-                            BottomPanel.settextLabel(msg, Color.RED);
+                            msg.set("Echec de connexion à la base de données");
+                            logger.error(msg.get());
+                            BottomPanel.settextLabel(msg.get(), Color.RED);
                         } catch (ParseException e) {
-                            msg = "Problème de formatage de la date";
-                            logger.error(msg);
-                            BottomPanel.settextLabel(msg, Color.RED);
+                            msg.set("Problème de formatage de la date");
+                            logger.error(msg.get());
+                            BottomPanel.settextLabel(msg.get(), Color.RED);
                         }
                     }
 
@@ -159,13 +130,13 @@ public class App {
                             serviceSalaire.serviceSalaire();
                             serviceSalaireBKMVTI.serviceSalaireBKMVTI();
                         } catch (SQLException e) {
-                            msg = "Echec de connexion à la base de données";
-                            logger.error(msg);
-                            BottomPanel.settextLabel(msg, Color.RED);
+                            msg.set("Echec de connexion à la base de données");
+                            logger.error(msg.get());
+                            BottomPanel.settextLabel(msg.get(), Color.RED);
                         } catch (ParseException e) {
-                            msg = "Problème de formatage de la date";
-                            logger.error(msg);
-                            BottomPanel.settextLabel(msg, Color.RED);
+                            msg.set("Problème de formatage de la date");
+                            logger.error(msg.get());
+                            BottomPanel.settextLabel(msg.get(), Color.RED);
                         }
                     }
 
@@ -173,13 +144,13 @@ public class App {
                         try {
                             serviceCredit.serviceCredit();
                         } catch (SQLException e) {
-                            msg = "Echec de connexion à la base de données";
-                            logger.error(msg);
-                            BottomPanel.settextLabel(msg, Color.RED);
+                            msg.set("Echec de connexion à la base de données");
+                            logger.error(msg.get());
+                            BottomPanel.settextLabel(msg.get(), Color.RED);
                         } catch (ParseException e) {
-                            msg = "Problème de formatage de la date";
-                            logger.error(msg);
-                            BottomPanel.settextLabel(msg, Color.RED);
+                            msg.set("Problème de formatage de la date");
+                            logger.error(msg.get());
+                            BottomPanel.settextLabel(msg.get(), Color.RED);
                         }
                     }
 
@@ -187,15 +158,15 @@ public class App {
                         try {
                             serviceMandat.serviceMandat();
                         } catch (SQLException e) {
-                            msg = "Echec de connexion à la base de données";
-                            logger.error(msg);
-                            BottomPanel.settextLabel(msg, Color.RED);
+                            msg.set("Echec de connexion à la base de données");
+                            logger.error(msg.get());
+                            BottomPanel.settextLabel(msg.get(), Color.RED);
                         } catch (ParseException e) {
-                            msg = "Problème de formatage de la date";
-                            logger.error(msg);
-                            BottomPanel.settextLabel(msg, Color.RED);
+                            msg.set("Problème de formatage de la date");
+                            logger.error(msg.get());
+                            BottomPanel.settextLabel(msg.get(), Color.RED);
                         }
-                   }*/
+                   }
             }, 0, 1000, TimeUnit.MILLISECONDS);
         } catch (ClassNotFoundException e) {
             String msg = "Problème de chargement du pilote";
@@ -210,7 +181,7 @@ public class App {
         firstExecutor.scheduleAtFixedRate(() -> {
             logger.info("Démarrage du service sms ...");
             logger.info("demarrage du service 111111...");
-                /*if (config.isEvent()) {
+                if (config.isEvent()) {
                 serviceEvenement.envoieSMSEvenement();
                 }
 
@@ -224,7 +195,7 @@ public class App {
 
                 if (config.isMandat()) {
                     serviceMandat.envoieSMSMandat();
-                }*/
+                }
         }, 0, 1000, TimeUnit.MILLISECONDS);
     }
 
@@ -249,22 +220,22 @@ public class App {
             Utils.initDriver();
             firstExecutor = Executors.newSingleThreadScheduledExecutor();
             Config config = serviceManager.getAllConfig().get(0);
-            String msg = "Démarrage du service...";
-            logger.info(msg);
-            BottomPanel.settextLabel(msg, Color.BLACK);
+            final String[] msg = {"Démarrage du service..."};
+            logger.info(msg[0]);
+            BottomPanel.settextLabel(msg[0], Color.BLACK);
             firstExecutor.scheduleAtFixedRate(() -> {
-                logger.info(msg);
-                    /*if (config.isEvent()) {
+                logger.info(msg[0]);
+                    if (config.isEvent()) {
                         try {
                             serviceEvenement.serviceEvenement();
                         } catch (SQLException e) {
-                            msg = "Echec de connexion à la base de données";
-                            logger.info(msg);
-                            BottomPanel.settextLabel(msg, Color.RED);
+                            msg[0] = "Echec de connexion à la base de données";
+                            logger.info(msg[0]);
+                            BottomPanel.settextLabel(msg[0], Color.RED);
                         } catch (ParseException e) {
-                            msg = "Problème de formatage de la date";
-                            logger.info(msg);
-                            BottomPanel.settextLabel(msg, Color.RED);
+                            msg[0] = "Problème de formatage de la date";
+                            logger.info(msg[0]);
+                            BottomPanel.settextLabel(msg[0], Color.RED);
                         }
                         serviceEvenement.envoieSMSEvenement();
                     }
@@ -274,13 +245,13 @@ public class App {
                             serviceSalaire.serviceSalaire();
                             serviceSalaireBKMVTI.serviceSalaireBKMVTI();
                         } catch (SQLException e) {
-                            msg = "Problème de connexion sur la base de données";
-                            logger.error(msg);
-                            BottomPanel.settextLabel(msg, Color.RED);
+                            msg[0] = "Problème de connexion sur la base de données";
+                            logger.error(msg[0]);
+                            BottomPanel.settextLabel(msg[0], Color.RED);
                         } catch (ParseException e) {
-                            msg = "Problème de formatage de la date";
-                            logger.error(msg);
-                            BottomPanel.settextLabel(msg, Color.RED);
+                            msg[0] = "Problème de formatage de la date";
+                            logger.error(msg[0]);
+                            BottomPanel.settextLabel(msg[0], Color.RED);
                         }
 
                         serviceSalaire.envoieSMSSalaire();
@@ -290,13 +261,13 @@ public class App {
                         try {
                             serviceCredit.serviceCredit();
                         } catch (SQLException e) {
-                            msg = "Problème de connexion sur la base de données";
-                            logger.error(msg);
-                            BottomPanel.settextLabel(msg, Color.RED);
+                            msg[0] = "Problème de connexion sur la base de données";
+                            logger.error(msg[0]);
+                            BottomPanel.settextLabel(msg[0], Color.RED);
                         } catch (ParseException e) {
-                            msg = "Problème de formatage de la date";
-                            logger.error(msg);
-                            BottomPanel.settextLabel(msg, Color.RED);
+                            msg[0] = "Problème de formatage de la date";
+                            logger.error(msg[0]);
+                            BottomPanel.settextLabel(msg[0], Color.RED);
                         }
 
                         serviceCredit.envoieSMSCredit();
@@ -306,17 +277,17 @@ public class App {
                         try {
                             serviceMandat.serviceMandat();
                         } catch (SQLException e) {
-                            msg = "Problème de connexion sur la base de données";
-                            logger.error(msg);
-                            BottomPanel.settextLabel(msg, Color.RED);
+                            msg[0] = "Problème de connexion sur la base de données";
+                            logger.error(msg[0]);
+                            BottomPanel.settextLabel(msg[0], Color.RED);
                         } catch (ParseException e) {
-                            msg = "Problème de formatage de la date";
-                            logger.error(msg);
-                            BottomPanel.settextLabel(msg, Color.RED);
+                            msg[0] = "Problème de formatage de la date";
+                            logger.error(msg[0]);
+                            BottomPanel.settextLabel(msg[0], Color.RED);
                         }
 
                         serviceMandat.envoieSMSMandat();
-                    }*/
+                    }
 
             }, 0, 1000, TimeUnit.MILLISECONDS);
         } catch (ClassNotFoundException e) {
@@ -328,13 +299,9 @@ public class App {
     }
 
     public static void stopper() {
-        running = false;
         if (firstExecutor != null) {
             firstExecutor.shutdownNow();
         }
-       if(secondExecutor != null) {
-           secondExecutor.shutdownNow();
-       }
         BottomPanel.settextLabel("");
         logger.info("le service a été arreté");
     }

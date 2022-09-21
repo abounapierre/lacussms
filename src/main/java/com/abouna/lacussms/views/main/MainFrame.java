@@ -3,7 +3,6 @@ package com.abouna.lacussms.views.main;
 import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -31,7 +30,9 @@ public class MainFrame extends JFrame {
     private Image img;
     private final BottomPanel bottomPanel = new BottomPanel();
 
-    public MainFrame(MainMenuPanel mainMenuPanel, LacusSmsService service, Environment env) throws IOException, XmlPullParserException {
+    public static Thread thread;
+
+    public MainFrame(MainMenuPanel mainMenuPanel, LacusSmsService service, Environment env) throws IOException {
         mainMenuPanel.setContent(new HomePanel());
         this.setTitle("SMILE SMS BANKING VERSION " + env.getProperty("application.version"));
         HeaderMenu menu = new HeaderMenu(service);
@@ -81,10 +82,9 @@ public class MainFrame extends JFrame {
 
 
     public static void main(String[] args) {
-
-        ApplicationConfig.setApplicationContext(new SpringApplicationBuilder(MainFrame.class)
-                .headless(false).run(args));
-
+        thread = new Thread(SplashScreen::new);
+        thread.start();
+        ApplicationConfig.setApplicationContext(new SpringApplicationBuilder(MainFrame.class).headless(false).run(args));
         try {
             App.initApp();
         } catch (IOException e) {
@@ -94,15 +94,6 @@ public class MainFrame extends JFrame {
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Erreur de démarrage de l'application problème de connexion à la base de données");
         }
-
-        EventQueue.invokeLater(() -> {
-            MainFrame frame = ApplicationConfig.getApplicationContext().getBean(MainFrame.class);
-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            frame.setSize((int) screenSize.getWidth() - 100, (int) screenSize.getHeight() - 100);
-            frame.setLocationRelativeTo(null);
-            frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-            frame.setVisible(true);
-        });
     }
 
 }

@@ -6,9 +6,16 @@
 
 package com.abouna.lacussms.config;
 
+import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.views.main.LogFile;
+import com.abouna.lacussms.views.tools.ConstantUtils;
 import com.google.common.base.Preconditions;
+import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
+import org.jasypt.encryption.StringEncryptor;
+import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
+import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
@@ -32,6 +39,7 @@ import java.util.Properties;
 @Configuration
 @EnableScheduling
 @EnableTransactionManagement
+@EnableEncryptableProperties
 @PropertySources({
         @PropertySource("classpath:bd.properties"),
         @PropertySource("classpath:application.properties")
@@ -92,7 +100,6 @@ public class SpringMainConfig {
         return new Tache();
     }
 
-
     @Bean("logPath")
     public String logPath() {
         String fileSeparator = FileSystems.getDefault().getSeparator();
@@ -106,8 +113,18 @@ public class SpringMainConfig {
         return new LogFile();
     }
 
-    /*@Bean
-    public LoggingPanel getLoggingPanel() {
-        return new LoggingPanel();
-    }*/
+    @Bean(name = "jasyptStringEncryptor")
+    public StringEncryptor stringEncryptor() {
+        PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
+        SimpleStringPBEConfig config = new SimpleStringPBEConfig();
+        config.setPassword(ConstantUtils.SECRET_KEY);
+        config.setAlgorithm("PBEWithMD5AndDES");
+        config.setKeyObtentionIterations("1000");
+        config.setPoolSize("1");
+        config.setProviderName("SunJCE");
+        config.setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator");
+        config.setStringOutputType("base64");
+        encryptor.setConfig(config);
+        return encryptor;
+    }
 }

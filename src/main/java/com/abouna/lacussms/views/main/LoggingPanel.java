@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import javax.swing.*;
 import java.awt.*;
 
-//@Component
 public class LoggingPanel extends JPanel {
     private final Timer timer;
     private final JTextArea textArea;

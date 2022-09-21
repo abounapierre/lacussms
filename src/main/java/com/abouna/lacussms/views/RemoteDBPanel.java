@@ -98,7 +98,7 @@ public class RemoteDBPanel extends JPanel {
         });
         JButton testBtn = new JButton("Test Connexion");
         testBtn.addActionListener((ActionEvent e) -> {
-            if (Utils.testConnexion(App.SECRET) != null) {
+            if (Utils.testConnexion(ConstantUtils.SECRET_KEY) != null) {
                 JOptionPane.showMessageDialog(parentPanel, "Connexion réussie");
             } else {
                 JOptionPane.showMessageDialog(parentPanel, "Erreur lors de l'établissement de la connexion!");

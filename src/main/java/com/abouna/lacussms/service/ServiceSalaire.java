@@ -1,8 +1,8 @@
 package com.abouna.lacussms.service;
 
 import com.abouna.lacussms.entities.*;
-import com.abouna.lacussms.main.Sender;
 import com.abouna.lacussms.views.main.BottomPanel;
+import com.abouna.lacussms.views.tools.Sender;
 import com.abouna.lacussms.views.tools.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,15 +19,13 @@ import java.util.List;
 
 public class ServiceSalaire {
     private static final Logger logger = LoggerFactory.getLogger(ServiceSalaire.class);
-
     private final LacusSmsService serviceManager;
     private final String methode;
-
     private final String urlParam;
-
     private Connection conn;
-
     private final List<String> listString;
+    private final SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
+    private final SimpleDateFormat format2 = new SimpleDateFormat("dd/MM/yyyy");
 
     public ServiceSalaire(LacusSmsService serviceManager, String methode, String urlParam, List<String> listString) {
         this.serviceManager = serviceManager;
@@ -40,145 +38,61 @@ public class ServiceSalaire {
         this.conn = conn;
     }
 
+
     public void serviceSalaire() throws SQLException, ParseException {
-        String msg = "Traitement des salaires en cours.... ";
-        logger.info(msg);
-        BottomPanel.settextLabel(msg, Color.BLACK);
-        SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
-        SimpleDateFormat f2 = new SimpleDateFormat("dd/MM/yyyy");
-        PreparedStatement ps = conn.prepareStatement("SELECT b.NCP AS NCP1,b.AGE,b.DCO AS DSAI,b.OPE,b.EVE,b.MON FROM BKMPAI b  WHERE b.NCP >= '0' ORDER BY DCO ASC");
-        Throwable var6 = null;
+        BottomPanel.settextLabel("Traitement des salaires en cours.... ", java.awt.Color.BLACK);
 
-        try {
+        String query = "SELECT b.NCP AS NCP1,b.AGE,b.DCO AS DSAI,b.OPE,b.EVE,b.MON FROM BKMPAI b  WHERE b.NCP >= '0' ORDER BY DCO ASC";
+
+        String msg = "Recherche données salaires.... ";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
             ResultSet rs = ps.executeQuery();
-
-            label357:
-            while(rs.next()) {
-                msg = "Recherche données salaires.... ";
+            while (rs.next()) {
                 logger.info(msg);
-                BottomPanel.settextLabel(msg, Color.BLACK);
-                if (rs.getString("NCP1") != null && rs.getString("NCP1").trim().length() >= 10) {
-                    BkEve eve = new BkEve();
-                    BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString("AGE").trim());
-                    eve.setBkAgence(bkAgence);
-                    BkCli bkCli;
-                    String cli = "";
-                    if (rs.getString("NCP1").trim().length() >= 9) {
-                        cli = rs.getString("NCP1").trim().substring(3, 9);
-                    }
+                BottomPanel.settextLabel(msg, java.awt.Color.BLACK);
+                String numeroCompte = rs.getString(1);
+                if (numeroCompte != null) {
+                    numeroCompte = numeroCompte.trim();
+                    if (numeroCompte.length() >= 10) {
+                        BkEve eve = new BkEve();
+                        BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString(2).trim());
+                        eve.setBkAgence(bkAgence);
+                        BkCli bkCli;
+                        String cli;
+                        cli = numeroCompte.substring(3, 9);
+                        bkCli = serviceManager.getBkCliById(cli);
+                        if (bkCli == null) {
+                            bkCli = serviceManager.getBkCliByNumCompte(numeroCompte);
+                        }
+                        eve.setCli(bkCli);
+                        eve.setCompte(numeroCompte);
+                        eve.setEtat("VA");
+                        eve.setHsai("00:00:00.000");
+                        eve.setMont(Double.parseDouble(rs.getString(6).trim()));
+                        eve.setMontant(rs.getString(6).trim());
+                        BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString(4).trim());
+                        eve.setOpe(bkOpe);
+                        eve.setDVAB(rs.getString(3).trim());
+                        eve.setEventDate(format2.parse(format2.format(format1.parse(rs.getString(3).trim()))));
+                        eve.setSent(false);
+                        eve.setNumEve(rs.getString(5).trim());
+                        eve.setId(serviceManager.getMaxIndexBkEve() + 1);
+                        eve.setType(TypeEvent.salaire);
 
-                    bkCli = serviceManager.getBkCliById(cli);
-                    if (bkCli == null) {
-                        bkCli = serviceManager.getBkCliByNumCompte(rs.getString("NCP1").trim());
-                    }
-
-                    eve.setCli(bkCli);
-                    eve.setCompte(rs.getString("NCP1").trim());
-                    eve.setEtat("VA");
-                    eve.setHsai("00:00:00.000");
-                    eve.setMont(Double.parseDouble(rs.getString("MON").trim()));
-                    eve.setMontant(rs.getString("MON").trim());
-                    BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString("OPE").trim());
-                    eve.setOpe(bkOpe);
-                    eve.setDVAB(rs.getString("DSAI").trim());
-                    eve.setEventDate(f2.parse(f2.format(format1.parse(rs.getString("DSAI").trim()))));
-                    eve.setSent(false);
-                    eve.setNumEve(rs.getString("EVE").trim());
-                    eve.setId(serviceManager.getMaxIndexBkEve() + 1);
-                    eve.setType(TypeEvent.salaire);
-                    if (bkCli != null && serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getEventDate(), eve.getCompte()).isEmpty()) {
-                        msg = "Chargement données salaires.... " + eve.getCompte();
-                        logger.info(msg);
-                        BottomPanel.settextLabel(msg, Color.BLACK);
-                        serviceManager.enregistrer(eve);
-                        String q = "SELECT b.NUM, b.CLI, b.TYP FROM bktelcli b WHERE b.CLI='" + rs.getString("NCP1").trim().substring(3, 9) + "'";
-                        PreparedStatement pss = conn.prepareStatement(q);
-                        Throwable var15 = null;
-
-                        try {
-                            ResultSet resultat = pss.executeQuery();
-                            int n = 0;
-
-                            while(true) {
-                                while(true) {
-                                    do {
-                                        if (!resultat.next()) {
-                                            continue label357;
-                                        }
-                                    } while(bkCli.getPhone() != 0L);
-
-                                    String code;
-                                    String numero;
-                                    if (resultat.getString("NUM").replace(" ", "").replace("/", "").trim().length() == 9 && Utils.estUnEntier(resultat.getString("NUM").trim())) {
-                                        code = "237";
-                                        numero = code + resultat.getString("NUM").trim();
-                                        if (bkCli.getPhone() != Long.parseLong(numero)) {
-                                            bkCli.setPhone(Long.parseLong(numero));
-                                            if (n == 0) {
-                                                msg = "Mise à jour numero client.... " + bkCli.getCode();
-                                                logger.info(msg);
-                                                BottomPanel.settextLabel(msg, Color.BLACK);
-                                                serviceManager.modifier(bkCli);
-                                                ++n;
-                                            }
-                                        }
-                                    } else if (resultat.getString("NUM").replace(" ", "").replace("/", "").trim().length() == 8 && Utils.estUnEntier(resultat.getString("NUM").trim())) {
-                                        code = "241";
-                                        numero = code + resultat.getString("NUM").trim();
-                                        if (bkCli.getPhone() != Long.parseLong(numero)) {
-                                            bkCli.setPhone(Long.parseLong(numero));
-                                            if (n == 0) {
-                                                msg = "Mise à jour numero client.... " + bkCli.getCode();
-                                                logger.info(msg);
-                                                BottomPanel.settextLabel(msg, Color.BLACK);
-                                                serviceManager.modifier(bkCli);
-                                                ++n;
-                                            }
-                                        }
-                                    }
-                                }
+                        if (bkCli != null) {
+                            if (serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getEventDate(), eve.getCompte()).isEmpty()) {
+                                msg = "Chargement données salaires.... " + eve.getCompte();
+                                logger.info(msg);
+                                BottomPanel.settextLabel(msg, java.awt.Color.BLACK);
+                                serviceManager.enregistrer(eve);
+                                ServiceUtils.mettreAjourNumero(serviceManager, conn, bkCli, cli);
                             }
-                        } catch (Throwable var41) {
-                            var15 = var41;
-                            throw var41;
-                        } finally {
-                            if (pss != null) {
-                                if (var15 != null) {
-                                    try {
-                                        pss.close();
-                                    } catch (Throwable var40) {
-                                        var15.addSuppressed(var40);
-                                    }
-                                } else {
-                                    pss.close();
-                                }
-                            }
-
                         }
                     }
                 }
             }
-        } catch (Throwable var43) {
-            var6 = var43;
-            throw var43;
-        } finally {
-            if (ps != null) {
-                if (var6 != null) {
-                    try {
-                        ps.close();
-                    } catch (Throwable var39) {
-                        var6.addSuppressed(var39);
-                    }
-                } else {
-                    ps.close();
-                }
-            }
-
         }
-
-        conn.close();
     }
-
 
     public void envoieSMSSalaire() {
         if (Utils.checkLicence()) {
@@ -230,6 +144,5 @@ public class ServiceSalaire {
         } else {
             BottomPanel.settextLabel("Message non envoyé Problème de Licence veuillez contacter le fournieur 1.2.5 !!", Color.RED);
         }
-
     }
 }

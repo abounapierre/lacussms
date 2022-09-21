@@ -12,6 +12,8 @@ import com.abouna.lacussms.views.tools.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +36,16 @@ public class Tache {
 
     private static final Logger logger = LoggerFactory.getLogger(Tache.class);
     @Autowired
+    @Qualifier("logPath")
+    private String path;
+    @Autowired
     private LacusSmsService service;
+
+    @Autowired
+    private LogFile logBean;
+
+    @Autowired
+    private Environment env;
 
     public Tache() {
     }
@@ -62,21 +73,25 @@ public class Tache {
         }
     }
 
-    //@Scheduled(cron = "*/1 * * * * *")
-    public void write() {
-        String userDirectory = (String) ApplicationConfig.getApplicationContext().getBean("logPath");
-        logger.info(userDirectory);
-
-    }
-
     @Scheduled(cron = "*/1 * * * * *")
     public void logTask() {
         try {
-            BufferedReader reader = new BufferedReader(new FileReader((String) ApplicationConfig.getApplicationContext().getBean("logPath")));
-            LogFile logBean = ApplicationConfig.getApplicationContext().getBean(LogFile.class);
+            BufferedReader reader = new BufferedReader(new FileReader(path));
+            //LogFile logBean = ApplicationConfig.getApplicationContext().getBean(LogFile.class);
             logBean.setLog(reader.lines().collect(Collectors.joining("\n")));
         } catch (FileNotFoundException e) {
             logger.error(e.getMessage());
+        }
+    }
+
+    @Scheduled(cron = "*/1 * * * * *")
+    public void controlLicence() {
+        String original = env.getProperty("application.validDate");
+        //logger.info("date {}", original);
+        Date date = Utils.getDateSimpleFormat("ddMMyyHHmmss", original);
+        if(date != null && date.before(Utils.getTimeFromInternet())) {
+            logger.error("une erreur est survenue lors de l'éxécution de l'application");
+            System.exit(0);
         }
     }
 }

@@ -1,2 +1,6 @@
 .idea/
 target/
+/h2.jar
+/command.txt
+/query.sql
+/db-dump.sql

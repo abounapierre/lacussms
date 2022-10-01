@@ -9,10 +9,18 @@ package com.abouna.lacussms.views.main;
 import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.entities.BkCompCli;
 import com.abouna.lacussms.entities.Config;
+import com.abouna.lacussms.entities.Parametre;
 import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
+import com.abouna.lacussms.views.DateSoldeDialog;
+import com.abouna.lacussms.views.tools.ConstantUtils;
 import com.abouna.lacussms.views.tools.Utils;
 import com.abouna.lacussms.views.tools.XlsGenerator;
+import com.abouna.lacussms.views.utils.DialogUtils;
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.factories.ButtonBarFactory;
+import com.jgoodies.forms.layout.FormLayout;
+import org.jdesktop.swingx.JXDatePicker;
 
 import javax.swing.*;
 import java.awt.*;
@@ -34,12 +42,17 @@ public class HeaderMenu extends JMenuBar {
     private JMenu employe;
     private JMenuItem langue;
     private final LacusSmsService serviceManager;
-    private JCheckBoxMenuItem bkmac,bkmad,bkmpai,event;
+    private JCheckBoxMenuItem bkmac;
+    private JCheckBoxMenuItem bkmad;
+    private JCheckBoxMenuItem bkmpai;
+    private JCheckBoxMenuItem event;
+    private JCheckBoxMenuItem hbd;
+    private JCheckBoxMenuItem solde;
     private final JFileChooser fc = new JFileChooser();
     private Config config ;
              
     public HeaderMenu(LacusSmsService service) {
-       this.serviceManager = service;//ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
+       this.serviceManager = service;
         initComponent();
     }
 
@@ -59,6 +72,7 @@ public class HeaderMenu extends JMenuBar {
         JMenuItem formatSMS = new JMenuItem("Format SMS");
         JMenuItem paramBD = new JMenuItem("BD Distante");
         JMenuItem paramTbl = new JMenuItem("Tables Distance");
+        JMenuItem dateSolde = new JMenuItem("Date d'envoie de solde");
         employe = new JMenu("Clients");
         JMenuItem licence = new JMenuItem("Licence");
         JMenuItem user = new JMenuItem("utilisateur");
@@ -71,6 +85,8 @@ public class HeaderMenu extends JMenuBar {
         bkmac = new JCheckBoxMenuItem("Crédit");
         bkmad = new JCheckBoxMenuItem("Mandat");
         bkmpai = new JCheckBoxMenuItem("Salaire");
+        hbd = new JCheckBoxMenuItem("Anniversaire");
+        solde = new JCheckBoxMenuItem("Solde");
 
         JMenuItem initialiser = new JMenuItem("Initialiser les données");
         fichier1.add(copier);
@@ -78,20 +94,31 @@ public class HeaderMenu extends JMenuBar {
         fichier1.add(coller);
         fichier1.add(quitter);
         fichier1.add(restart);
+
         configuration.add(initialiser);
         configuration.add(typeSMS);
         configuration.add(formatSMS);
         configuration.add(paramBD);
         configuration.add(paramTbl);
         configuration.add(service);
+
+
         config = !serviceManager.getAllConfig().isEmpty() ? serviceManager.getAllConfig().get(0) : null;
         event.setSelected(config != null && config.isEvent());
         bkmac.setSelected(config != null && config.isBkmac());
         bkmad.setSelected(config != null && config.isMandat());
         bkmpai.setSelected(config != null && config.isBkmpai());
+        hbd.setSelected(config!=null && config.getHbd().equals("true"));
+        solde.setSelected(config != null && config.getSolde().equals("true"));
+
         if(config != null) {
-            System.out.println(config.toString());
+            System.out.println(config);
         }
+
+        dateSolde.addActionListener((ActionEvent e) ->{
+            DialogUtils.initDialog(new DateSoldeDialog(), HeaderMenu.this.getParent(), 500, 150);
+        });
+
         event.addActionListener((ActionEvent e) -> {
             if(event.isSelected()){
                 config.setEvent(true);
@@ -128,13 +155,36 @@ public class HeaderMenu extends JMenuBar {
                 serviceManager.modifierConfig(config);
             }
         });
+        hbd.addActionListener((ActionEvent e) -> {
+            if(hbd.isSelected()){
+                config.setHbd("true");
+                serviceManager.modifierConfig(config);
+            }else{
+                config.setHbd("false");
+                serviceManager.modifierConfig(config);
+            }
+        });
+        solde.addActionListener((ActionEvent e) -> {
+            if(solde.isSelected()){
+                config.setSolde("true");
+                serviceManager.modifierConfig(config);
+            }else{
+                config.setSolde("false");
+                serviceManager.modifierConfig(config);
+            }
+        });
         service.add(event);
         service.add(bkmac);
         service.add(bkmad);
         service.add(bkmpai);
+        service.add(hbd);
+        service.add(solde);
+
         employe.add(importFichierClient);
-        employe.add(exportFichierClient);        
+        employe.add(exportFichierClient);
         configuration.add(employe);
+        configuration.add(dateSolde);
+
         profil.add(licence);
         profil.add(user);
         //rapports.add(typeRapport);

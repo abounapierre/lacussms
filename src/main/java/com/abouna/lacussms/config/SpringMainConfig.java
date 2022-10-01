@@ -127,4 +127,9 @@ public class SpringMainConfig {
         encryptor.setConfig(config);
         return encryptor;
     }
+
+    @Bean("logo")
+    public String logoApp() {
+        return env.getProperty("application.logo");
+    }
 }

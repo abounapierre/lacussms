@@ -39,6 +39,7 @@
     </repositories>
     
     <build>
+        <finalName>lacussms</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

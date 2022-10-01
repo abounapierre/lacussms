@@ -23,6 +23,10 @@ public class ConstantUtils {
     public static String CONFIG_KEY_REST_TIMEOUT_READ;
     public static String CONFIG_KEY_SECRET;
     public static String CONFIG_KEY_TOKEN_PREFIX;
+    public static final String DATE_SOLDE = "DATE_ENVOIE_SOLDE";
+    public static String LOGO_GENU = "/images/genu-logo.png";
+    public static String LOGO = "/images/logo-app.PNG";
+    public static String LOGO_1 = "/images/LACUS.PNG";
     public ConstantUtils() {
     }
     

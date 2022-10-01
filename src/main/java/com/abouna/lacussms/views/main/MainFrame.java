@@ -3,6 +3,7 @@ package com.abouna.lacussms.views.main;
 import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
+import com.abouna.lacussms.views.tools.ConstantUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -34,12 +35,12 @@ public class MainFrame extends JFrame {
 
     public MainFrame(MainMenuPanel mainMenuPanel, LacusSmsService service, Environment env) throws IOException {
         mainMenuPanel.setContent(new HomePanel());
-        this.setTitle("SMILE SMS BANKING VERSION " + env.getProperty("application.version"));
+        this.setTitle("LACUS SMS " + env.getProperty("application.version"));
         HeaderMenu menu = new HeaderMenu(service);
         this.setJMenuBar(menu);
         this.remove(menu);
         try {
-            img = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/smile2.png")));
+            img = ImageIO.read(Objects.requireNonNull(getClass().getResource(ConstantUtils.LOGO_GENU)));
         } catch (IOException ex) {
             logger.error("Erreur de chargement de l'image");
         }

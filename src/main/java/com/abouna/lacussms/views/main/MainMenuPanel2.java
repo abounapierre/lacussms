@@ -1,6 +1,7 @@
 package com.abouna.lacussms.views.main;
 
 import com.abouna.lacussms.views.*;
+import com.abouna.lacussms.views.tools.ConstantUtils;
 import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
@@ -57,7 +58,7 @@ public class MainMenuPanel2 extends JPanel {
         accueilBtn.setBorder(RaisedBevelBorder);
         accueilBtn.addActionListener((ActionEvent ae) -> {
             try {
-                setContenu(new EmptyPanel());
+                setContenu(new EmptyPanel(ConstantUtils.LOGO));
             } catch (Exception ex) {
                 Logger.getLogger(MainMenuPanel2.class.getName()).log(Level.SEVERE, null, ex);
             }

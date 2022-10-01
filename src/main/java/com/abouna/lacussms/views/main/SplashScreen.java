@@ -2,6 +2,7 @@ package com.abouna.lacussms.views.main;
 
 import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.main.App;
+import com.abouna.lacussms.views.tools.ConstantUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,7 +19,7 @@ public class SplashScreen extends JWindow {
         Container container = getContentPane();
         container.setLayout(null);
 
-        EmptyPanel panel = new EmptyPanel();
+        EmptyPanel panel = new EmptyPanel(ConstantUtils.LOGO_1);
         panel.setBorder(new javax.swing.border.EtchedBorder());
         panel.setBackground(new Color(255, 255, 255));
         panel.setBounds(10, 10, 348, 150);

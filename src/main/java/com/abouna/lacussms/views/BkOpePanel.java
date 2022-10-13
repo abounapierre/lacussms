@@ -10,6 +10,7 @@ import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.entities.BkOpe;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.MainMenuPanel;
+import com.abouna.lacussms.views.utils.DialogUtils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
@@ -59,40 +60,21 @@ public class BkOpePanel extends JPanel{
         supprimer.setToolTipText("Suprimer une opération");
         JButton modifier = new JButton(new ImageIcon(modifImg));
         modifier.setToolTipText("Modifier une opération");
-        nouveau.addActionListener(ae -> {
-            Nouveau nouveau1 = new Nouveau(null);
-            nouveau1.setSize(400, 200);
-            nouveau1.setLocationRelativeTo(null);
-            nouveau1.setModal(true);
-            nouveau1.setResizable(false);
-            nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            nouveau1.setVisible(true);
-        });
+        nouveau.addActionListener(ae -> DialogUtils.initDialog(new BkOpePanel.Nouveau(null), BkOpePanel.this.getParent(), 400, 200));
         modifier.addActionListener(ae -> {
             int selected = table.getSelectedRow();
             if (selected >= 0) {
                 String id = (String) tableModel.getValueAt(selected, 0);
-                Nouveau nouveau1;
-                try {
-                    nouveau1 = new Nouveau(serviceManager.getBkOpeById(id));
-                    nouveau1.setSize(400, 200);
-                    nouveau1.setLocationRelativeTo(null);
-                    nouveau1.setModal(true);
-                    nouveau1.setResizable(false);
-                    nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                    nouveau1.setVisible(true);
-                } catch (Exception ex) {
-                    Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                DialogUtils.initDialog(new BkOpePanel.Nouveau(serviceManager.getBkOpeById(id)), BkOpePanel.this.getParent(), 400, 200);
             } else {
-                JOptionPane.showMessageDialog(null, "Aucun élément n'est selectionné");
+                JOptionPane.showMessageDialog(BkOpePanel.this.getParent(), "Aucun élément n'est selectionné");
             }
         });
         supprimer.addActionListener(ae -> {
             int selected = table.getSelectedRow();
             if (selected >= 0) {
                 String id = (String) tableModel.getValueAt(selected, 0);
-                int res = JOptionPane.showConfirmDialog(null, "Etes vous sûr de suppimer l'opération courante?", "Confirmation",
+                int res = JOptionPane.showConfirmDialog(BkOpePanel.this.getParent(), "Etes vous sûr de suppimer l'opération courante?", "Confirmation",
                         JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
                 if (res == JOptionPane.YES_OPTION) {
                     try {
@@ -103,7 +85,7 @@ public class BkOpePanel extends JPanel{
                     tableModel.removeRow(selected);
                 }
             } else {
-                JOptionPane.showMessageDialog(null, "Aucun élément selectionné");
+                JOptionPane.showMessageDialog(BkOpePanel.this.getParent(), "Aucun élément selectionné");
             }
         });
         bas.add(nouveau);

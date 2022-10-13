@@ -36,7 +36,7 @@ public class MainFrame extends JFrame {
     public MainFrame(MainMenuPanel mainMenuPanel, LacusSmsService service, Environment env) throws IOException {
         mainMenuPanel.setContent(new HomePanel());
         this.setTitle("LACUS SMS " + env.getProperty("application.version"));
-        HeaderMenu menu = new HeaderMenu(service);
+        HeaderMenu menu = new HeaderMenu(service, this);
         this.setJMenuBar(menu);
         this.remove(menu);
         try {

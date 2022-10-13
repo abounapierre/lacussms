@@ -51,12 +51,13 @@ public class HeaderMenu extends JMenuBar {
     private final JFileChooser fc = new JFileChooser();
     private Config config ;
              
-    public HeaderMenu(LacusSmsService service) {
+    public HeaderMenu(LacusSmsService service, Component parent) {
        this.serviceManager = service;
-        initComponent();
+        initComponent(parent);
     }
 
-    protected final void initComponent() {
+    protected final void initComponent(Component parent) {
+        //MainMenuPanel mainMenuPanel = ApplicationConfig.getApplicationContext().getBean(MainMenuPanel.class);
         JMenu fichier1 = new JMenu("Fichier");
         JMenu configuration = new JMenu("Configuration");
         JMenu profil = new JMenu("Profil");
@@ -116,7 +117,7 @@ public class HeaderMenu extends JMenuBar {
         }
 
         dateSolde.addActionListener((ActionEvent e) ->{
-            DialogUtils.initDialog(new DateSoldeDialog(), HeaderMenu.this.getParent(), 500, 150);
+            DialogUtils.initDialog(new DateSoldeDialog(), parent, 500, 150);
         });
 
         event.addActionListener((ActionEvent e) -> {

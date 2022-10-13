@@ -1,6 +1,5 @@
 package com.abouna.lacussms.views.main;
 
-import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.views.tools.ConstantUtils;
 
@@ -41,14 +40,7 @@ public class SplashScreen extends JWindow {
             count++;
             progressBar.setValue(count);
             if (App.appliRun) {
-                EventQueue.invokeLater(() -> {
-                    MainFrame frame = ApplicationConfig.getApplicationContext().getBean(MainFrame.class);
-                    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-                    frame.setSize((int) screenSize.getWidth() - 100, (int) screenSize.getHeight() - 100);
-                    frame.setLocationRelativeTo(null);
-                    frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-                    frame.setVisible(true);
-                });
+                App.runApp();
                 execute.setVisible(false);
                 timer.stop();
                 execute.dispose();

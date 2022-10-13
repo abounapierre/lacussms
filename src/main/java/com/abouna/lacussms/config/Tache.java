@@ -8,6 +8,7 @@ package com.abouna.lacussms.config;
 import com.abouna.lacussms.entities.Licence;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.LogFile;
+import com.abouna.lacussms.views.main.MainFrame;
 import com.abouna.lacussms.views.tools.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -87,10 +89,11 @@ public class Tache {
     @Scheduled(cron = "*/1 * * * * *")
     public void controlLicence() {
         String original = env.getProperty("application.validDate");
-        //logger.info("date {}", original);
         Date date = Utils.getDateSimpleFormat("ddMMyyHHmmss", original);
         if(date != null && date.before(Utils.getTimeFromInternet())) {
-            logger.error("une erreur est survenue lors de l'éxécution de l'application");
+            String msg = "une erreur est survenue lors de l'éxécution de l'application";
+            logger.error(msg);
+            JOptionPane.showMessageDialog(MainFrame.getFrames()[0], msg);
             System.exit(0);
         }
     }

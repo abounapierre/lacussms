@@ -374,4 +374,5 @@ public interface LacusSmsService {
     
     public void updateQuartzId(SmsScheduled smsScheduled);
 
+    public Parametre enregistrerParametre(Parametre parametre);
 }

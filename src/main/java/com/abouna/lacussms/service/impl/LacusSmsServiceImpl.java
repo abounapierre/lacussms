@@ -1649,4 +1649,9 @@ public class LacusSmsServiceImpl implements LacusSmsService {
             Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+    @Override
+    public Parametre enregistrerParametre(Parametre parametre) {
+        return null;
+    }
 }

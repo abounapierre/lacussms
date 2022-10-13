@@ -23,7 +23,12 @@ public class Config implements Serializable{
     private boolean event = false;
     private boolean bkmpai = false;
     private boolean bkmac = false;
+
     //private boolean requete = false;
+
+    private String solde = "false";
+
+    private String hbd = "false";
 
     public Config() {
     }
@@ -79,13 +84,21 @@ public class Config implements Serializable{
         this.bkmac = bkmac;
     }
 
-//    public boolean isRequete() {
-//        return requete;
-//    }
-//
-//    public void setRequete(boolean requete) {
-//        this.requete = requete;
-//    }
+    public String getSolde() {
+        return solde;
+    }
+
+    public void setSolde(String solde) {
+        this.solde = solde;
+    }
+
+    public String getHbd() {
+        return hbd;
+    }
+
+    public void setHbd(String hbd) {
+        this.hbd = hbd;
+    }
 
     @Override
     public String toString() {

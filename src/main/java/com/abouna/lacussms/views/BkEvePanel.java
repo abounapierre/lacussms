@@ -111,7 +111,6 @@ public class BkEvePanel extends JPanel{
         bas.add(supprimer);
         bas.add(purgerBtn);
         JPanel filtrePanel = new JPanel();
-        //filtrePanel.setPreferredSize(new Dimension(500, 20));
         JPanel searchPanel = new JPanel(new FlowLayout());
         filtrePanel.setLayout(new FlowLayout());
         final JXSearchField searchField = new JXSearchField("Rechercher");
@@ -130,7 +129,6 @@ public class BkEvePanel extends JPanel{
         searchPanel.add(printBtn);
         filtrePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createRaisedBevelBorder(), "Zone de recherche"));
         filtrePanel.add(searchField);
-        //filtrePanel.add(searchPanel,BorderLayout.SOUTH);
          filtrePanel.setBackground(new Color(166, 202, 240));
         searchField.addActionListener((ActionEvent e) -> {
             String val;
@@ -165,11 +163,6 @@ public class BkEvePanel extends JPanel{
 
         table = new JTable(tableModel);
         table.setBackground(Color.WHITE);
-        //table.setBackground(Color.LIGHT_GRAY);
-        //table.setFont(new Font("Comic Sans MS", 1, 14));
-        //table.setForeground(Color.MAGENTA);
-        //table.getColumnModel().getColumn(2).setPreferredWidth(280);
-        //table.removeColumn(table.getColumnModel().getColumn(0));
         contenu.add(BorderLayout.CENTER, new JScrollPane(table));
         add(BorderLayout.CENTER, contenu);
         try {
@@ -201,7 +194,12 @@ public class BkEvePanel extends JPanel{
         private final JComboBox<BkCli> bkCliBox;
         private final JComboBox<BkAgence> bkAgenceBox;
         private final JTextField montText,codeText;
-        private int c = 0, rang =0,c1 = 0, rang1 =0,c2=0,rang2=0;
+        private int c = 0;
+        private int rang = 0;
+        private int c1 = 0;
+        private int rang1 = 0;
+        private final int c2 = 0;
+        private int rang2 = 0;
 
         public Nouveau(final BkEve bkeve) {
             setTitle("NOUVEL EVENEMENT");

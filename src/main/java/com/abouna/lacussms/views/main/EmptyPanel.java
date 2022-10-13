@@ -18,9 +18,9 @@ import java.util.logging.Logger;
 public class EmptyPanel extends JPanel{
     private BufferedImage m_image;
     
-    public EmptyPanel(){
+    public EmptyPanel(String logo){
         try {
-            this.m_image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/logo-reg.png")));
+            this.m_image = ImageIO.read(Objects.requireNonNull(getClass().getResource(logo)));
         
             JXLabel label = new JXLabel("");
             label.setFont(new Font("Bernard MT Condensed",Font.BOLD,65));

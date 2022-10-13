@@ -10,6 +10,7 @@ import com.abouna.lacussms.entities.BkEtatOp;
 import com.abouna.lacussms.entities.Config;
 import com.abouna.lacussms.service.*;
 import com.abouna.lacussms.views.main.BottomPanel;
+import com.abouna.lacussms.views.main.MainFrame;
 import com.abouna.lacussms.views.tools.ConstantUtils;
 import com.abouna.lacussms.views.tools.Sender;
 import com.abouna.lacussms.views.tools.Utils;
@@ -100,6 +101,17 @@ public class App {
             BottomPanel.settextLabel("Attention la base données du CBS n'est pas connectée veuillez la paramétrer avant de commencer !!!", Color.RED);
         }
         appliRun = true;
+    }
+
+    public static void runApp() {
+        EventQueue.invokeLater(() -> {
+            MainFrame frame = ApplicationConfig.getApplicationContext().getBean(MainFrame.class);
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            frame.setSize((int) screenSize.getWidth() - 100, (int) screenSize.getHeight() - 100);
+            frame.setLocationRelativeTo(null);
+            frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+            frame.setVisible(true);
+        });
     }
 
 

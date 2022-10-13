@@ -27,7 +27,7 @@ public class LoggingPanel extends JPanel {
     }
 
     public void printLogging() {
-        logger.info("AFFICHE LES LOGS");
+        //logger.info("AFFICHE LES LOGS");
         timer.start();
     }
 

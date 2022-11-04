@@ -6,7 +6,6 @@
 
 package com.abouna.lacussms.config;
 
-import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.views.main.LogFile;
 import com.abouna.lacussms.views.tools.ConstantUtils;
 import com.google.common.base.Preconditions;
@@ -14,9 +13,13 @@ import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties
 import org.jasypt.encryption.StringEncryptor;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -41,18 +44,17 @@ import java.util.Properties;
 @EnableTransactionManagement
 @EnableEncryptableProperties
 @PropertySources({
-        @PropertySource("classpath:bd.properties"),
         @PropertySource("classpath:application.properties")
 })
 public class SpringMainConfig {
-    
+    private static final Logger logger = LoggerFactory.getLogger(SpringMainConfig.class);
     @Autowired
     private Environment env;
     
     public SpringMainConfig(){
         super();
     }
-    
+
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         final LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
@@ -68,10 +70,15 @@ public class SpringMainConfig {
     @Bean
     public DataSource dataSource() {
         final DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(Preconditions.checkNotNull(env.getProperty("jdbc.driverClassName")));
-        dataSource.setUrl(Preconditions.checkNotNull(env.getProperty("jdbc.url")));
-        dataSource.setUsername(Preconditions.checkNotNull(env.getProperty("jdbc.user")));
-        dataSource.setPassword(Preconditions.checkNotNull(env.getProperty("jdbc.pass")));
+        String driver = env.getProperty("jdbc.driverClassName");
+        String url = env.getProperty("jdbc.url");
+        String user = env.getProperty("jdbc.user");
+        String pass = env.getProperty("jdbc.pass");
+        logger.debug("### driver {} url {} user {} pass {} ###", driver, url, user, pass);
+        dataSource.setDriverClassName(Preconditions.checkNotNull(driver));
+        dataSource.setUrl(Preconditions.checkNotNull(url));
+        dataSource.setUsername(Preconditions.checkNotNull(user));
+        dataSource.setPassword(Preconditions.checkNotNull(pass));
         return dataSource;
     }
 
@@ -131,5 +138,10 @@ public class SpringMainConfig {
     @Bean("logo")
     public String logoApp() {
         return env.getProperty("application.logo");
+    }
+
+    @Bean(name = "licence")
+    public String getLicence() {
+        return env.getProperty("application.validDate");
     }
 }

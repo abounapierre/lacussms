@@ -1,11 +1,13 @@
 package com.abouna.lacussms.views.main;
 
+import ch.qos.logback.classic.Level;
 import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.tools.ConstantUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanInstantiationException;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.ComponentScan;
@@ -16,8 +18,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -41,25 +41,13 @@ public class MainFrame extends JFrame {
         this.remove(menu);
         try {
             img = ImageIO.read(Objects.requireNonNull(getClass().getResource(ConstantUtils.LOGO_GENU)));
+            setIconImage(img);
         } catch (IOException ex) {
             logger.error("Erreur de chargement de l'image");
         }
-        setIconImage(img);
         getContentPane().setLayout(new BorderLayout(10, 10));
         getContentPane().add(getMainPanel(mainMenuPanel), BorderLayout.CENTER);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-    }
-
-    public static boolean checkLicence(Date d) {
-        boolean val = false;
-        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yy");
-        String licence = format.format(d);
-        String s = "24/11/17";
-        int a = licence.compareTo(s);
-        if (a < 0) {
-            val = true;
-        }
-        return val;
     }
 
     public void setContent(JPanel panel) {
@@ -83,17 +71,50 @@ public class MainFrame extends JFrame {
 
 
     public static void main(String[] args) {
+        logger.info("##### main ####");
         thread = new Thread(SplashScreen::new);
         thread.start();
-        ApplicationConfig.setApplicationContext(new SpringApplicationBuilder(MainFrame.class).headless(false).run(args));
+        logger.info("##### configuration de l'application  ####");
         try {
+            ApplicationConfig.setApplicationContext(new SpringApplicationBuilder(MainFrame.class).headless(false).run(args));
+            if(args.length > 0) {
+                logger.info("###### loglevel {} ######", args[0]);
+                setLogLevel(args[0]);
+            }
             App.initApp();
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Erreur de démarrage de l'application ");
+            logger.error("Main: Erreur I/O: ",e);
+            JOptionPane.showMessageDialog(null, "Erreur de démarrage de l'application, l'application va s'arrêter");
+            System.exit(0);
         } catch (ClassNotFoundException e) {
-            JOptionPane.showMessageDialog(null, "Erreur de démarrage de l'application fichier introuvable");
+            logger.error("main: Erreur Classe non trouvée: ",e);
+            JOptionPane.showMessageDialog(null, "Erreur de démarrage de l'application fichier introuvable, l'application va s'arrêter");
+            System.exit(0);
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erreur de démarrage de l'application problème de connexion à la base de données");
+            logger.error("Man: Erreur problème SQL: ",e);
+            JOptionPane.showMessageDialog(null, "Erreur de démarrage de l'application problème de connexion à la base de données, l'application va s'arrêter");
+            System.exit(0);
+        } catch (BeanInstantiationException e) {
+            logger.error("Man: Erreur problème SQL: ",e);
+            JOptionPane.showMessageDialog(null, "Erreur de démarrage de l'application");
+            System.exit(0);
+        }
+    }
+
+    public void showError(String message) {
+        JOptionPane.showMessageDialog(MainFrame.this, message);
+    }
+
+    public static void setLogLevel(String logLevel) {
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        if(logLevel.equalsIgnoreCase("info")) {
+            root.setLevel(Level.INFO);
+        } else if(logLevel.equalsIgnoreCase("debug")) {
+            root.setLevel(Level.DEBUG);
+        } else if(logLevel.equalsIgnoreCase("trace")) {
+            root.setLevel(Level.TRACE);
+        } else if(logLevel.equalsIgnoreCase("error")) {
+            root.setLevel(Level.ERROR);
         }
     }
 

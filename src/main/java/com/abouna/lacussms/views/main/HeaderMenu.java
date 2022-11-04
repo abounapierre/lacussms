@@ -105,12 +105,20 @@ public class HeaderMenu extends JMenuBar {
 
 
         config = !serviceManager.getAllConfig().isEmpty() ? serviceManager.getAllConfig().get(0) : null;
-        event.setSelected(config != null && config.isEvent());
-        bkmac.setSelected(config != null && config.isBkmac());
-        bkmad.setSelected(config != null && config.isMandat());
-        bkmpai.setSelected(config != null && config.isBkmpai());
-        hbd.setSelected(config!=null && config.getHbd().equals("true"));
-        solde.setSelected(config != null && config.getSolde().equals("true"));
+
+        try {
+            event.setSelected(config != null && config.isEvent());
+            bkmac.setSelected(config != null && config.isBkmac());
+            bkmad.setSelected(config != null && config.isMandat());
+            bkmpai.setSelected(config != null && config.isBkmpai());
+            hbd.setSelected(config!=null && config.getHbd().equals("true"));
+            solde.setSelected(config != null && config.getSolde().equals("true"));
+        }catch (NullPointerException e) {
+            config.setHbd("false");
+            config.setSolde("false");
+            serviceManager.modifierConfig(config);
+        }
+
 
         if(config != null) {
             System.out.println(config);

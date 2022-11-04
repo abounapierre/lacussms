@@ -44,6 +44,9 @@ import java.sql.*;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.*;
@@ -589,6 +592,9 @@ public class Utils {
 
     public static Date getDateSimpleFormat(String format, String value) {
         SimpleDateFormat sdf = new SimpleDateFormat(format);
+        if(value == null || value.length() != 12) {
+            return null;
+        }
         try {
             return sdf.parse(value);
         } catch (ParseException e) {
@@ -694,7 +700,7 @@ public class Utils {
     };
 
     public static String getLog() {
-        logger.info("Recuperation des logs .......");
+        //logger.info("Recuperation des logs .......");
         LogFile logBean = ApplicationConfig.getApplicationContext().getBean(LogFile.class);
         return logBean.getLog();
 
@@ -1002,7 +1008,7 @@ public class Utils {
         if(remoteDB == null) {
             return null;
         }
-        logger.info("remote{}", remoteDB);
+        logger.debug("remote{}", remoteDB);
         String decryptedString = AES.decrypt(remoteDB.getPassword(), secret);
         return DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
     }
@@ -1018,5 +1024,10 @@ public class Utils {
             }
         }
         return res;
+    }
+
+    public static Date convertToDate(LocalDateTime localDateTime) {
+        ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.systemDefault());
+        return Date.from(zonedDateTime.toInstant());
     }
 }

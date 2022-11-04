@@ -9,6 +9,7 @@ import com.abouna.lacussms.entities.Licence;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.LogFile;
 import com.abouna.lacussms.views.main.MainFrame;
+import com.abouna.lacussms.views.tools.ConstantUtils;
 import com.abouna.lacussms.views.tools.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,14 +87,15 @@ public class Tache {
         }
     }
 
-    @Scheduled(cron = "*/1 * * * * *")
+    @Scheduled(cron = "*/30 * * * * *")
     public void controlLicence() {
-        String original = env.getProperty("application.validDate");
+        String original = ApplicationConfig.getApplicationContext().getBean("licence", String.class);
+        MainFrame frame = ApplicationConfig.getApplicationContext().getBean(MainFrame.class);
+        logger.debug("verification..." + original);
         Date date = Utils.getDateSimpleFormat("ddMMyyHHmmss", original);
-        if(date != null && date.before(Utils.getTimeFromInternet())) {
-            String msg = "une erreur est survenue lors de l'éxécution de l'application";
-            logger.error(msg);
-            JOptionPane.showMessageDialog(MainFrame.getFrames()[0], msg);
+        if(date == null || date.before(Utils.getTimeFromInternet())) {
+            logger.error(ConstantUtils.ERROR_MESSAGE);
+            frame.showError(ConstantUtils.ERROR_MESSAGE);
             System.exit(0);
         }
     }

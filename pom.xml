@@ -11,6 +11,14 @@
     
     <url>http://maven.apache.org</url>
 
+    <properties>
+        <finalJarName>lacussms</finalJarName>
+        <applog>INFO</applog>
+        <springBootversion>2.1.5.RELEASE</springBootversion>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <dbh2.version>1.4.191</dbh2.version>
+    </properties>
+
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -37,17 +45,34 @@
             </url>
         </repository>
     </repositories>
+
+    <profiles>
+        <profile>
+            <id>genu</id>
+            <properties>
+                <spring.profiles.active>genu</spring.profiles.active>
+            </properties>
+        </profile>
+        <profile>
+            <id>smile</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <spring.profiles.active>smile</spring.profiles.active>
+            </properties>
+        </profile>
+    </profiles>
     
     <build>
-        <finalName>lacussms</finalName>
+        <finalName>${finalJarName}</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
                 <excludes>
-                    <exclude>application.properties</exclude>
                     <exclude>bd.properties</exclude>
                 </excludes>
-                <filtering>false</filtering>
+                <filtering>true</filtering>
             </resource>
         </resources>
         <plugins>
@@ -62,11 +87,6 @@
             </plugin>
         </plugins>
     </build>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <dbh2.version>1.4.191</dbh2.version>
-    </properties>
 
     <dependencies>
         <dependency>

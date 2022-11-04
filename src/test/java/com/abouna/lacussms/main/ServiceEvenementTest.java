@@ -22,7 +22,11 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
+
+import static org.junit.Assert.*;
 
 /**
  *
@@ -204,5 +208,35 @@ public class ServiceEvenementTest {
     public void testDate() {
         Date date = Utils.getDateSimpleFormat("ddMMyyHHmmss", "280822141000");
         System.out.println(" Date : " + date);
+        assertEquals(date, Utils.convertToDate(LocalDateTime.of(2022, 8, 28, 14, 10, 00)));
     }
+
+    @Test
+    public void testDateError() {
+        Date date = Utils.getDateSimpleFormat("ddMMyyHHmmss", "1310221423");
+        System.out.println(" Date : " + date);
+        assertNull(date);
+    }
+
+    @Test
+    public void testDateError1() {
+        Date date = Utils.getDateSimpleFormat("ddMMyyHHmmss", "28822141000");
+        System.out.println(" Date : " + date);
+        assertNull(date);
+    }
+
+    @Test
+    public void testDateError2() {
+        Date date = Utils.getDateSimpleFormat("ddMMyyHHmmss", "281522141000");
+        System.out.println(" Date : " + date);
+        assertNotNull(date);
+    }
+
+   /* public void testConfig() {
+        String driver = env.getProperty("jdbc.driverClassName");
+        String url = env.getProperty("jdbc.url");
+        String user = env.getProperty("jdbc.user");
+        String pass = env.getProperty("jdbc.pass");
+        logger.debug("### driver {} url {} user {} pass {} ###", driver, url, user, pass);
+    }*/
 }

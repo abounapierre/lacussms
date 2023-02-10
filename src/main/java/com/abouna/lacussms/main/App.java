@@ -42,6 +42,7 @@ public class App {
     private static ServiceCredit serviceCredit;
     private static ServiceMandat serviceMandat;
     private static LacusSmsService serviceManager;
+    public static boolean running = false;
 
     public static void initApp() throws IOException, ClassNotFoundException, SQLException {
         serviceManager = ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
@@ -108,13 +109,16 @@ public class App {
             try {
                 logger.info("#### lancement de l'application #####");
                 MainFrame frame = ApplicationConfig.getApplicationContext().getBean(MainFrame.class);
+                logger.info("#### recuperation du bean Mainframe #####");
                 Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
                 frame.setSize((int) screenSize.getWidth() - 100, (int) screenSize.getHeight() - 100);
                 frame.setLocationRelativeTo(null);
                 frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
                 String original = ApplicationConfig.getApplicationContext().getBean("licence", String.class);
                 Date date = Utils.getDateSimpleFormat("ddMMyyHHmmss", original);
+                logger.debug("original: {}", original);
                 boolean expression = date == null || date.before(Utils.getTimeFromInternet());
+                logger.info("lancement .....{} frame size height {} width {}", !expression, frame.getHeight(), frame.getWidth());
                 if(!expression) {
                     frame.setVisible(true);
                 } else {
@@ -144,72 +148,75 @@ public class App {
 
     public static void demarrerServiceData() {
         try {
-            Utils.initDriver();
+            Utils.initDriver(serviceManager.getDefaultRemoteDB(true).getDriverClassName());
 
             Config config = serviceManager.getAllConfig().get(0);
             AtomicReference<String> msg = new AtomicReference<>();
+            //while (running) {
             firstExecutor.scheduleAtFixedRate(() -> {
-                logger.info("Démarrage du service de données .....");
-                    if (config.isEvent()) {
-                        try {
-                            serviceEvenement.serviceEvenement();
-                        } catch (SQLException var2) {
-                            msg.set("ServiceData: Echec de connexion à la base de données");
-                            logger.error(msg.get());
-                            BottomPanel.settextLabel(msg.get(), Color.RED);
-                        } catch (ParseException e) {
-                            msg.set("ServiceData: Problème de formatage de la date");
-                            logger.error(msg.get());
-                            BottomPanel.settextLabel(msg.get(), Color.RED);
+                        logger.info("Démarrage du service de données .....");
+                        if (config.isEvent()) {
+                            try {
+                                serviceEvenement.serviceEvenement();
+                            } catch (SQLException var2) {
+                                msg.set("ServiceData: Echec de connexion à la base de données");
+                                logger.error(msg.get(), var2);
+                                BottomPanel.settextLabel(msg.get(), Color.RED);
+                            } catch (ParseException e) {
+                                msg.set("ServiceData: Problème de formatage de la date");
+                                logger.error(msg.get());
+                                BottomPanel.settextLabel(msg.get(), Color.RED);
+                                logger.error(msg.get(), e);
+                            }
                         }
-                    }
 
-                    if (config.isBkmpai()) {
-                        try {
-                            serviceSalaire.serviceSalaire();
-                            serviceSalaireBKMVTI.serviceSalaireBKMVTI();
-                        } catch (SQLException e) {
-                            msg.set("ServiceData: Echec de connexion à la base de données");
-                            logger.error(msg.get());
-                            BottomPanel.settextLabel(msg.get(), Color.RED);
-                        } catch (ParseException e) {
-                            msg.set("ServiceData: Problème de formatage de la date");
-                            logger.error(msg.get());
-                            BottomPanel.settextLabel(msg.get(), Color.RED);
+                        if (config.isBkmpai()) {
+                            try {
+                                serviceSalaire.serviceSalaire();
+                                serviceSalaireBKMVTI.serviceSalaireBKMVTI();
+                            } catch (SQLException e) {
+                                msg.set("ServiceData: Echec de connexion à la base de données");
+                                logger.error(msg.get(), e);
+                                BottomPanel.settextLabel(msg.get(), Color.RED);
+                            } catch (ParseException e) {
+                                msg.set("ServiceData: Problème de formatage de la date");
+                                logger.error(msg.get(), e);
+                                BottomPanel.settextLabel(msg.get(), Color.RED);
+                            }
                         }
-                    }
 
-                    if (config.isBkmac()) {
-                        try {
-                            serviceCredit.serviceCredit();
-                        } catch (SQLException e) {
-                            msg.set("ServiceData: Echec de connexion à la base de données");
-                            logger.error(msg.get());
-                            BottomPanel.settextLabel(msg.get(), Color.RED);
-                        } catch (ParseException e) {
-                            msg.set("ServiceData: Problème de formatage de la date");
-                            logger.error(msg.get());
-                            BottomPanel.settextLabel(msg.get(), Color.RED);
+                        if (config.isBkmac()) {
+                            try {
+                                serviceCredit.serviceCredit();
+                            } catch (SQLException e) {
+                                msg.set("ServiceData: Echec de connexion à la base de données");
+                                logger.error(msg.get(), e);
+                                BottomPanel.settextLabel(msg.get(), Color.RED);
+                            } catch (ParseException e) {
+                                msg.set("ServiceData: Problème de formatage de la date");
+                                logger.error(msg.get(), e);
+                                BottomPanel.settextLabel(msg.get(), Color.RED);
+                            }
                         }
-                    }
 
-                    if (config.isMandat()) {
-                        try {
-                            serviceMandat.serviceMandat();
-                        } catch (SQLException e) {
-                            msg.set("ServiceData: Echec de connexion à la base de données");
-                            logger.error(msg.get());
-                            BottomPanel.settextLabel(msg.get(), Color.RED);
-                        } catch (ParseException e) {
-                            msg.set("ServiceData: Problème de formatage de la date");
-                            logger.error(msg.get());
-                            BottomPanel.settextLabel(msg.get(), Color.RED);
+                        if (config.isMandat()) {
+                            try {
+                                serviceMandat.serviceMandat();
+                            } catch (SQLException e) {
+                                msg.set("ServiceData: Echec de connexion à la base de données");
+                                logger.error(msg.get(), e);
+                                BottomPanel.settextLabel(msg.get(), Color.RED);
+                            } catch (ParseException e) {
+                                msg.set("ServiceData: Problème de formatage de la date");
+                                logger.error(msg.get(), e);
+                                BottomPanel.settextLabel(msg.get(), Color.RED);
+                            }
                         }
-                   }
+                    //}
             }, 0, 1000, TimeUnit.MILLISECONDS);
         } catch (ClassNotFoundException e) {
             String msg = "ServiceData: Problème de chargement du pilote";
-            logger.error(msg);
+            logger.error(msg, e);
             BottomPanel.settextLabel(msg, Color.red);
         }
 
@@ -218,116 +225,118 @@ public class App {
     public static void demarrerServiceSms() {
         Config config = serviceManager.getAllConfig().get(0);
         firstExecutor.scheduleAtFixedRate(() -> {
-            logger.info("Démarrage du service sms ...");
-            logger.info("demarrage du service 111111...");
-                if (config.isEvent()) {
-                serviceEvenement.envoieSMSEvenement();
-                }
+        logger.info("Démarrage du service sms ...");
+        logger.info("demarrage du service ...");
+        if (config.isEvent()) {
+            serviceEvenement.envoieSMSEvenement();
+        }
 
-                if (config.isBkmpai()) {
-                    serviceSalaire.envoieSMSSalaire();
-                }
+        if (config.isBkmpai()) {
+            serviceSalaire.envoieSMSSalaire();
+        }
 
-                if (config.isBkmac()) {
-                    serviceCredit.envoieSMSCredit();
-                }
+        if (config.isBkmac()) {
+            serviceCredit.envoieSMSCredit();
+        }
 
-                if (config.isMandat()) {
-                    serviceMandat.envoieSMSMandat();
-                }
+        if (config.isMandat()) {
+            serviceMandat.envoieSMSMandat();
+        }
         }, 0, 1000, TimeUnit.MILLISECONDS);
     }
 
     public static void demarrerServiceRequete() {
         firstExecutor.scheduleAtFixedRate(() -> {
+        //while (running) {
             logger.info("Démarrage du service...");
 
             try {
                 serviceRequete.serviceRequete();
             } catch (ParseException | SQLException var1) {
                 String msg = "erreur lors de l'execution du service ...";
-                logger.error(msg);
+                logger.error(msg, var1);
                 BottomPanel.settextLabel(msg, Color.RED);
             }
-
+        //}
         }, 0, 1000, TimeUnit.MILLISECONDS);
     }
 
 
     public static void demarrerServiceSequenciel() {
         try {
-            Utils.initDriver();
-            firstExecutor = Executors.newSingleThreadScheduledExecutor();
+            Utils.initDriver(serviceManager.getDefaultRemoteDB(true).getDriverClassName());
+            //firstExecutor = Executors.newSingleThreadScheduledExecutor();
             Config config = serviceManager.getAllConfig().get(0);
             final String[] msg = {"demarrerServiceSequenciel: Démarrage du service..."};
             logger.info(msg[0]);
             BottomPanel.settextLabel(msg[0], Color.BLACK);
             firstExecutor.scheduleAtFixedRate(() -> {
+            //while (running) {
                 logger.info(msg[0]);
-                    if (config.isEvent()) {
-                        try {
-                            serviceEvenement.serviceEvenement();
-                        } catch (SQLException e) {
-                            msg[0] = "demarrerServiceSequenciel: Echec de connexion à la base de données";
-                            logger.info(msg[0]);
-                            BottomPanel.settextLabel(msg[0], Color.RED);
-                        } catch (ParseException e) {
-                            msg[0] = "demarrerServiceSequenciel: Problème de formatage de la date";
-                            logger.info(msg[0]);
-                            BottomPanel.settextLabel(msg[0], Color.RED);
-                        }
-                        serviceEvenement.envoieSMSEvenement();
+                if (config.isEvent()) {
+                    try {
+                        serviceEvenement.serviceEvenement();
+                    } catch (SQLException e) {
+                        msg[0] = "demarrerServiceSequenciel: Echec de connexion à la base de données";
+                        logger.info(msg[0], e);
+                        BottomPanel.settextLabel(msg[0], Color.RED);
+                    } catch (ParseException e) {
+                        msg[0] = "demarrerServiceSequenciel: Problème de formatage de la date";
+                        logger.info(msg[0], e);
+                        BottomPanel.settextLabel(msg[0], Color.RED);
+                    }
+                    serviceEvenement.envoieSMSEvenement();
+                }
+
+                if (config.isBkmpai()) {
+                    try {
+                        serviceSalaire.serviceSalaire();
+                        serviceSalaireBKMVTI.serviceSalaireBKMVTI();
+                    } catch (SQLException e) {
+                        msg[0] = "demarrerServiceSequenciel: Problème de connexion sur la base de données";
+                        logger.error(msg[0], e);
+                        BottomPanel.settextLabel(msg[0], Color.RED);
+                    } catch (ParseException e) {
+                        msg[0] = "demarrerServiceSequenciel: Problème de formatage de la date";
+                        logger.error(msg[0], e);
+                        BottomPanel.settextLabel(msg[0], Color.RED);
                     }
 
-                    if (config.isBkmpai()) {
-                        try {
-                            serviceSalaire.serviceSalaire();
-                            serviceSalaireBKMVTI.serviceSalaireBKMVTI();
-                        } catch (SQLException e) {
-                            msg[0] = "demarrerServiceSequenciel: Problème de connexion sur la base de données";
-                            logger.error(msg[0]);
-                            BottomPanel.settextLabel(msg[0], Color.RED);
-                        } catch (ParseException e) {
-                            msg[0] = "demarrerServiceSequenciel: Problème de formatage de la date";
-                            logger.error(msg[0]);
-                            BottomPanel.settextLabel(msg[0], Color.RED);
-                        }
+                    serviceSalaire.envoieSMSSalaire();
+                }
 
-                        serviceSalaire.envoieSMSSalaire();
+                if (config.isBkmac()) {
+                    try {
+                        serviceCredit.serviceCredit();
+                    } catch (SQLException e) {
+                        msg[0] = "demarrerServiceSequenciel: Problème de connexion sur la base de données";
+                        logger.error(msg[0], e);
+                        BottomPanel.settextLabel(msg[0], Color.RED);
+                    } catch (ParseException e) {
+                        msg[0] = "demarrerServiceSequenciel: Problème de formatage de la date";
+                        logger.error(msg[0], e);
+                        BottomPanel.settextLabel(msg[0], Color.RED);
                     }
 
-                    if (config.isBkmac()) {
-                        try {
-                            serviceCredit.serviceCredit();
-                        } catch (SQLException e) {
-                            msg[0] = "demarrerServiceSequenciel: Problème de connexion sur la base de données";
-                            logger.error(msg[0]);
-                            BottomPanel.settextLabel(msg[0], Color.RED);
-                        } catch (ParseException e) {
-                            msg[0] = "demarrerServiceSequenciel: Problème de formatage de la date";
-                            logger.error(msg[0]);
-                            BottomPanel.settextLabel(msg[0], Color.RED);
-                        }
+                    serviceCredit.envoieSMSCredit();
+                }
 
-                        serviceCredit.envoieSMSCredit();
+                if (config.isMandat()) {
+                    try {
+                        serviceMandat.serviceMandat();
+                    } catch (SQLException e) {
+                        msg[0] = "demarrerServiceSequenciel: Problème de connexion sur la base de données";
+                        logger.error(msg[0], e);
+                        BottomPanel.settextLabel(msg[0], Color.RED);
+                    } catch (ParseException e) {
+                        msg[0] = "demarrerServiceSequenciel: Problème de formatage de la date";
+                        logger.error(msg[0], e);
+                        BottomPanel.settextLabel(msg[0], Color.RED);
                     }
 
-                    if (config.isMandat()) {
-                        try {
-                            serviceMandat.serviceMandat();
-                        } catch (SQLException e) {
-                            msg[0] = "demarrerServiceSequenciel: Problème de connexion sur la base de données";
-                            logger.error(msg[0]);
-                            BottomPanel.settextLabel(msg[0], Color.RED);
-                        } catch (ParseException e) {
-                            msg[0] = "demarrerServiceSequenciel: Problème de formatage de la date";
-                            logger.error(msg[0]);
-                            BottomPanel.settextLabel(msg[0], Color.RED);
-                        }
-
-                        serviceMandat.envoieSMSMandat();
-                    }
-
+                    serviceMandat.envoieSMSMandat();
+                }
+            //}
             }, 0, 1000, TimeUnit.MILLISECONDS);
         } catch (ClassNotFoundException e) {
             String msg = "demarrerServiceSequenciel: Problème de chargement du pilote";
@@ -342,6 +351,7 @@ public class App {
             firstExecutor.shutdownNow();
         }
         BottomPanel.settextLabel("");
+        running = false;
         logger.info("le service a été arreté");
     }
 

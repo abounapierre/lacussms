@@ -112,13 +112,17 @@ public class ServiceEvenement {
     }
 
     public void serviceEvenement() throws SQLException, ParseException {
-        try (PreparedStatement ps = conn.prepareStatement(getQuery())) {
+        String query = getQuery();
+        logger.info("query {}", query);
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
             ResultSet rs = ps.executeQuery();
             String msg = "Recherche des évenements en cours....";
+            int i = 0;
             while (rs.next()) {
-                logger.info(msg);
+                logger.info(msg + i);
                 BottomPanel.settextLabel(msg, java.awt.Color.BLACK);
                 String numeroCompte = rs.getString("NCP1");
+
                 if (numeroCompte != null && numeroCompte.trim().length() >= 10) {
                     numeroCompte = numeroCompte.trim();
                     BkEve eve = new BkEve();
@@ -175,6 +179,7 @@ public class ServiceEvenement {
                         ServiceUtils.mettreAjourNumero(serviceManager, conn, bkCli, cli);
                     }
                 }
+                i++;
             }
         }
     }

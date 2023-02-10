@@ -27,34 +27,25 @@ public class MainMenuPanel extends JPanel {
     public MainMenuPanel() throws IOException {
         setLayout(new BorderLayout());
 
-        JXHyperlink  typeMsgBtn = createLink("Types SMS",MessageFormatPanel.class);
         JXHyperlink formatMsgBtn = createLink("Format SMS", MessageFormatPanel.class);
         JXHyperlink cliBtn = createLink("Client", BkCliPanel.class);
         JXHyperlink opeBtn = createLink("Opération", BkOpePanel.class);
         JXHyperlink eveBtn = createLink("Evenement", BkEvePanel.class);
         JXHyperlink remoteBdBtn = createLink("BD CBS", RemoteDBPanel.class);
-        JXHyperlink employeeBtn = createLink("Employés", MessageFormatPanel.class);
         JXHyperlink userBtn = createLink("Utilisateur", MessageFormatPanel.class);
-        JXHyperlink rapportTypeBtn = createLink("Types Rapports", MessageFormatPanel.class);
         JXHyperlink rapportBtn = createLink("Rapports", RapportPanel.class);
         JXHyperlink agenceBtn = createLink("Agence", BkAgencePanel.class);
         JXHyperlink urlParam = createLink("Param Url", UrlParamPanel.class);
         JXHyperlink etatParam = createLink("Etat OP", EtatOPParamPanel.class);
         JXHyperlink gescom = createLink("Gest. Compte", BkCompCliPanel.class);
-        JXHyperlink mandat = createLink("Mandats", BkMadPanel.class);
-        JXHyperlink rapportMandatBtn = createLink("Rapports Mandats", MessageMandatPanel.class);
         JXHyperlink commandBtn = createLink("Requêtes", CommandPanel.class);
         JXHyperlink serviceBtn = createLink("Services", ServiceOffertPanel.class);
-        //JXHyperlink programBtn = createLink("Prog. Mail");
         JXHyperlink programSmsBtn = createLink("Prog. SMS", SmsProgrammingPanel.class);
         JXHyperlink configReqBtn = createLink("Conf. req.", ParametreRequetePanel.class);
         JXHyperlink accueilBtn = createLink("Accueil", HomePanel.class);
-        JXHyperlink paramTblBtn = createLink("Param Table", MessageFormatPanel.class);
         JXHyperlink licenceBtn = createLink("Licence", null);
 
-        licenceBtn.addActionListener((ActionEvent ae) -> {
-            getLicencePanel();
-        });
+        licenceBtn.addActionListener((ActionEvent ae) -> getLicencePanel());
 
         JXHyperlink envoieMsgBtn = createLink("SMS PUSH", null);
         envoieMsgBtn.addActionListener((ActionEvent ae) -> {
@@ -166,6 +157,7 @@ public class MainMenuPanel extends JPanel {
                     logger.error("Erreur: ", e);
                     JOptionPane.showMessageDialog(MainMenuPanel.this.getParent(), "Erreur lors de la création du panneau");
                 }
+                ((JXHyperlink)ae.getSource()).setBackground(Color.YELLOW);
             });
         }
         return b;

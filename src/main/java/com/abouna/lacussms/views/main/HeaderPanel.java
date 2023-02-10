@@ -2,6 +2,7 @@ package com.abouna.lacussms.views.main;
 
 
 import com.abouna.lacussms.main.App;
+import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.ContactPanel;
 import com.abouna.lacussms.views.tools.ConstantUtils;
 import com.abouna.lacussms.views.tools.Utils;
@@ -24,8 +25,11 @@ public  class HeaderPanel extends JPanel{
     private JButton runBtn;
     private JButton stopBtn;
     private JButton runParaBtn;
+
+    private final LacusSmsService service;
     
-    public HeaderPanel() throws IOException{
+    public HeaderPanel(LacusSmsService service) throws IOException{
+        this.service = service;
         setLayout(new FlowLayout(FlowLayout.LEFT,10,10));        
         setBackground(new Color(166, 202, 240));
         setBorder(BorderFactory.createRaisedSoftBevelBorder());
@@ -63,8 +67,9 @@ public  class HeaderPanel extends JPanel{
         //runParaBtn.setEnabled(false);
         
         runBtn.addActionListener((ActionEvent e) -> {
-            Connection connection = Utils.testConnexion(ConstantUtils.SECRET_KEY);
+            Connection connection = Utils.testConnexion(service, ConstantUtils.SECRET_KEY);
             if (connection != null) {
+                App.running = true;
                 App.setConnexion(connection);
                 App.demarrerServiceSequenciel();
                 //App.demarrerServiceRequete();
@@ -77,8 +82,9 @@ public  class HeaderPanel extends JPanel{
             }
        });       
          runParaBtn.addActionListener((ActionEvent e) -> {
-             Connection connection = Utils.testConnexion(ConstantUtils.SECRET_KEY);
+             Connection connection = Utils.testConnexion(service, ConstantUtils.SECRET_KEY);
              if(connection != null){
+                 App.running = true;
                  App.setConnexion(connection);
                  App.demarrerServiceData();
                  App.demarrerServiceSms();

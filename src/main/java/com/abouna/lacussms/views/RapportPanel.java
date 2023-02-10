@@ -22,6 +22,7 @@ import org.jdesktop.swingx.JXSearchField;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -41,7 +42,7 @@ import java.util.logging.Logger;
  */
 public class RapportPanel extends JPanel {
 
-    private CustomTableModel tableModel;
+    private DefaultTableModel tableModel;
     private JTable table;
     private final MainMenuPanel parentPanel;
     private final LacusSmsService serviceManager;
@@ -154,7 +155,7 @@ public class RapportPanel extends JPanel {
                 d2 = format.parse(format.format(dateFin.getDate()));
                 tableModel.setNumRows(0);
                 List<Message> messageList = serviceManager.getMessageFromPeriode(d1, d2);
-                messageList.stream().forEach((a) -> {
+                messageList.forEach((a) -> {
                     tableModel.addRow(new Object[]{
                         a.getId(),
                         a.getTitle(),
@@ -189,7 +190,7 @@ public class RapportPanel extends JPanel {
                         File fichier = fc.getSelectedFile();
                         String path = fichier.getAbsolutePath() + ".pdf";
                         try {
-                            PrintReportPDF report = new PrintReportPDF(path, d1, d2, serviceManager);
+                             new PrintReportPDF(path, d1, d2, serviceManager);
                         } catch (FileNotFoundException ex) {
                             Logger.getLogger(RapportPanel.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -209,7 +210,7 @@ public class RapportPanel extends JPanel {
                                     JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "Ce fichier n'existe pas");
                                     System.out.println("File is not exists!");
                                 }
-                            } catch (IOException | HeadlessException ex) {
+                            } catch (IOException | HeadlessException ignored) {
                             }
                         }
                     }
@@ -228,23 +229,19 @@ public class RapportPanel extends JPanel {
         filtrePanel.add(printBtn);
         filtrePanel.setBackground(new Color(166, 202, 240));
         searchField.addActionListener((ActionEvent e) -> {
-            String val = null;
             if (searchField.getText() != null) {
                 try {
-                    val = searchField.getText().toUpperCase();
                     tableModel.setNumRows(0);
                     List<Message> messageList = serviceManager.getAllMessages();
-                    messageList.forEach((a) -> {
-                        tableModel.addRow(new Object[]{
-                            a.getId(),
-                            a.getTitle(),
-                            a.getContent(),
-                            a.getSendDate(),
-                            a.getNumero(),
-                            a.getBkEve() == null ? "" : a.getBkEve().getCli() == null ? "" : a.getBkEve().getCli().getNom() + " " + a.getBkEve().getCli().getPrenom(),
-                            a.getBkEve() == null ? "" : a.getBkEve().getBkAgence() == null ? "" : a.getBkEve().getBkAgence().getNoma()
-                        });
-                    });
+                    messageList.forEach((a) -> tableModel.addRow(new Object[]{
+                        a.getId(),
+                        a.getTitle(),
+                        a.getContent(),
+                        a.getSendDate(),
+                        a.getNumero(),
+                        a.getBkEve() == null ? "" : a.getBkEve().getCli() == null ? "" : a.getBkEve().getCli().getNom() + " " + a.getBkEve().getCli().getPrenom(),
+                        a.getBkEve() == null ? "" : a.getBkEve().getBkAgence() == null ? "" : a.getBkEve().getBkAgence().getNoma()
+                    }));
                 } catch (Exception ex) {
                     Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -252,7 +249,8 @@ public class RapportPanel extends JPanel {
         });
         contenu.add(BorderLayout.AFTER_LAST_LINE, bas);
         contenu.add(BorderLayout.BEFORE_FIRST_LINE, filtrePanel);
-        tableModel = new CustomTableModel(new Object[]{"Code 1", "Titre", "Contenu", "Date", "Numéro", "Client", "Agence"}, 0);
+        //CustomTableModel
+        tableModel = new DefaultTableModel(new Object[]{"Code 1", "Titre", "Contenu", "Date", "Numéro", "Client", "Agence"}, 0);
         //tableModel.setRowColour(1, Color.red);
         table = new JTable(tableModel);
         table.setBackground(Color.WHITE);

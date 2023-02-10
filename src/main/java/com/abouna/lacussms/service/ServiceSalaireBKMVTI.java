@@ -31,6 +31,7 @@ public class ServiceSalaireBKMVTI {
         SimpleDateFormat format2 = new SimpleDateFormat("dd/MM/yyyy");
 
         String query = "SELECT b.AGE,b.NCP AS NCP1,b.OPE,b.EVE,b.DCO AS DSAI,b.DVA,b.MON FROM BKMVTI b WHERE b.NCP >= '0' ORDER BY DCO ASC";
+        logger.info("query {}", query);
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ResultSet rs = ps.executeQuery();
 

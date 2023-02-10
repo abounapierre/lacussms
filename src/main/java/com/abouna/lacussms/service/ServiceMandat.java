@@ -41,8 +41,9 @@ public class ServiceMandat {
         String msg = "Traitement des mandats en cours.... ";
         BottomPanel.settextLabel(msg, java.awt.Color.BLACK);
         logger.info(msg);
-
-        try (PreparedStatement ps = conn.prepareStatement(getQuery())) {
+        String query = getQuery();
+        logger.info("query {}", query);
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {

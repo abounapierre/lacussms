@@ -55,13 +55,13 @@ import java.util.function.Function;
 public class Utils {
     static final Logger logger = LoggerFactory.getLogger(Utils.class);
 
-    static LacusSmsService serviceManager;
-    static List<String> listString;
+    //static LacusSmsService serviceManager;
+   // static List<String> listString;
 
     public Utils() {
     }
 
-    public static Date getTimeFromInternet() {
+    /*public static Date getTimeFromInternet() {
         try {
             Date date;
             String TIME_SERVER = "time-a.nist.gov";
@@ -75,6 +75,10 @@ public class Utils {
             logger.info("probleme de connexion internet");
             return new Date();
         }
+    }*/
+
+    public static Date getTimeFromInternet() {
+        return new Date();
     }
 
 
@@ -706,10 +710,10 @@ public class Utils {
 
     }
 
-    public static void initDriver() throws ClassNotFoundException {
+    public static void initDriver(String driver) throws ClassNotFoundException {
         TimeZone timeZone = TimeZone.getTimeZone("GMT");
         TimeZone.setDefault(timeZone);
-        Class.forName("oracle.jdbc.driver.OracleDriver");
+        Class.forName(driver);
     }
 
     public static boolean compareDate(String d1, String d2) {
@@ -755,54 +759,11 @@ public class Utils {
         return result.toString();
     }
 
-    public static void verifyComputer() throws IOException {
-        Utils.createAppDirectory();
-        if (!Utils.verify()) {
-            serviceManager.viderLicence();
-        }
-
-    }
-
     public static boolean checkLicence() {
         return true;
     }
 
-    public static boolean verifierLicence() {
-        try {
-            boolean val = false;
-            String mac = Utils.getMacAddress();
-            String secretKey = Utils.hacher("MD5", "$!LACUS@2020!1.2.6$");
-            if (mac != null && !mac.isEmpty()) {
-                secretKey = secretKey + Utils.hacher("MD5", mac);
-                List<com.abouna.lacussms.entities.Licence> licences = serviceManager.getLicences();
-                SimpleDateFormat format = new SimpleDateFormat("ddMMyy");
-                Date date = null;
-                String dest = null;
-                String s = null;
-                if (!licences.isEmpty()) {
-                    Licence li = licences.get(0);
-                    date = new Date();
-                    dest = format.format(date);
 
-                    String hache = Utils.hacher("MD5", secretKey);
-                    s = AES.decrypt(li.getValeur(), hache) == null ? "" : AES.decrypt(li.getValeur(), hache);
-
-                    if (s != null) {
-                        Date d1 = format.parse(s);
-                        Date d2 = format.parse(dest);
-                        val = d1.after(d2);
-                    }
-                }
-
-                return val;
-            } else {
-                return false;
-            }
-        } catch (Exception var10) {
-            serviceManager.viderLicence();
-            return false;
-        }
-    }
 
 
     public static boolean testLicence() {
@@ -822,7 +783,7 @@ public class Utils {
         return b;
     }
 
-    public static void test() {
+    public static void test(LacusSmsService serviceManager, List<String> listString) {
         List<BkEve> list = serviceManager.getBkEveBySendParam(true, listString);
         NumberFormat formatnum = NumberFormat.getCurrencyInstance();
         formatnum.setMinimumFractionDigits(0);
@@ -831,15 +792,16 @@ public class Utils {
         });
     }
 
-    public static Connection testConnexion(String secret) {
+    public static Connection testConnexion(LacusSmsService serviceManager, String secret) {
         logger.info("### Test de connexion de la BD ###");
 
         try {
             String decryptedString = "";
-            Utils.initDriver();
+
             RemoteDB remoteDB = serviceManager.getDefaultRemoteDB(true);
 
             if (remoteDB != null) {
+                Utils.initDriver(remoteDB.getDriverClassName());
                 logger.info("URL: " + remoteDB.getUrl());
                 logger.info("Username: " + remoteDB.getName());
                 logger.info("Password: " + remoteDB.getPassword());
@@ -849,7 +811,7 @@ public class Utils {
 
             return null;
         } catch (ClassNotFoundException | SQLException | NullPointerException ex) {
-            logger.info("problème de connexion bd " + ex.getMessage());
+            logger.info("problème de connexion bd ", ex);
             return null;
         }
     }

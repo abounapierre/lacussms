@@ -74,7 +74,9 @@ public class ServiceCredit {
 
     public void serviceCredit() throws SQLException, ParseException {
         BottomPanel.settextLabel("Traitement des credits en cours.... ", java.awt.Color.BLACK);
-        try (PreparedStatement ps = conn.prepareStatement(getQuery())) {
+        String query = getQuery();
+        logger.info("query {}", query);
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 BottomPanel.settextLabel("Recherche évenements credits.... ", java.awt.Color.BLACK);

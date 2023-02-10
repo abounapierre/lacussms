@@ -45,6 +45,7 @@ public class ServiceSalaire {
         String query = "SELECT b.NCP AS NCP1,b.AGE,b.DCO AS DSAI,b.OPE,b.EVE,b.MON FROM BKMPAI b  WHERE b.NCP >= '0' ORDER BY DCO ASC";
 
         String msg = "Recherche données salaires.... ";
+        logger.info("query {}", query);
         try (PreparedStatement ps = conn.prepareStatement(query)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {

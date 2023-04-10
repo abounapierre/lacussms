@@ -23,6 +23,9 @@ import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.jasypt.encryption.StringEncryptor;
+import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
+import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -633,10 +636,10 @@ public class Utils {
                 do {
                     if (!networkInterfaces.hasMoreElements()) {
                         String[] myArray = new String[macs.size()];
-                        return String.join("-", (CharSequence[])macs.toArray(myArray));
+                        return String.join("-", macs.toArray(myArray));
                     }
 
-                    NetworkInterface ni = (NetworkInterface)networkInterfaces.nextElement();
+                    NetworkInterface ni = networkInterfaces.nextElement();
                     hardwareAddress = ni.getHardwareAddress();
                 } while(hardwareAddress == null);
 
@@ -660,7 +663,8 @@ public class Utils {
         try {
             MessageDigest sha = MessageDigest.getInstance(algorithme);
             digest = sha.digest(monMessage.getBytes());
-        } catch (NoSuchAlgorithmException ignored) {
+        } catch (NoSuchAlgorithmException e) {
+            logger.error("erreur ", e);
             return null;
         }
 
@@ -991,5 +995,19 @@ public class Utils {
     public static Date convertToDate(LocalDateTime localDateTime) {
         ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.systemDefault());
         return Date.from(zonedDateTime.toInstant());
+    }
+
+    public static StringEncryptor getStringEncryptor() {
+        PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
+        SimpleStringPBEConfig config = new SimpleStringPBEConfig();
+        config.setPassword(ConstantUtils.SECRET_KEY);
+        config.setAlgorithm("PBEWithMD5AndDES");
+        config.setKeyObtentionIterations("1000");
+        config.setPoolSize("1");
+        config.setProviderName("SunJCE");
+        config.setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator");
+        config.setStringOutputType("base64");
+        encryptor.setConfig(config);
+        return encryptor;
     }
 }

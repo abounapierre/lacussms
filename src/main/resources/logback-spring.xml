@@ -1,0 +1,39 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<configuration scan="true">
+    <springProperty name="profile" source="spring.profiles.active" />
+    <appender name = "STDOUT" class = "ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd'T'HH:mm:ss.sss'Z'}] [%C] [%t] [%L] [%-5p] %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name = "FILE" class = "ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${user.home}/.lacuss/lacuss-application-${profile}.log</File>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>[%d{yyyy-MM-dd'T'HH:mm:ss.sss'Z'}] [%C] [%t] [%L] [%-5p] %m%n</pattern>
+        </encoder>
+        <rollingPolicy
+                class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- rollover daily and when the file reaches 3 MegaBytes -->
+            <fileNamePattern>${user.home}/.lacuss/archived/lacuss-application-${profile}-%d{yyyy-MM-dd}.%i.log
+            </fileNamePattern>
+            <maxFileSize>3MB</maxFileSize>
+            <maxHistory>60</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <springProfile name="dev">
+        <root level = "DEBUG">
+            <appender-ref ref = "FILE"/>
+            <appender-ref ref = "STDOUT"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="prod">
+        <root level = "INFO">
+            <appender-ref ref = "FILE"/>
+            <appender-ref ref = "STDOUT"/>
+        </root>
+    </springProfile>
+</configuration>

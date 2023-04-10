@@ -11,6 +11,7 @@ import com.abouna.lacussms.entities.*;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.service.ServiceEvenement;
 import com.abouna.lacussms.views.tools.ConstantUtils;
+import com.abouna.lacussms.views.tools.FingerPrint;
 import com.abouna.lacussms.views.tools.Utils;
 import org.easymock.EasyMock;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
@@ -189,18 +190,8 @@ public class ServiceEvenementTest {
 
     @Test
     public void testPasswordEncryption() {
-        PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
-        SimpleStringPBEConfig config = new SimpleStringPBEConfig();
-        config.setPassword(ConstantUtils.SECRET_KEY); // encryptor's private key
-        config.setAlgorithm("PBEWithMD5AndDES");
-        config.setKeyObtentionIterations("1000");
-        config.setPoolSize("1");
-        config.setProviderName("SunJCE");
-        config.setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator");
-        config.setStringOutputType("base64");
-        encryptor.setConfig(config);
         String plainText = "310822210000";
-        String encryptedPassword = encryptor.encrypt(plainText);
+        String encryptedPassword = Utils.getStringEncryptor().encrypt(plainText);
         System.out.println("encryptedPassword : " + encryptedPassword);
     }
 
@@ -239,4 +230,14 @@ public class ServiceEvenementTest {
         String pass = env.getProperty("jdbc.pass");
         logger.debug("### driver {} url {} user {} pass {} ###", driver, url, user, pass);
     }*/
+
+    @Test
+    public void testHashMacAddress() throws IOException {
+        System.out.println(" FINGERPRINT : " + FingerPrint.getEncodedMacAddress());
+        FingerPrint.writeByte(FingerPrint.getEncodedMacAddress());
+        FingerPrint.writeBinary(FingerPrint.getEncodedMacAddress());
+        String original = FingerPrint.readBinaryFile("C:\\Users\\eabou\\.lacuss\\output.bin");
+        System.out.println("Original: " + original);
+        System.out.println("path home: " + System.getProperty("user.home"));
+    }
 }

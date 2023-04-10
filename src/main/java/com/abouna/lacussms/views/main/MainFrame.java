@@ -4,12 +4,14 @@ import ch.qos.logback.classic.Level;
 import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
+import com.abouna.lacussms.views.LoginPanel;
 import com.abouna.lacussms.views.tools.ConstantUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanInstantiationException;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.Environment;
 
@@ -28,33 +30,32 @@ import java.util.Objects;
 @ComponentScan({ "com.abouna.lacussms"})
 public class MainFrame extends JFrame {
     private static final Logger logger = LoggerFactory.getLogger(MainFrame.class);
-    private Image img;
     private final BottomPanel bottomPanel = new BottomPanel();
 
     public static Thread thread;
 
-    public MainFrame(MainMenuPanel mainMenuPanel, LacusSmsService service, Environment env) throws IOException {
+    public MainFrame(MainMenuPanel mainMenuPanel, HeaderMenu menu, LacusSmsService service, Environment env) throws IOException {
         mainMenuPanel.setContent(new HomePanel());
-        this.setTitle("LACUS SMS " + env.getProperty("application.version"));
-        HeaderMenu menu = new HeaderMenu(service, this);
+        this.setTitle(env.getProperty("application.title"));
         this.setJMenuBar(menu);
-        this.remove(menu);
         try {
-            img = ImageIO.read(Objects.requireNonNull(getClass().getResource(ConstantUtils.LOGO_GENU)));
+            Image img = ImageIO.read(Objects.requireNonNull(getClass().getResource(ConstantUtils.LOGO_GENU)));
             setIconImage(img);
         } catch (IOException ex) {
             logger.error("Erreur de chargement de l'image");
         }
-        getContentPane().setLayout(new BorderLayout(10, 10));
-        getContentPane().add(getMainPanel(mainMenuPanel, service), BorderLayout.CENTER);
+
+        setContent(getMainPanel(mainMenuPanel, service));
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
     }
 
     public void setContent(JPanel panel) {
-        this.removeAll();
-        this.setLayout(new BorderLayout());
-        this.getContentPane().setLayout(new BorderLayout(10, 10));
-        this.getContentPane().add(panel, BorderLayout.CENTER);
+        Container pane = this.getContentPane();
+        pane.removeAll();
+        pane.setLayout(new BoxLayout(pane, BoxLayout.PAGE_AXIS));
+        //pane.setLayout(new BorderLayout(10, 10));
+        pane.add(panel);
+        pane.validate();
     }
 
     public final JPanel getMainPanel(MainMenuPanel mainMenuPanel, LacusSmsService service) throws IOException {

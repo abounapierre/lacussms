@@ -50,18 +50,18 @@
 
     <profiles>
         <profile>
-            <id>genu</id>
+            <id>prod</id>
             <properties>
-                <spring.profiles.active>genu</spring.profiles.active>
+                <spring.profiles.active>prod</spring.profiles.active>
             </properties>
         </profile>
         <profile>
-            <id>smile</id>
+            <id>dev</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <spring.profiles.active>smile</spring.profiles.active>
+                <spring.profiles.active>dev</spring.profiles.active>
             </properties>
         </profile>
     </profiles>

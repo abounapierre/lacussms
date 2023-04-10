@@ -6,28 +6,20 @@
 package com.abouna.lacussms.views.main;
 
 
-import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.entities.BkCompCli;
 import com.abouna.lacussms.entities.Config;
-import com.abouna.lacussms.entities.Parametre;
 import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.DateSoldeDialog;
-import com.abouna.lacussms.views.tools.ConstantUtils;
 import com.abouna.lacussms.views.tools.Utils;
 import com.abouna.lacussms.views.tools.XlsGenerator;
 import com.abouna.lacussms.views.utils.DialogUtils;
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.factories.ButtonBarFactory;
-import com.jgoodies.forms.layout.FormLayout;
-import org.jdesktop.swingx.JXDatePicker;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.List;
 import java.util.logging.Level;
@@ -37,6 +29,7 @@ import java.util.logging.Logger;
  *
  * @author Administrateur
  */
+@org.springframework.stereotype.Component
 public class HeaderMenu extends JMenuBar {
 
     private JMenu employe;
@@ -51,12 +44,12 @@ public class HeaderMenu extends JMenuBar {
     private final JFileChooser fc = new JFileChooser();
     private Config config ;
              
-    public HeaderMenu(LacusSmsService service, Component parent) {
+    public HeaderMenu(LacusSmsService service) {
        this.serviceManager = service;
-        initComponent(parent);
+        initComponent();
     }
 
-    protected final void initComponent(Component parent) {
+    protected final void initComponent() {
         //MainMenuPanel mainMenuPanel = ApplicationConfig.getApplicationContext().getBean(MainMenuPanel.class);
         JMenu fichier1 = new JMenu("Fichier");
         JMenu configuration = new JMenu("Configuration");
@@ -125,7 +118,7 @@ public class HeaderMenu extends JMenuBar {
         }
 
         dateSolde.addActionListener((ActionEvent e) ->{
-            DialogUtils.initDialog(new DateSoldeDialog(), parent, 500, 150);
+            DialogUtils.initDialog(new DateSoldeDialog(), this.getParent(), 500, 150);
         });
 
         event.addActionListener((ActionEvent e) -> {

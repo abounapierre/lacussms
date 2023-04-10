@@ -8,6 +8,7 @@ package com.abouna.lacussms.config;
 
 import com.abouna.lacussms.views.main.LogFile;
 import com.abouna.lacussms.views.tools.ConstantUtils;
+import com.abouna.lacussms.views.tools.Utils;
 import com.google.common.base.Preconditions;
 import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
 import org.jasypt.encryption.StringEncryptor;
@@ -16,6 +17,7 @@ import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -108,11 +110,11 @@ public class SpringMainConfig {
     }
 
     @Bean("logPath")
-    public String logPath() {
+    public String logPath(@Value("${spring.profiles.active}") String profile) {
         String fileSeparator = FileSystems.getDefault().getSeparator();
         return System.getProperty("user.home")
                 .concat(fileSeparator).concat(".lacuss")
-                .concat(fileSeparator).concat("lacuss-application.log");
+                .concat(fileSeparator).concat("lacuss-application-" + profile + ".log");
     }
 
     @Bean
@@ -122,17 +124,7 @@ public class SpringMainConfig {
 
     @Bean(name = "jasyptStringEncryptor")
     public StringEncryptor stringEncryptor() {
-        PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
-        SimpleStringPBEConfig config = new SimpleStringPBEConfig();
-        config.setPassword(ConstantUtils.SECRET_KEY);
-        config.setAlgorithm("PBEWithMD5AndDES");
-        config.setKeyObtentionIterations("1000");
-        config.setPoolSize("1");
-        config.setProviderName("SunJCE");
-        config.setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator");
-        config.setStringOutputType("base64");
-        encryptor.setConfig(config);
-        return encryptor;
+        return Utils.getStringEncryptor();
     }
 
     @Bean("logo")

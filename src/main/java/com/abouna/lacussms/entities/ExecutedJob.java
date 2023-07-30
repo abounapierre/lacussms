@@ -6,7 +6,7 @@
 
 package com.abouna.lacussms.entities;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -21,7 +21,7 @@ public class ExecutedJob implements Serializable{
     private Long id;
     @ManyToOne
     private SmsProgramming smsProgramming;
-    @Temporal(javax.persistence.TemporalType.DATE)
+    @Temporal(jakarta.persistence.TemporalType.DATE)
     private Date executionDate;
 
     public Long getId() {

@@ -6,7 +6,7 @@
 
 package com.abouna.lacussms.entities;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
@@ -25,7 +25,7 @@ public class SmsProgramming implements Serializable{
     @Column
     private String numbers;
     @Column
-    @Temporal(javax.persistence.TemporalType.DATE)
+    @Temporal(jakarta.persistence.TemporalType.DATE)
     private Date beginDate;
     @Column
     private boolean periodique;

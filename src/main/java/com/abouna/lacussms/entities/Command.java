@@ -5,7 +5,7 @@
  */
 package com.abouna.lacussms.entities;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -26,10 +26,10 @@ public class Command implements Serializable {
     @Column(name = "STATUS")
     private Status status;
     @Column(name = "SEND_DATE")
-    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    @Temporal(jakarta.persistence.TemporalType.TIMESTAMP)
     private Date sendDate;
     @Column(name = "PROCESSED_DATE")
-     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+     @Temporal(jakarta.persistence.TemporalType.TIMESTAMP)
     private Date processedDate;
     @Column(name = "ERROR_DESCRIPTION")
     private String errorDescription;

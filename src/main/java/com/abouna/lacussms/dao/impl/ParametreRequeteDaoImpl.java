@@ -6,7 +6,7 @@
 
 package com.abouna.lacussms.dao.impl;
 
-import com.abouna.generic.dao.impl.GenericDao;
+import com.abouna.lacussms.dao.generic.GenericDao;
 import com.abouna.lacussms.dao.ParametreRequeteDao;
 import com.abouna.lacussms.entities.ParametreRequete;
 import com.abouna.lacussms.entities.TypeService;

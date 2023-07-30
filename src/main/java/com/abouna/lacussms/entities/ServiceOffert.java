@@ -6,7 +6,7 @@
 
 package com.abouna.lacussms.entities;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -27,7 +27,7 @@ public class ServiceOffert implements Serializable{
     private boolean actif;
     private String description;
     @Column(name = "DATE_CREATION")
-    @Temporal(javax.persistence.TemporalType.DATE)
+    @Temporal(jakarta.persistence.TemporalType.DATE)
     private Date dateCreation;
 
     public ServiceOffert() {

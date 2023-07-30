@@ -6,17 +6,17 @@
 
 package com.abouna.lacussms.dao.impl;
 
-import com.abouna.generic.dao.DataAccessException;
-import com.abouna.generic.dao.impl.GenericDao;
+import com.abouna.lacussms.dao.generic.DataAccessException;
+import com.abouna.lacussms.dao.generic.GenericDao;
 import com.abouna.lacussms.dao.IBkCompCliDao;
 import com.abouna.lacussms.entities.BkCli;
 import com.abouna.lacussms.entities.BkCompCli;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.NoResultException;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import java.util.List;
 
 /**
@@ -27,7 +27,7 @@ import java.util.List;
 public class BkCompCliDaoImpl extends GenericDao<BkCompCli, String> implements IBkCompCliDao{
 
     @Override
-    public List<BkCompCli> getBkCompCliByCli(BkCli cli) throws DataAccessException {
+    public List<BkCompCli> getBkCompCliByCli(BkCli cli) {
         try{
         CriteriaBuilder builder =  getManager().getCriteriaBuilder();
         CriteriaQuery<BkCompCli> cq = builder.createQuery(BkCompCli.class);
@@ -41,7 +41,7 @@ public class BkCompCliDaoImpl extends GenericDao<BkCompCli, String> implements I
     }
 
     @Override
-    public List<BkCompCli> getBkCompCliByCli(BkCli cli, boolean actif) throws DataAccessException {
+    public List<BkCompCli> getBkCompCliByCli(BkCli cli, boolean actif) {
         try{
         CriteriaBuilder builder =  getManager().getCriteriaBuilder();
         CriteriaQuery<BkCompCli> cq = builder.createQuery(BkCompCli.class);
@@ -56,7 +56,7 @@ public class BkCompCliDaoImpl extends GenericDao<BkCompCli, String> implements I
     }
 
     @Override
-    public List<BkCompCli> getBkCompCliByCli(String compte) throws DataAccessException {
+    public List<BkCompCli> getBkCompCliByCli(String compte) {
        CriteriaBuilder cb = getManager().getCriteriaBuilder();
         CriteriaQuery<BkCompCli> cq = cb.createQuery(BkCompCli.class);
         Root<BkCompCli> bkCompCliRoot = cq.from(BkCompCli.class);
@@ -67,7 +67,7 @@ public class BkCompCliDaoImpl extends GenericDao<BkCompCli, String> implements I
     }
 
     @Override
-    public List<BkCompCli> getBkCompCliLimit(int limit) throws DataAccessException {
+    public List<BkCompCli> getBkCompCliLimit(int limit) {
        CriteriaBuilder cb = getManager().getCriteriaBuilder();
         CriteriaQuery<BkCompCli> cq = cb.createQuery(BkCompCli.class);
         Root<BkCompCli> bkCompCliRoot = cq.from(BkCompCli.class);
@@ -76,7 +76,7 @@ public class BkCompCliDaoImpl extends GenericDao<BkCompCli, String> implements I
     }
 
     @Override
-    public List<BkCompCli> getBkCompCliByCli(BkCli cli, String compte, boolean actif) throws DataAccessException {
+    public List<BkCompCli> getBkCompCliByCli(BkCli cli, String compte, boolean actif) {
         CriteriaBuilder builder =  getManager().getCriteriaBuilder();
         CriteriaQuery<BkCompCli> cq = builder.createQuery(BkCompCli.class);
         Root<BkCompCli> bkComCliRoot = cq.from(BkCompCli.class);
@@ -104,7 +104,7 @@ public class BkCompCliDaoImpl extends GenericDao<BkCompCli, String> implements I
     }
 
     @Override
-    public BkCli getBkCli(String numc) throws DataAccessException {
+    public BkCli getBkCli(String numc) {
         try {
             CriteriaBuilder builder = getManager().getCriteriaBuilder();
             CriteriaQuery<BkCompCli> cq = builder.createQuery(BkCompCli.class);

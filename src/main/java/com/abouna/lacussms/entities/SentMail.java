@@ -6,7 +6,7 @@
 
 package com.abouna.lacussms.entities;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -24,9 +24,9 @@ public class SentMail implements Serializable{
     private Integer id;
     private String content;
     @Column(name = "sent_date")
-    @Temporal(javax.persistence.TemporalType.DATE)
+    @Temporal(jakarta.persistence.TemporalType.DATE)
     private Date sentDate;
-    @Temporal(javax.persistence.TemporalType.TIME)
+    @Temporal(jakarta.persistence.TemporalType.TIME)
     private Date heure;
     private String date2 ;
     @Column(name = "date_time")

@@ -5,7 +5,7 @@
  */
 package com.abouna.lacussms.service.impl;
 
-import com.abouna.generic.dao.DataAccessException;
+import com.abouna.lacussms.dao.generic.DataAccessException;
 import com.abouna.lacussms.dao.*;
 import com.abouna.lacussms.dto.SmsScheduledDto;
 import com.abouna.lacussms.entities.*;

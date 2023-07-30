@@ -10,12 +10,9 @@ import com.abouna.lacussms.dao.IRemoteDBDao;
 import com.abouna.lacussms.entities.*;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.service.ServiceEvenement;
-import com.abouna.lacussms.views.tools.ConstantUtils;
 import com.abouna.lacussms.views.tools.FingerPrint;
 import com.abouna.lacussms.views.tools.Utils;
 import org.easymock.EasyMock;
-import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
-import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,7 +20,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 

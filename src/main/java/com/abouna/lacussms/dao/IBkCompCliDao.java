@@ -6,8 +6,8 @@
 
 package com.abouna.lacussms.dao;
 
-import com.abouna.generic.dao.DataAccessException;
-import com.abouna.generic.dao.IDao;
+import com.abouna.lacussms.dao.generic.DataAccessException;
+import com.abouna.lacussms.dao.generic.IDao;
 import com.abouna.lacussms.entities.BkCli;
 import com.abouna.lacussms.entities.BkCompCli;
 
@@ -17,7 +17,7 @@ import java.util.List;
  *
  * @author SATELLITE
  */
-public interface IBkCompCliDao extends IDao<BkCompCli, String>{
+public interface IBkCompCliDao extends IDao<BkCompCli, String> {
     public List<BkCompCli> getBkCompCliByCli(BkCli cli) throws DataAccessException;
     public List<BkCompCli> getBkCompCliByCli(BkCli cli,boolean actif) throws DataAccessException;
     public List<BkCompCli> getBkCompCliByCli(BkCli cli,String compte,boolean actif) throws DataAccessException;

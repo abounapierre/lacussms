@@ -6,14 +6,14 @@
 
 package com.abouna.lacussms.dao.impl;
 
-import com.abouna.generic.dao.impl.GenericDao;
+import com.abouna.lacussms.dao.generic.GenericDao;
 import com.abouna.lacussms.dao.IMessageMandatDao;
 import com.abouna.lacussms.entities.MessageMandat;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import java.util.Date;
 import java.util.List;
 

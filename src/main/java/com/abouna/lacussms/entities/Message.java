@@ -6,7 +6,7 @@
 
 package com.abouna.lacussms.entities;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -23,7 +23,7 @@ public class Message implements Serializable {
     private Integer id;
     private String title;
     private String content;
-    @Temporal(javax.persistence.TemporalType.DATE)
+    @Temporal(jakarta.persistence.TemporalType.DATE)
     private Date sendDate;
     @JoinColumn(name = "bkeve")
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)

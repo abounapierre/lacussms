@@ -13,11 +13,8 @@ import com.abouna.lacussms.views.LicencePanel;
 import com.abouna.lacussms.views.main.BottomPanel;
 import com.abouna.lacussms.views.main.LogFile;
 import com.abouna.lacussms.views.utils.LogParam;
-import org.apache.commons.net.ntp.NTPUDPClient;
-import org.apache.commons.net.ntp.TimeInfo;
 import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -41,6 +38,7 @@ import java.awt.Color;
 import java.awt.*;
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
@@ -103,7 +101,7 @@ public class Utils {
             fichier = new FileInputStream(new File(path));
             XSSFWorkbook wb = new XSSFWorkbook(fichier);
             XSSFSheet sheet = wb.getSheetAt(0);
-            Iterator var5 = sheet.iterator();
+            Iterator<Row> var5 = sheet.iterator();
 
             while(true) {
                 String data;
@@ -113,10 +111,10 @@ public class Utils {
                         Row ligne = (Row)var5.next();
                         data = "";
                         if (ligne.getCell(0) != null) {
-                            if (ligne.getCell(0).getCellType() == 0) {
+                            if (ligne.getCell(0).getCellType().ordinal() == 0) {
                                 long c = (long)ligne.getCell(0).getNumericCellValue();
                                 data = Long.toString(c);
-                            } else if (ligne.getCell(0).getCellType() == 1) {
+                            } else if (ligne.getCell(0).getCellType().ordinal() == 1) {
                                 data = ligne.getCell(0).getStringCellValue();
                             }
                         }
@@ -241,10 +239,6 @@ public class Utils {
             logger.error("Erreur lors de l'ouverture du fichier");
             var6 = var36.getMessage();
             return var6;
-        } catch (InvalidFormatException var37) {
-            logger.error("probleme de format de la cellule");
-            var6 = var37.getMessage();
-            return var6;
         } finally {
             try {
                 assert fichier != null;
@@ -259,9 +253,9 @@ public class Utils {
 
     public static Object getCellValue(Cell cell) {
         Object o = null;
-        if (cell.getCellType() == 0) {
+        if (cell.getCellType().ordinal() == 0) {
             o = cell.getNumericCellValue();
-        } else if (cell.getCellType() == 1) {
+        } else if (cell.getCellType().ordinal() == 1) {
             o = cell.getStringCellValue();
         }
 
@@ -323,33 +317,18 @@ public class Utils {
 
         for (String s : list) {
             switch (s) {
-                case "nom":
-                    text = text.replace("<" + s + ">", bkCli.getNom());
-                    break;
-                case "pre":
-                    text = text.replace("<" + s + ">", bkCli.getPrenom());
-                    break;
-                case "numc":
-                    text = text.replace("<" + s + ">", bkEve.getCompte());
-                    break;
-                case "lib":
-                    text = text.replace("<" + s + ">", bkCli.getLibelle());
-                    break;
-                case "numt":
-                    text = text.replace("<" + s + ">", bkCli.getPhone() + "");
-                    break;
-                case "date":
-                    text = text.replace("<" + s + ">", bkEve.getDVAB().length() > 10 ? bkEve.getDVAB().substring(0, 10) : bkEve.getDVAB());
-                    break;
-                case "mont":
-                    text = text.replace("<" + s + ">", bkEve.getMontant() == null ? moveZero(bkEve.getMont()) : bkEve.getMontant());
-                    break;
-                case "agence":
-                    text = text.replace("<" + s + ">", bkEve.getBkAgence() == null ? "" : bkEve.getBkAgence().getNoma());
-                    break;
-                case "heure":
-                    text = text.replace("<" + s + ">", getHSAI(bkEve.getHsai()));
-                    break;
+                case "nom" -> text = text.replace("<" + s + ">", bkCli.getNom());
+                case "pre" -> text = text.replace("<" + s + ">", bkCli.getPrenom());
+                case "numc" -> text = text.replace("<" + s + ">", bkEve.getCompte());
+                case "lib" -> text = text.replace("<" + s + ">", bkCli.getLibelle());
+                case "numt" -> text = text.replace("<" + s + ">", bkCli.getPhone() + "");
+                case "date" ->
+                        text = text.replace("<" + s + ">", bkEve.getDVAB().length() > 10 ? bkEve.getDVAB().substring(0, 10) : bkEve.getDVAB());
+                case "mont" ->
+                        text = text.replace("<" + s + ">", bkEve.getMontant() == null ? moveZero(bkEve.getMont()) : bkEve.getMontant());
+                case "agence" ->
+                        text = text.replace("<" + s + ">", bkEve.getBkAgence() == null ? "" : bkEve.getBkAgence().getNoma());
+                case "heure" -> text = text.replace("<" + s + ">", getHSAI(bkEve.getHsai()));
             }
         }
 
@@ -362,24 +341,14 @@ public class Utils {
 
         for (String s : list) {
             switch (s) {
-                case "numt1":
-                    text = text.replace("<" + s + ">", eve.getAd1p());
-                    break;
-                case "numt2":
-                    text = text.replace("<" + s + ">", eve.getAd2p());
-                    break;
-                case "code":
-                    text = text.replace("<" + s + ">", eve.getClesec());
-                    break;
-                case "date1":
-                    text = text.replace("<" + s + ">", eve.getDco().length() > 10 ? eve.getDco().substring(0, 10) : eve.getDco());
-                    break;
-                case "date2":
-                    text = text.replace("<" + s + ">", eve.getDbd().length() > 10 ? eve.getDbd().substring(0, 10) : eve.getDbd());
-                    break;
-                case "mont":
-                    text = text.replace("<" + s + ">", eve.getMnt());
-                    break;
+                case "numt1" -> text = text.replace("<" + s + ">", eve.getAd1p());
+                case "numt2" -> text = text.replace("<" + s + ">", eve.getAd2p());
+                case "code" -> text = text.replace("<" + s + ">", eve.getClesec());
+                case "date1" ->
+                        text = text.replace("<" + s + ">", eve.getDco().length() > 10 ? eve.getDco().substring(0, 10) : eve.getDco());
+                case "date2" ->
+                        text = text.replace("<" + s + ">", eve.getDbd().length() > 10 ? eve.getDbd().substring(0, 10) : eve.getDbd());
+                case "mont" -> text = text.replace("<" + s + ">", eve.getMnt());
             }
         }
 
@@ -823,7 +792,7 @@ public class Utils {
 
     public static void send(String username, String pass, String number, String msg, String sid, int fl, int mt, String ipcl) {
         try {
-            String postBody = "username=" + URLEncoder.encode(username, "ISO-8859-1") + "&password=" + URLEncoder.encode(pass, "ISO-8859-1") + "&mno=" + URLEncoder.encode(number, "ISO-8859-1") + "&msg=" + URLEncoder.encode(msg, "ISO-8859-1") + "&Sid=" + URLEncoder.encode(sid, "ISO-8859-1") + "&fl=" + URLEncoder.encode("" + fl, "ISO-8859-1") + "&mt=" + URLEncoder.encode("" + mt, "ISO-8859-1") + "&ipcl=" + URLEncoder.encode(ipcl, "ISO-8859-1");
+            String postBody = "username=" + URLEncoder.encode(username, StandardCharsets.ISO_8859_1) + "&password=" + URLEncoder.encode(pass, StandardCharsets.ISO_8859_1) + "&mno=" + URLEncoder.encode(number, "ISO-8859-1") + "&msg=" + URLEncoder.encode(msg, "ISO-8859-1") + "&Sid=" + URLEncoder.encode(sid, "ISO-8859-1") + "&fl=" + URLEncoder.encode("" + fl, "ISO-8859-1") + "&mt=" + URLEncoder.encode("" + mt, "ISO-8859-1") + "&ipcl=" + URLEncoder.encode(ipcl, "ISO-8859-1");
             String link = "https://1s2u.com/sms/sendsms/sendsms.asp?" + postBody;
             URL url = new URL(link);
             HttpURLConnection conn1 = (HttpURLConnection)url.openConnection();
@@ -844,7 +813,7 @@ public class Utils {
             }
 
             br.close();
-            logger.info(URLDecoder.decode(results.toString(), "ISO-8859-1"));
+            logger.info(URLDecoder.decode(results.toString(), StandardCharsets.ISO_8859_1));
         } catch (IOException var16) {
             logger.error(var16.getMessage() + var16.getCause());
         }
@@ -857,7 +826,7 @@ public class Utils {
         String rCode = "KO";
 
         try {
-            String link = urlText.replace("<num>", URLEncoder.encode(number, "UTF-8")).replace("<msg>", URLEncoder.encode(msg, "UTF-8"));
+            String link = urlText.replace("<num>", URLEncoder.encode(number, StandardCharsets.UTF_8)).replace("<msg>", URLEncoder.encode(msg, StandardCharsets.UTF_8));
             int i = 0;
 
             String r;
@@ -887,8 +856,8 @@ public class Utils {
             }
 
             br.close();
-            logger.info(URLDecoder.decode(results.toString(), "UTF-8"));
-            res = URLDecoder.decode(results.toString(), "UTF-8");
+            logger.info(URLDecoder.decode(results.toString(), StandardCharsets.UTF_8));
+            res = URLDecoder.decode(results.toString(), StandardCharsets.UTF_8);
             rCode = "OK";
             return rCode;
         } catch (IOException var15) {
@@ -902,7 +871,7 @@ public class Utils {
         String rCode = "KO";
 
         try {
-            String link = urlText.replace("<num>", URLEncoder.encode(number, "UTF-8")).replace("<msg>", URLEncoder.encode(msg, "UTF-8"));
+            String link = urlText.replace("<num>", URLEncoder.encode(number, StandardCharsets.UTF_8)).replace("<msg>", URLEncoder.encode(msg, StandardCharsets.UTF_8));
             URL url = new URL(link);
             HttpURLConnection conn1 = (HttpURLConnection)url.openConnection();
             logger.info(link);
@@ -943,8 +912,8 @@ public class Utils {
             }
 
             br.close();
-            logger.info(URLDecoder.decode(results.toString(), "UTF-8"));
-            res = URLDecoder.decode(results.toString(), "UTF-8");
+            logger.info(URLDecoder.decode(results.toString(), StandardCharsets.UTF_8));
+            res = URLDecoder.decode(results.toString(), StandardCharsets.UTF_8);
             rCode = "OK";
         } catch (IOException var21) {
             logger.error(var21.getMessage() + var21.getCause());

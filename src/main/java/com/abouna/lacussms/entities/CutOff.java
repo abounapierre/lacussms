@@ -6,7 +6,7 @@
 
 package com.abouna.lacussms.entities;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -23,7 +23,7 @@ public class CutOff implements Serializable{
     @Column(name = "CODE_DATE")
     private String codeDate;
     @Column(name = "CUT_DATE")
-    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    @Temporal(jakarta.persistence.TemporalType.TIMESTAMP)
     private Date cutDate;
 
     public CutOff() {

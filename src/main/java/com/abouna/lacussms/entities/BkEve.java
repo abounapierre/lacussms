@@ -6,7 +6,7 @@
 
 package com.abouna.lacussms.entities;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -23,7 +23,7 @@ public class BkEve implements Serializable{
     private Integer id;
     private String etat;
     private String compte;
-    @Temporal(javax.persistence.TemporalType.DATE)
+    @Temporal(jakarta.persistence.TemporalType.DATE)
     @JoinColumn(name = "edate")
     private Date eventDate;
     @ManyToOne
@@ -43,7 +43,7 @@ public class BkEve implements Serializable{
     private List<Message> messages;
     private TypeEvent type;
     private String montant;
-    @Temporal(javax.persistence.TemporalType.DATE)
+    @Temporal(jakarta.persistence.TemporalType.DATE)
     private Date DCO;
 
     public BkEve() {

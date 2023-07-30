@@ -6,10 +6,10 @@
 
 package com.abouna.lacussms.entities;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Temporal;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Temporal;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -32,9 +32,9 @@ public class BkMad implements Serializable{
     @ManyToOne
     private BkAgence age;
     private String mnt;
-    @Temporal(javax.persistence.TemporalType.DATE)
+    @Temporal(jakarta.persistence.TemporalType.DATE)
     private Date dateEnvoie;
-    @Temporal(javax.persistence.TemporalType.DATE)
+    @Temporal(jakarta.persistence.TemporalType.DATE)
     private Date dateRetrait;
     private boolean sent;
     private String clesec;

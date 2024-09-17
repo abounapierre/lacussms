@@ -6,12 +6,8 @@
 
 package com.abouna.lacussms.entities;
 
+import javax.persistence.*;
 import java.io.Serializable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 
 /**
  *
@@ -114,7 +110,14 @@ public class RemoteDB implements Serializable {
 
     @Override
     public String toString() {
-        return "com.abouna.sendermanagerpro.entities.RemoteDB[ id=" + id + " ]";
+        return "RemoteDB{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", hostName='" + hostName + '\'' +
+                ", url='" + url + '\'' +
+                ", password='" + password + '\'' +
+                ", parDefault=" + parDefault +
+                ", driverClassName='" + driverClassName + '\'' +
+                '}';
     }
-    
 }

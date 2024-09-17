@@ -8,22 +8,16 @@ import com.abouna.lacussms.views.main.MainMenuPanel;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import java.awt.BorderLayout;
-import java.awt.Font;
+import org.jdesktop.swingx.JXDatePicker;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import org.jdesktop.swingx.JXDatePicker;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  *
@@ -31,19 +25,14 @@ import org.springframework.stereotype.Component;
  */
 public class HolidayDialog extends JDialog {
 
-    private final JButton okBtn, annulerBtn;
-    private JXDatePicker dateTxt;
+    private final JXDatePicker dateTxt;
     private final JTextField contentText;
-    private int c = 0, rang = 0, c1 = 0, rang1 = 0;
-    @Autowired
-    private LacusSmsService serviceManager;
-    @Autowired
-    private  MainMenuPanel parentPanel;
+    private final LacusSmsService serviceManager;
     private String date, description;
 
     public HolidayDialog() {
         serviceManager = ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
-        parentPanel = ApplicationConfig.getApplicationContext().getBean(MainMenuPanel.class);
+        MainMenuPanel parentPanel = ApplicationConfig.getApplicationContext().getBean(MainMenuPanel.class);
         setTitle("Gestion des jours fériés");
         setModal(true);
         setLayout(new BorderLayout(10, 10));
@@ -56,6 +45,8 @@ public class HolidayDialog extends JDialog {
         builder.setDefaultDialogBorder();
         builder.append("Date", dateTxt = new JXDatePicker());
         builder.append("Description", contentText = new JTextField(50));
+        JButton okBtn;
+        JButton annulerBtn;
         JPanel buttonBar = ButtonBarFactory.buildOKCancelBar(okBtn = new JButton("Enregistrer"), annulerBtn = new JButton("Annuler"));
         builder.append(buttonBar, builder.getColumnCount());
         add(BorderLayout.CENTER, builder.getPanel());

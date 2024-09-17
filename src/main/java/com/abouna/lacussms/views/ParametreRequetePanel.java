@@ -6,27 +6,18 @@
 package com.abouna.lacussms.views;
 
 import com.abouna.lacussms.config.ApplicationConfig;
-import com.abouna.lacussms.entities.RequeteAgence;
-import com.abouna.lacussms.entities.RequeteClient;
-import com.abouna.lacussms.entities.RequeteCredit;
-import com.abouna.lacussms.entities.RequeteEvenement;
-import com.abouna.lacussms.entities.RequeteHistorique;
-import com.abouna.lacussms.entities.RequeteMandat;
-import com.abouna.lacussms.entities.RequeteSalaire1;
-import com.abouna.lacussms.entities.RequeteSalaire2;
-import com.abouna.lacussms.entities.RequeteSolde;
-import com.abouna.lacussms.entities.TypeService;
-import com.abouna.lacussms.main.App;
+import com.abouna.lacussms.entities.*;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.MainMenuPanel;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Image;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.Arrays;
@@ -35,19 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *

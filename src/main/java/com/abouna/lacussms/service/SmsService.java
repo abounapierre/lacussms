@@ -18,8 +18,8 @@ public class SmsService {
     @Autowired
     private LacusSmsService service;
     
-    public void sendSmsJob(Long jobId){
-        
+    public void sendSmsJob(String jobId){
+        //service.getBkCliByCriteria()
     }
     
     //public 

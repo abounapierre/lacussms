@@ -7,12 +7,10 @@ package com.abouna.lacussms.views.main;
 
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.LoginPane;
-import java.awt.Color;
-import java.awt.GridBagLayout;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import java.awt.*;
 
 /**
  *

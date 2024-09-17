@@ -6,12 +6,10 @@
 
 package com.abouna.lacussms.views.tools;
 
-import java.awt.BorderLayout;
-import java.awt.LayoutManager;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import javax.swing.plaf.ComponentUI;
+import java.awt.*;
 
 /**
  *

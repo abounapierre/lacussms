@@ -10,37 +10,21 @@ import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.entities.BkOpe;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.MainMenuPanel;
+import com.abouna.lacussms.views.utils.DialogUtils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import org.jdesktop.swingx.JXSearchField;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
-import org.jdesktop.swingx.JXSearchField;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  *
@@ -49,12 +33,8 @@ import org.springframework.stereotype.Component;
 public class BkOpePanel extends JPanel{
  private DefaultTableModel tableModel;
     private JTable table;
-    private final JButton nouveau, modifier, supprimer;
-    private final JButton filtre;
-    @Autowired
-    private  MainMenuPanel parentPanel;
-    @Autowired
-    private  LacusSmsService serviceManager;
+    private final MainMenuPanel parentPanel;
+    private final LacusSmsService serviceManager;
     
     public BkOpePanel() throws IOException{
         serviceManager = ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
@@ -63,7 +43,7 @@ public class BkOpePanel extends JPanel{
         JPanel haut = new JPanel();
         haut.setLayout(new FlowLayout(FlowLayout.CENTER));
         JLabel lbl;
-        lbl = new JLabel("GESTION DES OPERATION");
+        lbl = new JLabel("GESTION DES OPERATIONS");
         haut.add(lbl);
         lbl.setFont(new Font("Broadway", Font.BOLD, 30));
         add(BorderLayout.BEFORE_FIRST_LINE, haut);
@@ -71,71 +51,41 @@ public class BkOpePanel extends JPanel{
         contenu.setLayout(new BorderLayout());
         JPanel bas = new JPanel();
         bas.setLayout(new FlowLayout());
-        Image ajouImg = ImageIO.read(getClass().getResource("/images/Ajouter.png"));
-        Image supprImg = ImageIO.read(getClass().getResource("/images/Cancel2.png"));
-        Image modifImg = ImageIO.read(getClass().getResource("/images/OK.png"));
-        nouveau = new JButton(new ImageIcon(ajouImg));
+        Image ajouImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Ajouter.png")));
+        Image supprImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Cancel2.png")));
+        Image modifImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/OK.png")));
+        JButton nouveau = new JButton(new ImageIcon(ajouImg));
         nouveau.setToolTipText("Ajouter une nouvelle opératation");
-        supprimer = new JButton(new ImageIcon(supprImg));
+        JButton supprimer = new JButton(new ImageIcon(supprImg));
         supprimer.setToolTipText("Suprimer une opération");
-        modifier = new JButton(new ImageIcon(modifImg));
+        JButton modifier = new JButton(new ImageIcon(modifImg));
         modifier.setToolTipText("Modifier une opération");
-        filtre = new JButton("Filtrer");
-        nouveau.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                Nouveau nouveau1 = new Nouveau(null);
-                nouveau1.setSize(400, 200);
-                nouveau1.setLocationRelativeTo(null);
-                nouveau1.setModal(true);
-                nouveau1.setResizable(false);
-                nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                nouveau1.setVisible(true);
+        nouveau.addActionListener(ae -> DialogUtils.initDialog(new BkOpePanel.Nouveau(null), BkOpePanel.this.getParent(), 400, 200));
+        modifier.addActionListener(ae -> {
+            int selected = table.getSelectedRow();
+            if (selected >= 0) {
+                String id = (String) tableModel.getValueAt(selected, 0);
+                DialogUtils.initDialog(new BkOpePanel.Nouveau(serviceManager.getBkOpeById(id)), BkOpePanel.this.getParent(), 400, 200);
+            } else {
+                JOptionPane.showMessageDialog(BkOpePanel.this.getParent(), "Aucun élément n'est selectionné");
             }
         });
-        modifier.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                int selected = table.getSelectedRow();
-                if (selected >= 0) {
-                    String id = (String) tableModel.getValueAt(selected, 0);
-                    Nouveau nouveau1 = null;
+        supprimer.addActionListener(ae -> {
+            int selected = table.getSelectedRow();
+            if (selected >= 0) {
+                String id = (String) tableModel.getValueAt(selected, 0);
+                int res = JOptionPane.showConfirmDialog(BkOpePanel.this.getParent(), "Etes vous sûr de suppimer l'opération courante?", "Confirmation",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                if (res == JOptionPane.YES_OPTION) {
                     try {
-                        nouveau1 = new Nouveau(serviceManager.getBkOpeById(id));
+                        serviceManager.supprimerBkOpe(id);
                     } catch (Exception ex) {
                         Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    nouveau1.setSize(400, 200);
-                    nouveau1.setLocationRelativeTo(null);
-                    nouveau1.setModal(true);
-                    nouveau1.setResizable(false);
-                    nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                    nouveau1.setVisible(true);
-                } else {
-                    JOptionPane.showMessageDialog(null, "Aucun élément n'est selectionné");
+                    tableModel.removeRow(selected);
                 }
-            }
-        });
-        supprimer.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                int selected = table.getSelectedRow();
-                if (selected >= 0) {
-                    String id = (String) tableModel.getValueAt(selected, 0);
-                    int res = JOptionPane.showConfirmDialog(null, "Etes vous sûr de suppimer l'opération courante?", "Confirmation",
-                            JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-                    if (res == JOptionPane.YES_OPTION) {
-                        try {
-                            serviceManager.supprimerBkOpe(id);
-                        } catch (Exception ex) {
-                            Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        tableModel.removeRow(selected);
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(null, "Aucun élément selectionné");
-                }
+            } else {
+                JOptionPane.showMessageDialog(BkOpePanel.this.getParent(), "Aucun élément selectionné");
             }
         });
         bas.add(nouveau);
@@ -148,26 +98,21 @@ public class BkOpePanel extends JPanel{
         filtrePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createRaisedBevelBorder(), "Zone de recherche"));
         filtrePanel.add(searchField);
          filtrePanel.setBackground(new Color(166, 202, 240));
-        searchField.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String val = null;
-                if (searchField.getText() != null) {
-                    try {
-                        val = searchField.getText().toUpperCase();
-                        tableModel.setNumRows(0);
-                        List<BkOpe> bkopeList = serviceManager.getBkOpeByName(val);
-                        for (BkOpe a : bkopeList) {
-                            tableModel.addRow(new Object[]{
-                                a.getOpe(),
-                                a.getLib()
-                            });
-
-                        }
-                    } catch (Exception ex) {
-                        Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
+        searchField.addActionListener(e -> {
+            String val;
+            if (searchField.getText() != null) {
+                try {
+                    val = searchField.getText().toUpperCase();
+                    tableModel.setNumRows(0);
+                    List<BkOpe> bkopeList = serviceManager.getBkOpeByName(val);
+                    for (BkOpe a : bkopeList) {
+                        tableModel.addRow(new Object[]{
+                            a.getOpe(),
+                            a.getLib()
+                        });
                     }
+                } catch (Exception ex) {
+                    Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
@@ -195,7 +140,6 @@ public class BkOpePanel extends JPanel{
 
     private class Nouveau extends JDialog {
 
-        private final JButton okBtn, annulerBtn;
         private final JTextField codeText;
         private final JTextField nameText;
         
@@ -213,7 +157,9 @@ public class BkOpePanel extends JPanel{
             builder.setDefaultDialogBorder();
             builder.append("Code", codeText = new JTextField(50));
             builder.append("Libellé", nameText = new JTextField(50));
-            
+
+            JButton annulerBtn;
+            JButton okBtn;
             JPanel buttonBar = ButtonBarFactory.buildOKCancelBar(okBtn = new JButton("Enrégistrer"), annulerBtn = new JButton("Annuler"));
             builder.append(buttonBar, builder.getColumnCount());
             add(BorderLayout.CENTER, builder.getPanel());
@@ -224,56 +170,49 @@ public class BkOpePanel extends JPanel{
                codeText.setEditable(false);
             }
 
-            okBtn.addActionListener(new ActionListener() {
+            okBtn.addActionListener(ae -> {
+                BkOpe a = new BkOpe();
+                 if (!codeText.getText().equals("")) {
+                    a.setOpe(codeText.getText());
+                } else {
+                    JOptionPane.showMessageDialog(null, "Le nom est obligatoire");
+                }
+                if (!nameText.getText().equals("")) {
+                    a.setLib(nameText.getText());
+                } else {
+                    JOptionPane.showMessageDialog(null, "Le libellé est obligatoire");
+                }
 
-                @Override
-                public void actionPerformed(ActionEvent ae) {
-                    BkOpe a = new BkOpe();
-                     if (!codeText.getText().equals("")) {
-                        a.setOpe(codeText.getText());
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Le nom est obligatoire");
-                    }
-                    if (!nameText.getText().equals("")) {
-                        a.setLib(nameText.getText());
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Le libellé est obligatoire");
-                    }
-                    
-                    if (bkope == null) {
-                        try {
-                            serviceManager.enregistrer(a);
-                        } catch (Exception ex) {
-                            Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    } else {
-                        a.setOpe(bkope.getOpe());
-                        try {
-                            serviceManager.modifier(a);
-                        } catch (Exception ex) {
-                            Logger.getLogger(BkOpePanel.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
-                    dispose();
+                if (bkope == null) {
                     try {
-                        parentPanel.setContenu(new BkOpePanel());
-                    } catch (IOException ex) {
+                        serviceManager.enregistrer(a);
+                    } catch (Exception ex) {
+                        Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else {
+                    a.setOpe(bkope.getOpe());
+                    try {
+                        serviceManager.modifier(a);
+                    } catch (Exception ex) {
                         Logger.getLogger(BkOpePanel.class.getName()).log(Level.SEVERE, null, ex);
                     }
+                }
+                dispose();
+                try {
+                    parentPanel.setContent(new BkOpePanel());
+                } catch (IOException ex) {
+                    Logger.getLogger(BkOpePanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             });
 
-            annulerBtn.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent ae) {
-                    dispose();
-                    try {
-                        parentPanel.setContenu(new BkOpePanel());
-                    } catch (IOException ex) {
-                        Logger.getLogger(BkOpePanel.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-
+            annulerBtn.addActionListener(ae -> {
+                dispose();
+                try {
+                    parentPanel.setContent(new BkOpePanel());
+                } catch (IOException ex) {
+                    Logger.getLogger(BkOpePanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
+
             });
         }
     }   

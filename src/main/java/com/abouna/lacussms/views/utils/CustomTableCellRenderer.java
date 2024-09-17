@@ -6,9 +6,11 @@
 
 package com.abouna.lacussms.views.utils;
 
-import java.awt.Component;
-import javax.swing.JTable;
+import com.abouna.lacussms.entities.Message;
+
+import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
+import java.awt.*;
 
 /**
  *
@@ -21,6 +23,10 @@ public class CustomTableCellRenderer extends DefaultTableCellRenderer {
         CustomTableModel model = (CustomTableModel) table.getModel();
         Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
         c.setBackground(model.getRowColour(row));
+        /*if (value instanceof Message) {
+            Message message = (Message) value;
+            //if(message.)
+        }*/
         return c;
     }
 }

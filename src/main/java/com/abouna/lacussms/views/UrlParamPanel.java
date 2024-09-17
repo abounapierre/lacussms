@@ -7,42 +7,27 @@ package com.abouna.lacussms.views;
 
 import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.entities.UrlMessage;
-import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.MainMenuPanel;
+import com.abouna.lacussms.views.utils.DialogUtils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Image;
+import org.jdesktop.swingx.JXSearchField;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.table.DefaultTableModel;
-import org.jdesktop.swingx.JXSearchField;
 
 /**
  *
@@ -51,9 +36,8 @@ import org.jdesktop.swingx.JXSearchField;
 public class UrlParamPanel extends JPanel{
     private DefaultTableModel tableModel;
     private JTable table;
-    private final JButton nouveau, modifier, supprimer;
-    private  MainMenuPanel parentPanel;
-    private  LacusSmsService serviceManager;
+    private final MainMenuPanel parentPanel;
+    private final LacusSmsService serviceManager;
     
     public UrlParamPanel() throws IOException{
         serviceManager = ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
@@ -70,49 +54,36 @@ public class UrlParamPanel extends JPanel{
         contenu.setLayout(new BorderLayout());
         JPanel bas = new JPanel();
         bas.setLayout(new FlowLayout());
-        Image ajouImg = ImageIO.read(getClass().getResource("/images/Ajouter.png"));
-        Image supprImg = ImageIO.read(getClass().getResource("/images/Cancel2.png"));
-        Image modifImg = ImageIO.read(getClass().getResource("/images/OK.png"));
-        nouveau = new JButton(new ImageIcon(ajouImg));
+        Image ajouImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Ajouter.png")));
+        Image supprImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Cancel2.png")));
+        Image modifImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/OK.png")));
+        JButton nouveau = new JButton(new ImageIcon(ajouImg));
         nouveau.setToolTipText("Ajouter une nouvelle url");
-        supprimer = new JButton(new ImageIcon(supprImg));
+        JButton supprimer = new JButton(new ImageIcon(supprImg));
         supprimer.setToolTipText("Suprimer une url");
-        modifier = new JButton(new ImageIcon(modifImg));
+        JButton modifier = new JButton(new ImageIcon(modifImg));
         modifier.setToolTipText("Modifier une url");
         nouveau.addActionListener((ActionEvent ae) -> {
-            Nouveau nouveau1 = new Nouveau(null);
-            nouveau1.setSize(500, 250);
-            nouveau1.setLocationRelativeTo(null);
-            nouveau1.setModal(true);
-            nouveau1.setResizable(false);
-            nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            nouveau1.setVisible(true);
+            DialogUtils.initDialog(new UrlParamPanel.Nouveau(null), UrlParamPanel.this.getParent(), 500, 250);
         });
         modifier.addActionListener((ActionEvent ae) -> {
             int selected = table.getSelectedRow();
             if (selected >= 0) {
                 Integer id = (Integer) tableModel.getValueAt(selected, 0);
-                Nouveau nouveau1;
                 try {
-                    nouveau1 = new Nouveau(serviceManager.getUrlMessageById(id));
-                    nouveau1.setSize(500, 250);
-                    nouveau1.setLocationRelativeTo(null);
-                    nouveau1.setModal(true);
-                    nouveau1.setResizable(false);
-                    nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                    nouveau1.setVisible(true);
+                    DialogUtils.initDialog(new UrlParamPanel.Nouveau(serviceManager.getUrlMessageById(id)), UrlParamPanel.this.getParent(), 500, 250);
                 } catch (Exception ex) {
                     Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } else {
-                JOptionPane.showMessageDialog(null, "Aucun élément n'est selectionné");
+                JOptionPane.showMessageDialog(UrlParamPanel.this.getParent(), "Aucun élément n'est selectionné");
             }
         });
         supprimer.addActionListener((ActionEvent ae) -> {
             int selected = table.getSelectedRow();
             if (selected >= 0) {
                 Integer id = (Integer) tableModel.getValueAt(selected, 0);
-                int res = JOptionPane.showConfirmDialog(null, "Etes vous sûr de suppimer l'url de message courante?", "Confirmation",
+                int res = JOptionPane.showConfirmDialog(UrlParamPanel.this.getParent(), "Etes vous sûr de suppimer l'url de message courante?", "Confirmation",
                         JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
                 if (res == JOptionPane.YES_OPTION) {
                     try {
@@ -123,15 +94,7 @@ public class UrlParamPanel extends JPanel{
                     tableModel.removeRow(selected);
                 }
             } else {
-                JOptionPane.showMessageDialog(null, "Aucun élément selectionné");
-            }
-        });
-        JButton testBtn = new JButton("Test Connexion");
-        testBtn.addActionListener((ActionEvent e) -> {
-            if(App.testConnexion()){
-                JOptionPane.showMessageDialog(parentPanel, "Connexion réussie");
-            }else{
-                JOptionPane.showMessageDialog(parentPanel, "Erreur lors de l'établissement de la connexion!");
+                JOptionPane.showMessageDialog(UrlParamPanel.this.getParent(), "Aucun élément selectionné");
             }
         });
         bas.add(nouveau);
@@ -145,13 +108,11 @@ public class UrlParamPanel extends JPanel{
         filtrePanel.add(searchField);
          filtrePanel.setBackground(new Color(166, 202, 240));
         searchField.addActionListener((ActionEvent e) -> {
-            String val = null;
             if (searchField.getText() != null) {
                 try {
-                    val = searchField.getText().toUpperCase();
                     tableModel.setNumRows(0);
                     List<UrlMessage> urlMessageList = serviceManager.getAllUrlMessages();
-                    urlMessageList.stream().forEach((a) -> {
+                    urlMessageList.forEach((a) -> {
                         tableModel.addRow(new Object[]{
                             a.getId(),
                             a.getUrlValue(),
@@ -175,7 +136,7 @@ public class UrlParamPanel extends JPanel{
         contenu.add(BorderLayout.CENTER, new JScrollPane(table));
         add(BorderLayout.CENTER, contenu);
         try {
-            serviceManager.getAllUrlMessages().stream().forEach((a) -> {
+            serviceManager.getAllUrlMessages().forEach((a) -> {
                 tableModel.addRow(new Object[]{
                     a.getId(),
                     a.getUrlValue(),
@@ -190,12 +151,12 @@ public class UrlParamPanel extends JPanel{
 
     private class Nouveau extends JDialog {
 
-        private final JButton okBtn, annulerBtn;
         private final JTextArea urlText;
         private final JCheckBox chkBox;
         private final JComboBox<String> methodeBox;
        
-        private int c = 0, rang =0;
+        private final int c = 0;
+        private final int rang =0;
 
         public Nouveau(final UrlMessage url) {
             setTitle("NOUVELLE URL");
@@ -214,6 +175,8 @@ public class UrlParamPanel extends JPanel{
             urlText.setSize(5, 20);
             urlText.setLineWrap(true);
             urlText.setWrapStyleWord(true);
+            JButton okBtn;
+            JButton annulerBtn;
             JPanel buttonBar = ButtonBarFactory.buildOKCancelBar(okBtn = new JButton("Enrégistrer"), annulerBtn = new JButton("Annuler"));
             builder.append(buttonBar, builder.getColumnCount());
             add(BorderLayout.CENTER, new JScrollPane(builder.getPanel()));
@@ -236,10 +199,7 @@ public class UrlParamPanel extends JPanel{
                             }
                         }
                urlText.setText(url1);
-               if(url.isDefaultUrl())
-                  chkBox.setSelected(true);
-               else
-                   chkBox.setSelected(false);
+                chkBox.setSelected(url.isDefaultUrl());
                
                if(url.getMethode()!=null){
                    switch (url.getMethode()) {
@@ -275,35 +235,29 @@ public class UrlParamPanel extends JPanel{
                     }
                     a.setUrlValue(url1);
                 } else {
-                    JOptionPane.showMessageDialog(null, "L'url est obligatoire");
+                    JOptionPane.showMessageDialog(UrlParamPanel.this.getParent(), "L'url est obligatoire");
                     return;
                 }
-                if(methodeBox.getSelectedItem().equals("Méthode 1"))
+                if(Objects.equals(methodeBox.getSelectedItem(), "Méthode 1"))
                     a.setMethode("METHO1");
-                else if(methodeBox.getSelectedItem().equals("Méthode 2"))
+                else if(Objects.equals(methodeBox.getSelectedItem(), "Méthode 2"))
                     a.setMethode("METHO2");
-                if(chkBox.isSelected())
-                    a.setDefaultUrl(true);
-                else
-                    a.setDefaultUrl(false);
+                a.setDefaultUrl(chkBox.isSelected());
                 if(a.isDefaultUrl()){
-                    serviceManager.getAllUrlMessages().stream().map((r) -> {
-                        r.setDefaultUrl(false);
-                        return r;
-                    }).forEach((r) -> {
+                    serviceManager.getAllUrlMessages().stream().peek((r) -> r.setDefaultUrl(false)).forEach((r) -> {
                         serviceManager.modifier(r);
                     });
                 }
                 int i = 0;
-                String r = "";
+                StringBuilder r = new StringBuilder();
                 String var = urlText.getText();
                 while (urlText.getText().charAt(i) != '?') {
-                    r += urlText.getText().charAt(i);
+                    r.append(urlText.getText().charAt(i));
                     var = var.replace(""+urlText.getText().charAt(i), "");
                     i++;
                 }
                 var = var.replace("?", "");
-                a.setRoot(r);
+                a.setRoot(r.toString());
                 a.setParamString(var);
                 if (url == null) {
                     try {
@@ -321,7 +275,7 @@ public class UrlParamPanel extends JPanel{
                 }
                 dispose();
                 try {
-                    parentPanel.setContenu(new UrlParamPanel());
+                    parentPanel.setContent(new UrlParamPanel());
                 } catch (IOException ex) {
                     Logger.getLogger(UrlParamPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -330,7 +284,7 @@ public class UrlParamPanel extends JPanel{
             annulerBtn.addActionListener((ActionEvent ae) -> {
                 dispose();
                 try {
-                    parentPanel.setContenu(new UrlParamPanel());
+                    parentPanel.setContent(new UrlParamPanel());
                 } catch (IOException ex) {
                     Logger.getLogger(UrlParamPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }

@@ -11,55 +11,35 @@ import com.abouna.lacussms.entities.BkCli;
 import com.abouna.lacussms.entities.BkCompCli;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.MainMenuPanel;
+import com.abouna.lacussms.views.utils.DialogUtils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import org.jdesktop.swingx.JXSearchField;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
-import org.jdesktop.swingx.JXSearchField;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
  * @author SATELLITE
  */
 public class BkCliPanel extends JPanel{
-    private DefaultTableModel tableModel;
-    private JTable table;
-    private final JButton nouveau, modifier, supprimer;
-    private final JButton filtre;
-    @Autowired
-    private  MainMenuPanel parentPanel;
-    @Autowired
-    private  LacusSmsService serviceManager;
+    private DefaultTableModel tableModel = null;
+    private JTable table = null;
+    private final MainMenuPanel parentPanel;
+    private final LacusSmsService serviceManager;
     
     public BkCliPanel() throws IOException{
         serviceManager = ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
+        parentPanel = ApplicationConfig.getApplicationContext().getBean(MainMenuPanel.class);
         setLayout(new BorderLayout());
         JPanel haut = new JPanel();
         haut.setLayout(new FlowLayout(FlowLayout.CENTER));
@@ -72,71 +52,46 @@ public class BkCliPanel extends JPanel{
         contenu.setLayout(new BorderLayout());
         JPanel bas = new JPanel();
         bas.setLayout(new FlowLayout());
-        Image ajouImg = ImageIO.read(getClass().getResource("/images/Ajouter.png"));
-        Image supprImg = ImageIO.read(getClass().getResource("/images/Cancel2.png"));
-        Image modifImg = ImageIO.read(getClass().getResource("/images/OK.png"));
-        nouveau = new JButton(new ImageIcon(ajouImg));
+        Image ajouImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Ajouter.png")));
+        Image supprImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Cancel2.png")));
+        Image modifImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/OK.png")));
+        JButton nouveau = new JButton(new ImageIcon(ajouImg));
         nouveau.setToolTipText("Ajouter un nouveau client");
-        supprimer = new JButton(new ImageIcon(supprImg));
+        JButton supprimer = new JButton(new ImageIcon(supprImg));
         supprimer.setToolTipText("Suprimer un client");
-        modifier = new JButton(new ImageIcon(modifImg));
+        JButton modifier = new JButton(new ImageIcon(modifImg));
         modifier.setToolTipText("Modifier un client");
-        filtre = new JButton("Filtrer");
-        nouveau.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                Nouveau nouveau1 = new Nouveau(null);
-                nouveau1.setSize(400, 400);
-                nouveau1.setLocationRelativeTo(null);
-                nouveau1.setModal(true);
-                nouveau1.setResizable(false);
-                nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                nouveau1.setVisible(true);
+        JButton filtre = new JButton("Filtrer");
+        nouveau.addActionListener(ae -> DialogUtils.initDialog(new Nouveau(null), BkCliPanel.this.getParent(), 400, 400));
+        modifier.addActionListener(ae -> {
+            int selected = table.getSelectedRow();
+            if (selected >= 0) {
+                String id = (String) tableModel.getValueAt(selected, 0);
+                try {
+                    DialogUtils.initDialog(new Nouveau(serviceManager.getBkCliById(id)), BkCliPanel.this.getParent(), 400, 400);
+                } catch (Exception ex) {
+                    Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                JOptionPane.showMessageDialog(BkCliPanel.this.getParent(), "Aucun élément n'est selectionné");
             }
         });
-        modifier.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                int selected = table.getSelectedRow();
-                if (selected >= 0) {
-                    String id = (String) tableModel.getValueAt(selected, 0);
-                    Nouveau nouveau1 = null;
+        supprimer.addActionListener(ae -> {
+            int selected = table.getSelectedRow();
+            if (selected >= 0) {
+                String id = (String) tableModel.getValueAt(selected, 0);
+                int res = JOptionPane.showConfirmDialog(BkCliPanel.this.getParent(), "Etes vous sûr de suppimer le client courant?", "Confirmation",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                if (res == JOptionPane.YES_OPTION) {
                     try {
-                        nouveau1 = new Nouveau(serviceManager.getBkCliById(id));
+                        serviceManager.supprimerBkCli(id);
                     } catch (Exception ex) {
                         Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    nouveau1.setSize(400, 400);
-                    nouveau1.setLocationRelativeTo(null);
-                    nouveau1.setModal(true);
-                    nouveau1.setResizable(false);
-                    nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                    nouveau1.setVisible(true);
-                } else {
-                    JOptionPane.showMessageDialog(null, "Aucun élément n'est selectionné");
+                    tableModel.removeRow(selected);
                 }
-            }
-        });
-        supprimer.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                int selected = table.getSelectedRow();
-                if (selected >= 0) {
-                    String id = (String) tableModel.getValueAt(selected, 0);
-                    int res = JOptionPane.showConfirmDialog(null, "Etes vous sûr de suppimer le client courant?", "Confirmation",
-                            JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-                    if (res == JOptionPane.YES_OPTION) {
-                        try {
-                            serviceManager.supprimerBkCli(id);
-                        } catch (Exception ex) {
-                            Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        tableModel.removeRow(selected);
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(null, "Aucun élément selectionné");
-                }
+            } else {
+                JOptionPane.showMessageDialog(BkCliPanel.this.getParent(), "Aucun élément selectionné");
             }
         });
         bas.add(nouveau);
@@ -149,32 +104,28 @@ public class BkCliPanel extends JPanel{
         filtrePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createRaisedBevelBorder(), "Zone de recherche"));
         filtrePanel.add(searchField);
          filtrePanel.setBackground(new Color(166, 202, 240));
-        searchField.addActionListener(new ActionListener() {
+        searchField.addActionListener(e -> {
+            String val = null;
+            if (searchField.getText() != null) {
+                try {
+                    val = searchField.getText().toUpperCase();
+                    tableModel.setNumRows(0);
+                    List<BkCli> bkcliList = serviceManager.getBkCliByCriteria(val);
+                    for (BkCli a : bkcliList) {
+                        tableModel.addRow(new Object[]{
+                            a.getCode(),
+                            a.getLibelle(),
+                            a.getNom(),
+                            a.getPrenom(),
+                            a.getPhone(),
+                            a.getEmail(),
+                            a.getLangue(),
+                            a.isEnabled()
+                        });
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String val = null;
-                if (searchField.getText() != null) {
-                    try {
-                        val = searchField.getText().toUpperCase();
-                        tableModel.setNumRows(0);
-                        List<BkCli> bkcliList = serviceManager.getBkCliByCriteria(val);
-                        for (BkCli a : bkcliList) {
-                            tableModel.addRow(new Object[]{
-                                a.getCode(),
-                                a.getLibelle(),
-                                a.getNom(),
-                                a.getPrenom(),
-                                a.getPhone(),
-                                a.getEmail(),
-                                a.getLangue(),
-                                a.isEnabled()
-                            });
-
-                        }
-                    } catch (Exception ex) {
-                        Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
                     }
+                } catch (Exception ex) {
+                    Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
@@ -208,7 +159,6 @@ public class BkCliPanel extends JPanel{
 
     private class Nouveau extends JDialog {
 
-        private final JButton okBtn, annulerBtn;
         private final JTextField codeText;
         private final JTextField nameText;
         private final JTextField prenomText;
@@ -217,7 +167,8 @@ public class BkCliPanel extends JPanel{
         private final JTextField emailText;
         private final JTextField phoneText;
         private final JCheckBox chkBox;
-        private int c = 0, rang =0;
+        private final int c = 0;
+        private final int rang =0;
 
         public Nouveau(final BkCli bkcli) {
             setTitle("NOUVEAU CLIENT");
@@ -243,7 +194,9 @@ public class BkCliPanel extends JPanel{
             libelleBox.addItem("Mlle");
             langueBox.addItem("Français");
             langueBox.addItem("Anglais");
-           
+
+            JButton annulerBtn;
+            JButton okBtn;
             JPanel buttonBar = ButtonBarFactory.buildOKCancelBar(okBtn = new JButton("Enrégistrer"), annulerBtn = new JButton("Annuler"));
             builder.append(buttonBar, builder.getColumnCount());
             add(BorderLayout.CENTER, builder.getPanel());
@@ -259,94 +212,88 @@ public class BkCliPanel extends JPanel{
                    langueBox.setSelectedIndex(0);
                else if(bkcli.getLangue().equals("EN"))
                    langueBox.setSelectedIndex(1);
-               if(bkcli.getLibelle().equals("Mr"))
-                   libelleBox.setSelectedIndex(0);
-               else if(bkcli.getLibelle().equals("Mme"))
-                   libelleBox.setSelectedIndex(1);
-               else if(bkcli.getLibelle().equals("Mlle"))
-                   libelleBox.setSelectedIndex(2);
-               if(bkcli.isEnabled())
-                   chkBox.setSelected(true);
-               else
-                   chkBox.setSelected(false);
+                switch (bkcli.getLibelle()) {
+                    case "Mr":
+                        libelleBox.setSelectedIndex(0);
+                        break;
+                    case "Mme":
+                        libelleBox.setSelectedIndex(1);
+                        break;
+                    case "Mlle":
+                        libelleBox.setSelectedIndex(2);
+                        break;
+                }
+                chkBox.setSelected(bkcli.isEnabled());
             }
 
-            okBtn.addActionListener(new ActionListener() {
+            okBtn.addActionListener(ae -> {
+                BkCli a = new BkCli();
+                 if (!codeText.getText().equals("")) {
+                     if(codeText.getText().length()>9)
+                        a.setCode(codeText.getText().substring(3, 9).toUpperCase());
+                     else
+                        a.setCode(codeText.getText());
+                } else {
+                    JOptionPane.showMessageDialog(BkCliPanel.this.getParent(), "Le nom est obligatoire");
+                }
+                if (!nameText.getText().equals("")) {
+                    a.setNom(nameText.getText().toUpperCase());
+                } else {
+                    JOptionPane.showMessageDialog(BkCliPanel.this.getParent(), "Le nom est obligatoire");
+                }
+                if (!phoneText.getText().equals("")) {
+                    a.setPhone(Long.parseLong(phoneText.getText()));
+                } else {
+                    JOptionPane.showMessageDialog(BkCliPanel.this.getParent(), "Le téléphone est obligatoire");
+                }
+                a.setEnabled(false);
+                if(chkBox.isSelected())
+                    a.setEnabled(true);
 
-                @Override
-                public void actionPerformed(ActionEvent ae) {
-                    BkCli a = new BkCli();
-                     if (!codeText.getText().equals("")) {
-                         if(codeText.getText().length()>9)
-                            a.setCode(codeText.getText().substring(3, 9).toUpperCase());
-                         else
-                            a.setCode(codeText.getText()); 
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Le nom est obligatoire");
-                    }
-                    if (!nameText.getText().equals("")) {
-                        a.setNom(nameText.getText().toUpperCase());
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Le nom est obligatoire");
-                    }
-                    if (!phoneText.getText().equals("")) {
-                        a.setPhone(Long.parseLong(phoneText.getText()));
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Le téléphone est obligatoire");
-                    }
-                    a.setEnabled(false);
-                    if(chkBox.isSelected())
-                        a.setEnabled(true);
-                    
-                    if(langueBox.getSelectedIndex() == 0)
-                        a.setLangue("FR");
-                    else if(langueBox.getSelectedIndex() == 1)
-                         a.setLangue("EN");
-                    
-                    a.setPrenom(prenomText.getText().toUpperCase());
-                    a.setLibelle((String) libelleBox.getSelectedItem());
-                    a.setEmail(emailText.getText());
-                    
-                    if (bkcli == null) {
-                        try {
-                            serviceManager.enregistrer(a);
-                            if(serviceManager.getBkCompCliById(codeText.getText().toUpperCase())==null){
-                                BkCompCli bkCompCli = new BkCompCli();
-                                bkCompCli.setCli(a);
-                                bkCompCli.setNumc(codeText.getText().toUpperCase());
-                                bkCompCli.setEnabled(true);
-                                serviceManager.enregistrer(bkCompCli);
-                            }
-                        } catch (Exception ex) {
-                            Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    } else {
-                        a.setCode(bkcli.getCode());
-                        try {
-                            serviceManager.modifier(a);
-                        } catch (Exception ex) {
-                            Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
-                    dispose();
+                if(langueBox.getSelectedIndex() == 0)
+                    a.setLangue("FR");
+                else if(langueBox.getSelectedIndex() == 1)
+                     a.setLangue("EN");
+
+                a.setPrenom(prenomText.getText().toUpperCase());
+                a.setLibelle((String) libelleBox.getSelectedItem());
+                a.setEmail(emailText.getText());
+
+                if (bkcli == null) {
                     try {
-                        parentPanel.setContenu(new BkCliPanel());
-                    } catch (IOException ex) {
+                        serviceManager.enregistrer(a);
+                        if(serviceManager.getBkCompCliById(codeText.getText().toUpperCase())==null){
+                            BkCompCli bkCompCli = new BkCompCli();
+                            bkCompCli.setCli(a);
+                            bkCompCli.setNumc(codeText.getText().toUpperCase());
+                            bkCompCli.setEnabled(true);
+                            serviceManager.enregistrer(bkCompCli);
+                        }
+                    } catch (Exception ex) {
+                        Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else {
+                    a.setCode(bkcli.getCode());
+                    try {
+                        serviceManager.modifier(a);
+                    } catch (Exception ex) {
                         Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
+                dispose();
+                try {
+                    parentPanel.setContent(new BkCliPanel());
+                } catch (IOException ex) {
+                    Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
+                }
             });
 
-            annulerBtn.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent ae) {
-                    dispose();
-                    try {
-                        parentPanel.setContenu(new BkCliPanel());
-                    } catch (IOException ex) {
-                        Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-
+            annulerBtn.addActionListener(ae -> {
+                dispose();
+                try {
+                    parentPanel.setContent(new BkCliPanel());
+                } catch (IOException ex) {
+                    Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             });
         }

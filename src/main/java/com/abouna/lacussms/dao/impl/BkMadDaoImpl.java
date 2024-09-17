@@ -9,20 +9,17 @@ package com.abouna.lacussms.dao.impl;
 import com.abouna.generic.dao.DataAccessException;
 import com.abouna.generic.dao.impl.GenericDao;
 import com.abouna.lacussms.dao.IBkMadDao;
-import com.abouna.lacussms.entities.BkAgence_;
 import com.abouna.lacussms.entities.BkMad;
-import com.abouna.lacussms.entities.BkMad_;
-import com.abouna.lacussms.entities.BkOpe_;
+import org.springframework.stereotype.Repository;
 
-import java.util.Date;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import org.springframework.stereotype.Repository;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -36,8 +33,8 @@ public class BkMadDaoImpl extends GenericDao<BkMad, Integer> implements IBkMadDa
         CriteriaBuilder builder =  getManager().getCriteriaBuilder();
         CriteriaQuery<BkMad> cq = builder.createQuery(BkMad.class);
         Root<BkMad> bkEveRoot = cq.from(BkMad.class);
-        cq.where(builder.and(builder.greaterThanOrEqualTo(bkEveRoot.get(BkMad_.dateEnvoie), d1),
-                builder.lessThanOrEqualTo(bkEveRoot.get(BkMad_.dateEnvoie), d2)));
+        cq.where(builder.and(builder.greaterThanOrEqualTo(bkEveRoot.get("dateEnvoie"), d1),
+                builder.lessThanOrEqualTo(bkEveRoot.get("dateEnvoie"), d2)));
         cq.select(bkEveRoot);
         return getManager().createQuery(cq).getResultList();
     }
@@ -61,14 +58,14 @@ public class BkMadDaoImpl extends GenericDao<BkMad, Integer> implements IBkMadDa
         CriteriaBuilder cb = getManager().getCriteriaBuilder();
         CriteriaQuery<BkMad> cq = cb.createQuery(BkMad.class);
         Root<BkMad> bkEveRoot = cq.from(BkMad.class);
-        cq.where(cb.or(cb.like(bkEveRoot.get(BkMad_.ad1p),"%"+val+"%"),
-                cb.like(bkEveRoot.get(BkMad_.ad2p),"%"+val+"%"),
-                cb.like(bkEveRoot.get(BkMad_.age).get(BkAgence_.noma),"%"+val+"%"),
-                cb.like(bkEveRoot.get(BkMad_.eve),"%"+val+"%"),
-                cb.like(bkEveRoot.get(BkMad_.dco),"%"+val+"%"),
-                cb.like(bkEveRoot.get(BkMad_.dbd),"%"+val+"%"),
-                cb.like(bkEveRoot.get(BkMad_.ope).get(BkOpe_.ope),"%"+val+"%"),
-                cb.like(bkEveRoot.get(BkMad_.ope).get(BkOpe_.lib),"%"+val+"%")));
+        cq.where(cb.or(cb.like(bkEveRoot.get("ad1p"),"%"+val+"%"),
+                cb.like(bkEveRoot.get("ad2p"),"%"+val+"%"),
+                cb.like(bkEveRoot.get("age").get("noma"),"%"+val+"%"),
+                cb.like(bkEveRoot.get("eve"),"%"+val+"%"),
+                cb.like(bkEveRoot.get("dco"),"%"+val+"%"),
+                cb.like(bkEveRoot.get("dbd"),"%"+val+"%"),
+                cb.like(bkEveRoot.get("ope").get("ope"),"%"+val+"%"),
+                cb.like(bkEveRoot.get("ope").get("lib"),"%"+val+"%")));
         return getManager().createQuery(cq).getResultList();
     }
 
@@ -78,9 +75,9 @@ public class BkMadDaoImpl extends GenericDao<BkMad, Integer> implements IBkMadDa
             CriteriaBuilder builder =  getManager().getCriteriaBuilder();
         CriteriaQuery<BkMad> cq = builder.createQuery(BkMad.class);
         Root<BkMad> bkEveRoot = cq.from(BkMad.class);
-        cq.where(builder.and(builder.equal(bkEveRoot.get(BkMad_.eve), num),
-                builder.equal(bkEveRoot.get(BkMad_.dateEnvoie), date),
-                builder.equal(bkEveRoot.get(BkMad_.ad1p), ad1p)));
+        cq.where(builder.and(builder.equal(bkEveRoot.get("eve"), num),
+                builder.equal(bkEveRoot.get("dateEnvoie"), date),
+                builder.equal(bkEveRoot.get("ad1p"), ad1p)));
         cq.select(bkEveRoot);
         return getManager().createQuery(cq).getSingleResult();
         } catch (NoResultException e) {
@@ -93,7 +90,7 @@ public class BkMadDaoImpl extends GenericDao<BkMad, Integer> implements IBkMadDa
         CriteriaBuilder builder =  getManager().getCriteriaBuilder();
         CriteriaQuery<Number> cq = builder.createQuery(Number.class);
         Root<BkMad> bkEveRoot = cq.from(BkMad.class);
-        cq.select(builder.max(bkEveRoot.get(BkMad_.id)));
+        cq.select(builder.max(bkEveRoot.get("id")));
         return (Integer) getManager().createQuery(cq).getSingleResult();
     }
 
@@ -108,7 +105,7 @@ public class BkMadDaoImpl extends GenericDao<BkMad, Integer> implements IBkMadDa
         CriteriaBuilder builder =  getManager().getCriteriaBuilder();
         CriteriaQuery<BkMad> cq = builder.createQuery(BkMad.class);
         Root<BkMad> bkEveRoot = cq.from(BkMad.class);
-        cq.where(builder.equal(bkEveRoot.get(BkMad_.clesec), num));
+        cq.where(builder.equal(bkEveRoot.get("clesec"), num));
         cq.select(bkEveRoot);
         return getManager().createQuery(cq).getSingleResult();
         } catch (NoResultException e) {
@@ -121,7 +118,7 @@ public class BkMadDaoImpl extends GenericDao<BkMad, Integer> implements IBkMadDa
         CriteriaBuilder builder =  getManager().getCriteriaBuilder();
         CriteriaQuery<BkMad> cq = builder.createQuery(BkMad.class);
         Root<BkMad> bkEveRoot = cq.from(BkMad.class);
-        cq.where(builder.equal(bkEveRoot.get(BkMad_.traite), traite));
+        cq.where(builder.equal(bkEveRoot.get("traite"), traite));
         cq.select(bkEveRoot);
         return getManager().createQuery(cq).getResultList();
     }
@@ -131,8 +128,8 @@ public class BkMadDaoImpl extends GenericDao<BkMad, Integer> implements IBkMadDa
         CriteriaBuilder builder =  getManager().getCriteriaBuilder();
         CriteriaQuery<BkMad> cq = builder.createQuery(BkMad.class);
         Root<BkMad> bkEveRoot = cq.from(BkMad.class);
-        cq.where(builder.or(builder.equal(bkEveRoot.get(BkMad_.traite), 0)
-                ,builder.equal(bkEveRoot.get(BkMad_.traite), 1)));
+        cq.where(builder.or(builder.equal(bkEveRoot.get("traite"), 0)
+                ,builder.equal(bkEveRoot.get("traite"), 1)));
         cq.select(bkEveRoot);
         return getManager().createQuery(cq).getResultList();
     }
@@ -143,7 +140,7 @@ public class BkMadDaoImpl extends GenericDao<BkMad, Integer> implements IBkMadDa
         CriteriaQuery<BkMad> cq = builder.createQuery(BkMad.class);
         Root<BkMad> bkMadRoot = cq.from(BkMad.class);
         cq.select(bkMadRoot);
-        cq.orderBy(builder.desc(bkMadRoot.get(BkMad_.id)));
+        cq.orderBy(builder.desc(bkMadRoot.get("id")));
         return getManager().createQuery(cq).setMaxResults(limit).getResultList();
     }
     

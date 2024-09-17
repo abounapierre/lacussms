@@ -6,34 +6,36 @@
 
 package com.abouna.lacussms.config;
 
-import com.abouna.lacussms.service.impl.SmsJob;
+import com.abouna.lacussms.views.main.LogFile;
+import com.abouna.lacussms.views.tools.ConstantUtils;
+import com.abouna.lacussms.views.tools.Utils;
 import com.google.common.base.Preconditions;
-import java.io.IOException;
-import java.util.Properties;
-import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
-import org.quartz.SimpleTrigger;
-import org.quartz.spi.JobFactory;
+import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
+import org.jasypt.encryption.StringEncryptor;
+import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
+import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.PropertiesFactoryBean;
-import org.springframework.context.ApplicationContext;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.quartz.JobDetailFactoryBean;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
+import java.nio.file.FileSystems;
+import java.util.Properties;
 
 /**
  *
@@ -42,24 +44,24 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableScheduling
 @EnableTransactionManagement
-@PropertySource({ "classpath:bd.properties" })
-@ComponentScan({ "com.abouna.lacussms.dao.impl",
-    "com.abouna.lacussms.service.impl",
-"com.abouna.lacussms.views"})
+@EnableEncryptableProperties
+@PropertySources({
+        @PropertySource("classpath:application.properties")
+})
 public class SpringMainConfig {
-    
+    private static final Logger logger = LoggerFactory.getLogger(SpringMainConfig.class);
     @Autowired
     private Environment env;
     
     public SpringMainConfig(){
         super();
     }
-    
+
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         final LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource());
-        em.setPackagesToScan(new String[] { "com.abouna.lacussms.entities" });
+        em.setPackagesToScan("com.abouna.lacussms.entities");
         final HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         vendorAdapter.setShowSql(true);
         em.setJpaVendorAdapter(vendorAdapter);
@@ -70,10 +72,15 @@ public class SpringMainConfig {
     @Bean
     public DataSource dataSource() {
         final DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(Preconditions.checkNotNull(env.getProperty("jdbc.driverClassName")));
-        dataSource.setUrl(Preconditions.checkNotNull(env.getProperty("jdbc.url")));
-        dataSource.setUsername(Preconditions.checkNotNull(env.getProperty("jdbc.user")));
-        dataSource.setPassword(Preconditions.checkNotNull(env.getProperty("jdbc.pass")));
+        String driver = env.getProperty("jdbc.driverClassName");
+        String url = env.getProperty("jdbc.url");
+        String user = env.getProperty("jdbc.user");
+        String pass = env.getProperty("jdbc.pass");
+        logger.debug("### driver {} url {} user {} pass {} ###", driver, url, user, pass);
+        dataSource.setDriverClassName(Preconditions.checkNotNull(driver));
+        dataSource.setUrl(Preconditions.checkNotNull(url));
+        dataSource.setUsername(Preconditions.checkNotNull(user));
+        dataSource.setPassword(Preconditions.checkNotNull(pass));
         return dataSource;
     }
 
@@ -101,57 +108,32 @@ public class SpringMainConfig {
     public Tache execute(){
         return new Tache();
     }
-  
-    @Bean
-    public JobFactory jobFactory(ApplicationContext applicationContext)
-    {
-        AutowiringSpringBeanJobFactory jobFactory = new AutowiringSpringBeanJobFactory();
-        jobFactory.setApplicationContext(applicationContext);
-        return jobFactory;
-    }
-    
-    @Bean
-    public SchedulerFactoryBean schedulerFactoryBean(@Autowired DataSource dataSource,
-                                                     @Autowired JobFactory jobFactory) throws IOException
-    {
-        SchedulerFactoryBean factory = new SchedulerFactoryBean();
-        factory.setOverwriteExistingJobs(true);
-        factory.setAutoStartup(true);
-        factory.setDataSource(dataSource);
-        //This is the place where we will wire Quartz and Spring together
-        factory.setJobFactory(jobFactory);
-        factory.setQuartzProperties(quartzProperties());
-        factory.setTriggers(smsJobTrigger().getObject());
-        return factory;
-    }
-    @Bean
-    public Properties quartzProperties() throws IOException
-    {
-        PropertiesFactoryBean propertiesFactoryBean = new PropertiesFactoryBean();
-        propertiesFactoryBean.setLocation(new ClassPathResource("quartz.properties"));
-        propertiesFactoryBean.afterPropertiesSet();
-        return propertiesFactoryBean.getObject();
-    }
-    
-     @Bean(name = "smsJobTrigger")
-    public SimpleTriggerFactoryBean smsJobTrigger() {
-        SimpleTriggerFactoryBean factoryBean = new SimpleTriggerFactoryBean();
-        factoryBean.setJobDetail(smsJobDetails().getObject());
-        factoryBean.setStartDelay(0);
-        factoryBean.setRepeatInterval(60000);
-        factoryBean.setRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY);
-        factoryBean.setMisfireInstruction(SimpleTrigger.MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT);
-        return factoryBean;
-    }
- 
-    @Bean(name = "smsJobDetails")
-    public JobDetailFactoryBean smsJobDetails() {
-        JobDetailFactoryBean jobDetailFactoryBean = new JobDetailFactoryBean();
-        jobDetailFactoryBean.setJobClass(SmsJob.class);
-        jobDetailFactoryBean.setDescription("Sample job");
-        jobDetailFactoryBean.setDurability(true);
-        jobDetailFactoryBean.setName("StatisticsJob");
-        return jobDetailFactoryBean;
+
+    @Bean("logPath")
+    public String logPath(@Value("${spring.profiles.active}") String profile) {
+        String fileSeparator = FileSystems.getDefault().getSeparator();
+        return System.getProperty("user.home")
+                .concat(fileSeparator).concat(".lacuss")
+                .concat(fileSeparator).concat("lacuss-application-" + profile + ".log");
     }
 
+    @Bean
+    public LogFile getLogger() {
+        return new LogFile();
+    }
+
+    @Bean(name = "jasyptStringEncryptor")
+    public StringEncryptor stringEncryptor() {
+        return Utils.getStringEncryptor();
+    }
+
+    @Bean("logo")
+    public String logoApp() {
+        return env.getProperty("application.logo");
+    }
+
+    @Bean(name = "licence")
+    public String getLicence() {
+        return env.getProperty("application.validDate");
+    }
 }

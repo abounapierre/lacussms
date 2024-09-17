@@ -6,11 +6,10 @@
 package com.abouna.lacussms.views.tools;
 
 import com.abouna.lacussms.entities.Command;
-import com.abouna.lacussms.entities.ServiceOffert;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;

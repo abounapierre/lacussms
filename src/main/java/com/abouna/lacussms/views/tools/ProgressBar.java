@@ -6,11 +6,8 @@
 
 package com.abouna.lacussms.views.tools;
 
-import java.awt.FlowLayout;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JProgressBar;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  *

@@ -13,22 +13,17 @@ import com.abouna.lacussms.views.tools.BankFilePrinting;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import java.awt.BorderLayout;
-import java.awt.Font;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Objects;
 
 /**
  *
@@ -36,7 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class CbsFileDialog extends JDialog {
 
-    private final JButton okBtn, annulerBtn;
     private final JComboBox<CutOff> cutOffBox;
     private final JFileChooser fc = new JFileChooser();
     @Autowired
@@ -66,12 +60,14 @@ public class CbsFileDialog extends JDialog {
             cutOff.setCutDate(new Date());
             cutOffBox.addItem(cutOff);
         }
+        JButton annulerBtn;
+        JButton okBtn;
         JPanel buttonBar = ButtonBarFactory.buildOKCancelBar(okBtn = new JButton("Imprimer"), annulerBtn = new JButton("Annuler"));
         builder.append(buttonBar, builder.getColumnCount());
         add(BorderLayout.CENTER, builder.getPanel());
 
         okBtn.addActionListener((ActionEvent ae) -> {
-            Date d1 = null, d2 = ((CutOff)cutOffBox.getSelectedItem()).getCutDate();
+            Date d1 = null, d2 = ((CutOff) Objects.requireNonNull(cutOffBox.getSelectedItem())).getCutDate();
             
             int val_retour = fc.showSaveDialog(CbsFileDialog.this);
                 if (val_retour == JFileChooser.APPROVE_OPTION) {

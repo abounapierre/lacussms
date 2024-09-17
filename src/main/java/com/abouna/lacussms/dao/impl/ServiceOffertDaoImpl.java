@@ -9,9 +9,10 @@ package com.abouna.lacussms.dao.impl;
 import com.abouna.generic.dao.impl.GenericDao;
 import com.abouna.lacussms.dao.ServiceOffertDao;
 import com.abouna.lacussms.entities.ServiceOffert;
-import java.util.List;
-import javax.persistence.NoResultException;
 import org.springframework.stereotype.Repository;
+
+import javax.persistence.NoResultException;
+import java.util.List;
 
 /**
  *

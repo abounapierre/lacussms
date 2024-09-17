@@ -14,12 +14,13 @@ import com.abouna.lacussms.views.main.MainMenuPanel;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Image;
+import org.jdesktop.swingx.JXSearchField;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -28,23 +29,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
-import org.jdesktop.swingx.JXSearchField;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  *
@@ -259,7 +243,7 @@ public class TriggerEventCreationPanel extends JPanel{
                     }
                     dispose();
                     try {
-                        parentPanel.setContenu(new MessageFormatPanel());
+                        parentPanel.setContent(new MessageFormatPanel());
                     } catch (IOException ex) {
                         Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -271,7 +255,7 @@ public class TriggerEventCreationPanel extends JPanel{
                 public void actionPerformed(ActionEvent ae) {
                     dispose();
                     try {
-                        parentPanel.setContenu(new MessageFormatPanel());
+                        parentPanel.setContent(new MessageFormatPanel());
                     } catch (IOException ex) {
                         Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
                     }

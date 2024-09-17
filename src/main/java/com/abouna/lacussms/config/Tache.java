@@ -7,17 +7,28 @@ package com.abouna.lacussms.config;
 
 import com.abouna.lacussms.entities.Licence;
 import com.abouna.lacussms.service.LacusSmsService;
+import com.abouna.lacussms.views.main.LogFile;
+import com.abouna.lacussms.views.main.MainFrame;
+import com.abouna.lacussms.views.tools.ConstantUtils;
 import com.abouna.lacussms.views.tools.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import javax.swing.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -26,9 +37,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class Tache {
 
-    private static final Logger log = LoggerFactory.getLogger(Tache.class);
+    private static final Logger logger = LoggerFactory.getLogger(Tache.class);
+    @Autowired
+    @Qualifier("logPath")
+    private String path;
     @Autowired
     private LacusSmsService service;
+
+    @Autowired
+    private LogFile logBean;
+
+    @Autowired
+    private Environment env;
 
     public Tache() {
     }
@@ -53,6 +73,30 @@ public class Tache {
             } catch (ParseException ex) {
                 java.util.logging.Logger.getLogger(Tache.class.getName()).log(Level.SEVERE, null, ex);
             }
+        }
+    }
+
+    @Scheduled(cron = "*/1 * * * * *")
+    public void logTask() {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(path));
+            //LogFile logBean = ApplicationConfig.getApplicationContext().getBean(LogFile.class);
+            logBean.setLog(reader.lines().collect(Collectors.joining("\n")));
+        } catch (FileNotFoundException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    @Scheduled(cron = "*/30 * * * * *")
+    public void controlLicence() {
+        String original = ApplicationConfig.getApplicationContext().getBean("licence", String.class);
+        MainFrame frame = ApplicationConfig.getApplicationContext().getBean(MainFrame.class);
+        logger.debug("verification..." + original);
+        Date date = Utils.getDateSimpleFormat("ddMMyyHHmmss", original);
+        if(date == null || date.before(Utils.getTimeFromInternet())) {
+            logger.error(ConstantUtils.ERROR_MESSAGE);
+            frame.showError(ConstantUtils.ERROR_MESSAGE);
+            System.exit(0);
         }
     }
 }

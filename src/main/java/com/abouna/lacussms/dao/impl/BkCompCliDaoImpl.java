@@ -10,15 +10,14 @@ import com.abouna.generic.dao.DataAccessException;
 import com.abouna.generic.dao.impl.GenericDao;
 import com.abouna.lacussms.dao.IBkCompCliDao;
 import com.abouna.lacussms.entities.BkCli;
-import com.abouna.lacussms.entities.BkCli_;
 import com.abouna.lacussms.entities.BkCompCli;
-import com.abouna.lacussms.entities.BkCompCli_;
-import java.util.List;
+import org.springframework.stereotype.Repository;
+
 import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 
 /**
  *
@@ -62,8 +61,8 @@ public class BkCompCliDaoImpl extends GenericDao<BkCompCli, String> implements I
         CriteriaQuery<BkCompCli> cq = cb.createQuery(BkCompCli.class);
         Root<BkCompCli> bkCompCliRoot = cq.from(BkCompCli.class);
         cq.where(cb.or(cb.like(bkCompCliRoot.get("numc"),"%"+compte+"%"),
-                cb.like(bkCompCliRoot.get(BkCompCli_.cli).get(BkCli_.nom),"%"+compte+"%"),
-                cb.like(bkCompCliRoot.get(BkCompCli_.cli).get(BkCli_.prenom),"%"+compte+"%")));
+                cb.like(bkCompCliRoot.get("cli").get("nom"),"%"+compte+"%"),
+                cb.like(bkCompCliRoot.get("cli").get("prenom"),"%"+compte+"%")));
         return getManager().createQuery(cq).getResultList();
     }
 
@@ -81,9 +80,9 @@ public class BkCompCliDaoImpl extends GenericDao<BkCompCli, String> implements I
         CriteriaBuilder builder =  getManager().getCriteriaBuilder();
         CriteriaQuery<BkCompCli> cq = builder.createQuery(BkCompCli.class);
         Root<BkCompCli> bkComCliRoot = cq.from(BkCompCli.class);
-        cq.where(builder.and(builder.equal(bkComCliRoot.get(BkCompCli_.cli), cli),
-                builder.equal(bkComCliRoot.get(BkCompCli_.numc), compte),
-                builder.equal(bkComCliRoot.get(BkCompCli_.enabled), actif)));
+        cq.where(builder.and(builder.equal(bkComCliRoot.get("cli"), cli),
+                builder.equal(bkComCliRoot.get("numc"), compte),
+                builder.equal(bkComCliRoot.get("enabled"), actif)));
         cq.select(bkComCliRoot);
         return getManager().createQuery(cq).getResultList();
     }
@@ -94,9 +93,9 @@ public class BkCompCliDaoImpl extends GenericDao<BkCompCli, String> implements I
             CriteriaBuilder builder =  getManager().getCriteriaBuilder();
         CriteriaQuery<BkCompCli> cq = builder.createQuery(BkCompCli.class);
         Root<BkCompCli> bkComCliRoot = cq.from(BkCompCli.class);
-        cq.where(builder.and(builder.equal(bkComCliRoot.get(BkCompCli_.cli), cli),
-                builder.equal(bkComCliRoot.get(BkCompCli_.numc), compte),
-                builder.equal(bkComCliRoot.get(BkCompCli_.enabled), actif)));
+        cq.where(builder.and(builder.equal(bkComCliRoot.get("cli"), cli),
+                builder.equal(bkComCliRoot.get("numc"), compte),
+                builder.equal(bkComCliRoot.get("enabled"), actif)));
         cq.select(bkComCliRoot);
         return getManager().createQuery(cq).getSingleResult();
         } catch (NoResultException e) {
@@ -110,7 +109,7 @@ public class BkCompCliDaoImpl extends GenericDao<BkCompCli, String> implements I
             CriteriaBuilder builder = getManager().getCriteriaBuilder();
             CriteriaQuery<BkCompCli> cq = builder.createQuery(BkCompCli.class);
             Root<BkCompCli> bkComCliRoot = cq.from(BkCompCli.class);
-            cq.where(builder.equal(bkComCliRoot.get(BkCompCli_.numc), numc));
+            cq.where(builder.equal(bkComCliRoot.get("numc"), numc));
             cq.select(bkComCliRoot);
             BkCompCli compte = getManager().createQuery(cq).getSingleResult();
             return compte.getCli();

@@ -9,13 +9,13 @@ package com.abouna.lacussms.dao.impl;
 import com.abouna.generic.dao.impl.GenericDao;
 import com.abouna.lacussms.dao.IMessageMandatDao;
 import com.abouna.lacussms.entities.MessageMandat;
-import com.abouna.lacussms.entities.MessageMandat_;
-import java.util.Date;
-import java.util.List;
+import org.springframework.stereotype.Repository;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import org.springframework.stereotype.Repository;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -29,8 +29,8 @@ public class MessageMandatDaoImpl extends GenericDao<MessageMandat, Integer> imp
         CriteriaBuilder builder =  getManager().getCriteriaBuilder();
         CriteriaQuery<MessageMandat> cq = builder.createQuery(MessageMandat.class);
         Root<MessageMandat> msgRoot = cq.from(MessageMandat.class);
-        cq.where(builder.and(builder.greaterThanOrEqualTo(msgRoot.get(MessageMandat_.sendDate), d1),
-                builder.lessThanOrEqualTo(msgRoot.get(MessageMandat_.sendDate), d2)));
+        cq.where(builder.and(builder.greaterThanOrEqualTo(msgRoot.get("sendDate"), d1),
+                builder.lessThanOrEqualTo(msgRoot.get("sendDate"), d2)));
         cq.select(msgRoot);
         return getManager().createQuery(cq).getResultList();
     }

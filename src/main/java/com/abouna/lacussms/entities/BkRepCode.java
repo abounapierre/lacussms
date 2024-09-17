@@ -6,9 +6,9 @@
 
 package com.abouna.lacussms.entities;
 
-import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.io.Serializable;
 
 /**
  *

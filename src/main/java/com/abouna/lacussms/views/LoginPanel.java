@@ -8,58 +8,64 @@ package com.abouna.lacussms.views;
 
 import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.service.LacusSmsService;
+import com.abouna.lacussms.views.main.HeaderMenu;
+import com.abouna.lacussms.views.main.MainFrame;
+import com.abouna.lacussms.views.main.MainMenuPanel;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.RenderingHints;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  *
  * @author SATELLITE
  */
 public class LoginPanel extends JPanel{
-    private final JTextField loginText;
-    private final JPasswordField passwdText;
-    private final JButton btnLogin;
-    @Autowired
-    private  LacusSmsService serviceManager;
-    
-    public LoginPanel(){
-        serviceManager = ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
+
+    private final LacusSmsService service;
+
+    public LoginPanel(LacusSmsService service){
+        this.service = service;
         setLayout(new BorderLayout(10,10));
-        JPanel loginPanel = new JPanel(new BorderLayout());
-        loginPanel.setBorder(new EmptyBorder(180, 350, 50, 300));
+        JPanel loginPanel = new JPanel(new FlowLayout());
+        //loginPanel.setBorder(new EmptyBorder(180, 350, 50, 300));
         loginPanel.setBackground(new Color(166, 202, 240));
         DefaultFormBuilder builder = new DefaultFormBuilder(new FormLayout("l:p, 12dlu, 100dlu", ""));
         builder.setBackground(new Color(166, 202, 240));
-        builder.append("Nom d'utilisateur",loginText = new JTextField());
+        JTextField loginText;
+        builder.append("Nom d'utilisateur", loginText = new JTextField());
+        JPasswordField passwdText;
         builder.append("Mot de passe", passwdText = new JPasswordField());
+        JButton btnLogin;
         JPanel buttonBar = ButtonBarFactory.buildOKCancelBar(btnLogin = new JButton("Connexion"),new JButton("Annuler"));
         builder.append(buttonBar,builder.getColumnCount());
+        loginPanel.setAlignmentY(JComponent.CENTER_ALIGNMENT);
         loginPanel.add(BorderLayout.CENTER, builder.getPanel());
         add(BorderLayout.CENTER,loginPanel);
+        btnLogin.addActionListener(e -> {
+            MainFrame frame = ApplicationConfig.getApplicationContext().getBean(MainFrame.class);
+            frame.setJMenuBar(ApplicationConfig.getApplicationContext().getBean(HeaderMenu.class));
+            frame.setContent(ApplicationConfig.getApplicationContext().getBean(MainMenuPanel.class));
+            frame.validate();
+        });
     }
+
     
-     @Override
+    /* @Override
     protected void paintComponent(Graphics g) {
         try {
-            Image img = ImageIO.read(getClass().getResource("/images/smile.png"));
+            Image img = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/smile.png")));
             Graphics2D g2d = (Graphics2D)g;
 		g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, 
                           RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -70,5 +76,5 @@ public class LoginPanel extends JPanel{
         } catch (IOException ex) {
             Logger.getLogger(LoginPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
+    }*/
 }

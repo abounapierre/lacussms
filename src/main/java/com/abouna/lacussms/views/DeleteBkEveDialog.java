@@ -12,8 +12,11 @@ import com.abouna.lacussms.views.main.MainMenuPanel;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import java.awt.BorderLayout;
-import java.awt.Font;
+import org.jdesktop.swingx.JXDatePicker;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.text.ParseException;
@@ -21,14 +24,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import org.jdesktop.swingx.JXDatePicker;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  *
@@ -83,7 +78,7 @@ public class DeleteBkEveDialog extends JDialog{
                         }
                     }
                     dispose();
-                    parentPanel.setContenu(new BkEvePanel());
+                    parentPanel.setContent(new BkEvePanel());
                 } catch (IOException ex) {
                     Logger.getLogger(DeleteBkEveDialog.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (ParseException ex) {
@@ -94,7 +89,7 @@ public class DeleteBkEveDialog extends JDialog{
             annulerBtn.addActionListener((ActionEvent ae) -> {
                 try {
                     dispose();
-                    parentPanel.setContenu(new BkEvePanel());
+                    parentPanel.setContent(new BkEvePanel());
                 } catch (IOException ex) {
                     Logger.getLogger(DeleteBkEveDialog.class.getName()).log(Level.SEVERE, null, ex);
                 }

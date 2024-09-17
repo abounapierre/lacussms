@@ -9,6 +9,7 @@ package com.abouna.lacussms.dao;
 import com.abouna.generic.dao.IDao;
 import com.abouna.lacussms.entities.SmsScheduled;
 import com.abouna.lacussms.entities.SmsScheduledFormat;
+
 import java.util.List;
 
 /**

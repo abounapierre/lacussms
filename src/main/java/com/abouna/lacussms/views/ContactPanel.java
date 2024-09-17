@@ -6,21 +6,17 @@
 
 package com.abouna.lacussms.views;
 
-import java.awt.Color;
-import java.awt.Font;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JTextArea;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  *
  * @author Administrateur
  */
 public class ContactPanel extends JDialog{
-    private JTextArea aireText;
 
     public ContactPanel() {
-     aireText = new JTextArea(10, 30);
+        JTextArea aireText = new JTextArea(10, 30);
      aireText.setFont(new Font("Comic Sans MS", 1, 14));
      aireText.setForeground(Color.BLUE);
      aireText.setText("Cette Application été développée sous"

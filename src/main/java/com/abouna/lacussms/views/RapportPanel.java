@@ -11,17 +11,19 @@ import com.abouna.lacussms.entities.*;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.MainMenuPanel;
 import com.abouna.lacussms.views.tools.PrintReportPDF;
+import com.abouna.lacussms.views.utils.CustomTable;
 import com.abouna.lacussms.views.utils.CustomTableCellRenderer;
-import com.abouna.lacussms.views.utils.CustomTableModel;
 import com.abouna.lacussms.views.utils.DialogUtils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXSearchField;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -29,6 +31,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -41,12 +44,14 @@ import java.util.logging.Logger;
  */
 public class RapportPanel extends JPanel {
 
-    private CustomTableModel tableModel;
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(RapportPanel.class);
+    private DefaultTableModel tableModel;
     private JTable table;
     private final MainMenuPanel parentPanel;
     private final LacusSmsService serviceManager;
     private final JXDatePicker dateDeb, dateFin;
     private final JFileChooser fc = new JFileChooser();
+    private final CustomTableCellRenderer renderer = new CustomTableCellRenderer();
 
     public RapportPanel() throws IOException {
         serviceManager = ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
@@ -80,7 +85,6 @@ public class RapportPanel extends JPanel {
             int selected = table.getSelectedRow();
             if (selected >= 0) {
                 Integer id = (Integer) tableModel.getValueAt(selected, 0);
-                Nouveau nouveau1;
                 try {
                     DialogUtils.initDialog(new RapportPanel.Nouveau(serviceManager.getBkEveById(id)), RapportPanel.this.getParent(), 400, 300);
                 } catch (Exception ex) {
@@ -111,21 +115,7 @@ public class RapportPanel extends JPanel {
         });
         JLabel labelNumber = new JLabel("Nombre de Messages");
         final JTextField numberText = new JTextField(10);
-        JButton purgerBtn = new JButton("Purger");
-        purgerBtn.addActionListener((ActionEvent e) -> {
-            int res = JOptionPane.showConfirmDialog(null, "Etes vous sûr de vouloir vider cette table?", "Confirmation",
-                    JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-            if (res == JOptionPane.YES_OPTION) {
-                try {
-                    int result = serviceManager.supprimerToutMessage();
-                    if (result != -1) {
-                        tableModel.setNumRows(0);
-                    }
-                } catch (Exception ex) {
-                    Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        });
+        JButton purgerBtn = getPurgeButton();
         bas.add(labelNumber);
         bas.add(numberText);
         bas.add(purgerBtn);
@@ -154,17 +144,7 @@ public class RapportPanel extends JPanel {
                 d2 = format.parse(format.format(dateFin.getDate()));
                 tableModel.setNumRows(0);
                 List<Message> messageList = serviceManager.getMessageFromPeriode(d1, d2);
-                messageList.stream().forEach((a) -> {
-                    tableModel.addRow(new Object[]{
-                        a.getId(),
-                        a.getTitle(),
-                        a.getContent(),
-                        a.getSendDate(),
-                        a.getNumero(),
-                        a.getBkEve() == null ? "" : a.getBkEve().getCli() == null ? "" : a.getBkEve().getCli().getNom() + " " + a.getBkEve().getCli().getPrenom(),
-                        a.getBkEve() == null ? "" : a.getBkEve().getBkAgence() == null ? "" : a.getBkEve().getBkAgence().getNoma()
-                    });
-                });
+                addData(messageList);
 
             } catch (HeadlessException | ParseException ex) {
                 Logger.getLogger(RapportPanel.class.getName()).log(Level.SEVERE, null, ex);
@@ -182,10 +162,8 @@ public class RapportPanel extends JPanel {
                 d1 = format.parse(format.format(dateDeb.getDate()));
                 d2 = format.parse(format.format(dateFin.getDate()));
                 if (d1 != null & d2 != null) {
-                    //d1 = format.parse(format.format(dateDeb.getDate()));
-                    //d2 = format.parse(format.format(dateFin.getDate()));
-                    int val_retour = fc.showSaveDialog(RapportPanel.this);
-                    if (val_retour == JFileChooser.APPROVE_OPTION) {
+                    int valRetour = fc.showSaveDialog(RapportPanel.this);
+                    if (valRetour == JFileChooser.APPROVE_OPTION) {
                         File fichier = fc.getSelectedFile();
                         String path = fichier.getAbsolutePath() + ".pdf";
                         try {
@@ -203,13 +181,14 @@ public class RapportPanel extends JPanel {
                                         Desktop.getDesktop().open(pdfFile);
                                     } else {
                                         JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "Ce type de fichier n'est pas pris en charge");
-                                        System.out.println("Awt Desktop is not supported!");
+                                        log.info("Awt Desktop is not supported!");
                                     }
                                 } else {
                                     JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "Ce fichier n'existe pas");
                                     System.out.println("File is not exists!");
                                 }
                             } catch (IOException | HeadlessException ex) {
+                                log.error("Erreur d'ouverture du fichier PDF", ex);
                             }
                         }
                     }
@@ -228,23 +207,10 @@ public class RapportPanel extends JPanel {
         filtrePanel.add(printBtn);
         filtrePanel.setBackground(new Color(166, 202, 240));
         searchField.addActionListener((ActionEvent e) -> {
-            String val = null;
             if (searchField.getText() != null) {
                 try {
-                    val = searchField.getText().toUpperCase();
                     tableModel.setNumRows(0);
-                    List<Message> messageList = serviceManager.getAllMessages();
-                    messageList.forEach((a) -> {
-                        tableModel.addRow(new Object[]{
-                            a.getId(),
-                            a.getTitle(),
-                            a.getContent(),
-                            a.getSendDate(),
-                            a.getNumero(),
-                            a.getBkEve() == null ? "" : a.getBkEve().getCli() == null ? "" : a.getBkEve().getCli().getNom() + " " + a.getBkEve().getCli().getPrenom(),
-                            a.getBkEve() == null ? "" : a.getBkEve().getBkAgence() == null ? "" : a.getBkEve().getBkAgence().getNoma()
-                        });
-                    });
+                   addData(serviceManager.getAllMessages());
                 } catch (Exception ex) {
                     Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -252,34 +218,51 @@ public class RapportPanel extends JPanel {
         });
         contenu.add(BorderLayout.AFTER_LAST_LINE, bas);
         contenu.add(BorderLayout.BEFORE_FIRST_LINE, filtrePanel);
-        tableModel = new CustomTableModel(new Object[]{"Code 1", "Titre", "Contenu", "Date", "Numéro", "Client", "Agence"}, 0);
-        //tableModel.setRowColour(1, Color.red);
-        table = new JTable(tableModel);
+        tableModel = new DefaultTableModel(new Object[]{"ID", "Titre", "Contenu", "Date", "Numéro", "Client", "Agence"}, 0);
+        table = new CustomTable(tableModel, renderer);
         table.setBackground(Color.WHITE);
         //table.getColumnModel().getColumn(2).setPreferredWidth(280);
         //table.removeColumn(table.getColumnModel().getColumn(0));
-        CustomTableCellRenderer renderer = new CustomTableCellRenderer();
-        table.getColumnModel().getColumn(0).setCellRenderer(renderer);
-        table.getColumnModel().getColumn(1).setCellRenderer(renderer);
-        table.getColumnModel().getColumn(2).setCellRenderer(renderer);
         contenu.add(BorderLayout.CENTER, new JScrollPane(table));
         add(BorderLayout.CENTER, contenu);
         try {
-            serviceManager.getAllMessages().forEach((a) -> {
-                tableModel.addRow(new Object[]{
-                    a.getId(),
-                    a.getTitle(),
-                    a.getContent(),
-                    a.getSendDate(),
-                    a.getNumero(),
-                    a.getBkEve() == null ? "" : a.getBkEve().getCli() == null ? "" : a.getBkEve().getCli().getNom() + " " + a.getBkEve().getCli().getPrenom(),
-                    a.getBkEve() == null ? "" : a.getBkEve().getBkAgence() == null ? "" : a.getBkEve().getBkAgence().getNoma()
-                });
-            });
+            addData(serviceManager.getAllMessages());
             numberText.setText(Integer.toString(tableModel.getRowCount()));
         } catch (Exception ex) {
             Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    private void addData(List<Message> messageList) {
+        renderer.setSelectedRows(new ArrayList<>());
+        messageList.forEach(a -> tableModel.addRow(new Object[]{
+            a.getId(),
+            a.getTitle(),
+            a.getContent(),
+            a.getSendDate(),
+            a.getNumero(),
+            a.getBkEve() == null ? "" : a.getBkEve().getCli() == null ? "" : a.getBkEve().getCli().getNom() + " " + a.getBkEve().getCli().getPrenom(),
+            a.getBkEve() == null ? "" : a.getBkEve().getBkAgence() == null ? "" : a.getBkEve().getBkAgence().getNoma()
+        }));
+    }
+
+    private JButton getPurgeButton() {
+        JButton purgerBtn = new JButton("Purger");
+        purgerBtn.addActionListener((ActionEvent e) -> {
+            int res = JOptionPane.showConfirmDialog(null, "Etes vous sûr de vouloir vider cette table?", "Confirmation",
+                    JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+            if (res == JOptionPane.YES_OPTION) {
+                try {
+                    int result = serviceManager.supprimerToutMessage();
+                    if (result != -1) {
+                        tableModel.setNumRows(0);
+                    }
+                } catch (Exception ex) {
+                    Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+        return purgerBtn;
     }
 
     private class Nouveau extends JDialog {
@@ -387,13 +370,13 @@ public class RapportPanel extends JPanel {
 
             okBtn.addActionListener((ActionEvent ae) -> {
                 BkEve a = new BkEve();
-                if (!compteText.getText().equals("")) {
+                if (!compteText.getText().isEmpty()) {
                     a.setCompte(compteText.getText());
                 } else {
                     JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "Le compte est obligatoire");
                     return;
                 }
-                if (!montText.getText().equals("")) {
+                if (!montText.getText().isEmpty()) {
                     a.setMont(Double.parseDouble(montText.getText()));
                 } else {
                     JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "Le compte est obligatoire");

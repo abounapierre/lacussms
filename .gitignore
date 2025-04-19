@@ -4,3 +4,5 @@ target/
 /command.txt
 /query.sql
 /db-dump.sql
+/data
+/logs

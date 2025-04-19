@@ -61,13 +61,13 @@ public class EnvoieSMSDialog extends JDialog {
         add(BorderLayout.CENTER, builder.getPanel());
 
         okBtn.addActionListener((ActionEvent ae) -> {
-            if (!contentText.getText().equals("")) {
+            if (!contentText.getText().isEmpty()) {
                 contenu = contentText.getText();
             } else {
                 JOptionPane.showMessageDialog(EnvoieSMSDialog.this.getParent(), "Le contenu est obligatoire");
                 return;
             }
-            if (!nameText.getText().equals("")) {
+            if (!nameText.getText().isEmpty()) {
                 titre = nameText.getText();
             } else {
                 JOptionPane.showMessageDialog(EnvoieSMSDialog.this.getParent(), "Le titre est obligatoire");

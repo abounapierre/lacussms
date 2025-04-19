@@ -17,14 +17,14 @@ import java.util.List;
  * @author SATELLITE
  */
 public interface IBkMadDao extends IDao<BkMad, Integer>{
-    public List<BkMad> getBkMadsByPeriode(Date d1, Date d2);
-    public int supprimerBkMad(Date d1, Date d2);
-    public List<BkMad> getbkMadsByCriteria(String val);
-    public BkMad getBkMadByCriteria(String num,String ad1p,Date date);
-    public Integer getMaxBkMad();
-    public void supprimerAll();
-    public BkMad getBkMadByClesec(String num);
-    public List<BkMad> getBkMadByTraite(int traite);
-    public List<BkMad> getBkMadByTraite();
-    public List<BkMad> getBkMadByLimit(int limit);
+    List<BkMad> getBkMadsByPeriode(Date d1, Date d2);
+    int supprimerBkMad(Date d1, Date d2);
+    List<BkMad> getbkMadsByCriteria(String val);
+    BkMad getBkMadByCriteria(String num, String ad1p, Date date);
+    Integer getMaxBkMad();
+    void supprimerAll();
+    BkMad getBkMadByClesec(String num);
+    List<BkMad> getBkMadByTraite(int traite);
+    List<BkMad> getBkMadByTraite();
+    List<BkMad> getBkMadByLimit(int limit);
 }

@@ -114,7 +114,7 @@ public class App {
                     if (config.isEvent()) {
                         try {
                             serviceEvenement.serviceEvenement();
-                        } catch (SQLException var2) {
+                        } catch (SQLException e) {
                             msg.set("Echec de connexion à la base de données");
                             logger.error(msg.get());
                             BottomPanel.settextLabel(msg.get(), Color.RED);
@@ -180,7 +180,6 @@ public class App {
         Config config = serviceManager.getAllConfig().get(0);
         firstExecutor.scheduleAtFixedRate(() -> {
             logger.info("Démarrage du service sms ...");
-            logger.info("demarrage du service 111111...");
                 if (config.isEvent()) {
                 serviceEvenement.envoieSMSEvenement();
                 }

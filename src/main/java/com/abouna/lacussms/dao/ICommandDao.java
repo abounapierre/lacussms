@@ -18,7 +18,7 @@ import java.util.List;
  * @author SATELLITE
  */
 public interface ICommandDao extends IDao<Command, Integer>{
-    public List<Command> getCommandByStatus(Status status);
+    List<Command> getCommandByStatus(Status status);
     
-    public List<Command> getCommandByDate(Date dateDebut, Date dateFin, Status status);
+    List<Command> getCommandByDate(Date dateDebut, Date dateFin, Status status);
 }

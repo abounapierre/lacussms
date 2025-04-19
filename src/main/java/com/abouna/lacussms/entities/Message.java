@@ -41,6 +41,14 @@ public class Message implements Serializable {
         this.sendDate = sendDate;
     }
 
+    public Message(Integer id, String title, String content, Date sendDate, String numero) {
+        this.title = title;
+        this.content = content;
+        this.sendDate = sendDate;
+        this.id = id;
+        this.numero = numero;
+    }
+
     public String getNumero() {
         return numero;
     }

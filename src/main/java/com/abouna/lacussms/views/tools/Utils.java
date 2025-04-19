@@ -6,10 +6,8 @@
 package com.abouna.lacussms.views.tools;
 
 import com.abouna.lacussms.config.ApplicationConfig;
-import com.abouna.lacussms.entities.Licence;
 import com.abouna.lacussms.entities.*;
 import com.abouna.lacussms.service.LacusSmsService;
-import com.abouna.lacussms.views.LicencePanel;
 import com.abouna.lacussms.views.main.BottomPanel;
 import com.abouna.lacussms.views.main.LogFile;
 import com.abouna.lacussms.views.utils.LogParam;
@@ -35,7 +33,6 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.swing.Timer;
 import java.awt.Color;
-import java.awt.*;
 import java.io.*;
 import java.net.*;
 import java.security.MessageDigest;
@@ -76,21 +73,21 @@ public class Utils {
 
 
     public static String moveZero(Double d) {
-        String res = "";
+        StringBuilder res = new StringBuilder();
 
         for(int i = 0; i != Double.toString(d).length() && Double.toString(d).charAt(i) != '.'; ++i) {
-            res = res + Double.toString(d).charAt(i);
+            res.append(Double.toString(d).charAt(i));
         }
 
-        return res;
+        return res.toString();
     }
 
     public static List<String> getNumFromExcel(String path) {
         List<String> list = new ArrayList<>();
-        FileInputStream fichier = null;
+        FileInputStream fichier;
 
         try {
-            fichier = new FileInputStream(new File(path));
+            fichier = new FileInputStream(path);
             XSSFWorkbook wb = new XSSFWorkbook(fichier);
             XSSFSheet sheet = wb.getSheetAt(0);
             Iterator var5 = sheet.iterator();
@@ -140,7 +137,7 @@ public class Utils {
 
         String var6;
         try {
-            fichier = new FileInputStream(new File(path));
+            fichier = new FileInputStream(path);
             Workbook wb = WorkbookFactory.create(fichier);
             DataFormatter objDefaultFormat = new DataFormatter();
             FormulaEvaluator objFormulaEvaluator = null;
@@ -245,17 +242,6 @@ public class Utils {
         }
 
         return var6;
-    }
-
-    public static Object getCellValue(Cell cell) {
-        Object o = null;
-        if (cell.getCellType() == 0) {
-            o = cell.getNumericCellValue();
-        } else if (cell.getCellType() == 1) {
-            o = cell.getStringCellValue();
-        }
-
-        return o;
     }
 
     public static boolean isCorrect(String text) {
@@ -381,7 +367,7 @@ public class Utils {
         if (heure.length() > 8) {
             result = heure.substring(0, 5);
         } else if (heure.length() == 4) {
-            result = heure.substring(0, 2) + ":" + heure.substring(2, 4) + "";
+            result = heure.substring(0, 2) + ":" + heure.substring(2, 4);
         }
 
         return result;
@@ -460,8 +446,7 @@ public class Utils {
     }
 
     public static Date add(Date d, long a) {
-        Date d2 = new Date(d.getTime() + a * 86400000L);
-        return d2;
+        return new Date(d.getTime() + a * 86400000L);
     }
 
     public static String day(int i) {
@@ -509,7 +494,7 @@ public class Utils {
 
     public static Connection getConnection() throws ClassNotFoundException {
         Class.forName("com.mysql.jdbc.Driver");
-        Connection conn = null;
+        Connection conn;
 
         try {
             conn = DriverManager.getConnection("jdbc:mysql://mysql-eabouna.alwaysdata.net:3306/eabouna_lacus", "eabouna", "Lebomo@1989!");
@@ -519,37 +504,6 @@ public class Utils {
         }
     }
 
-    public static boolean createAppDirectory() throws IOException {
-        String path = System.getenv("APPDATA") + File.separator + "lacus";
-        File file = new File(path);
-        boolean create = false;
-        if (!file.exists()) {
-            file.mkdir();
-            String p = file.getAbsolutePath() + File.separator + "app.txt";
-            file = new File(p);
-            file.createNewFile();
-            ecrire("pid -1");
-            create = true;
-        }
-
-        return create;
-    }
-
-    public static boolean verify() throws FileNotFoundException, IOException {
-        String path = System.getenv("APPDATA") + File.separator + "lacus" + File.separator + "app.txt";
-        File file = new File(path);
-        boolean test = false;
-        if (file.exists()) {
-            FileReader fileReader = new FileReader(file);
-            BufferedReader reader = new BufferedReader(fileReader);
-            String text = reader.readLine();
-            if (text.split(" ")[1].equals("1")) {
-                test = true;
-            }
-        }
-
-        return test;
-    }
 
     public static void ecrire(String ch) throws IOException {
         String fileName = System.getenv("APPDATA") + File.separator + "lacus" + File.separator + "app.txt";
@@ -560,24 +514,7 @@ public class Utils {
         fileWriter.close();
     }
 
-    public static Date getDate(String encrypt) {
-        if (encrypt != null && !encrypt.isEmpty()) {
-            SimpleDateFormat sdf = new SimpleDateFormat("ddMMyy");
-            String original = AES.decrypt(encrypt, ConstantUtils.SECRET_KEY);
-            assert original != null;
-            original = original.replace("AB-", "").replace("-PI", "");
-            Date date = null;
 
-            try {
-                date = sdf.parse(original);
-                return date;
-            } catch (ParseException var5) {
-                return null;
-            }
-        } else {
-            return null;
-        }
-    }
 
     public static String generateDate() {
         Date date = new Date();
@@ -592,23 +529,6 @@ public class Utils {
         try {
             return sdf.parse(value);
         } catch (ParseException e) {
-            return null;
-        }
-    }
-
-    public static String getMacAdress2() {
-        try {
-            InetAddress ip = InetAddress.getLocalHost();
-            NetworkInterface network = NetworkInterface.getByInetAddress(ip);
-            byte[] mac = network.getHardwareAddress();
-            StringBuilder sb = new StringBuilder();
-
-            for(int i = 0; i < mac.length; ++i) {
-                sb.append(String.format("%02X%s", mac[i], i < mac.length - 1 ? "-" : ""));
-            }
-
-            return sb.toString();
-        } catch (UnknownHostException | SocketException var5) {
             return null;
         }
     }
@@ -694,10 +614,8 @@ public class Utils {
     };
 
     public static String getLog() {
-        logger.info("Recuperation des logs .......");
         LogFile logBean = ApplicationConfig.getApplicationContext().getBean(LogFile.class);
         return logBean.getLog();
-
     }
 
     public static void initDriver() throws ClassNotFoundException {
@@ -706,115 +624,10 @@ public class Utils {
         Class.forName("oracle.jdbc.driver.OracleDriver");
     }
 
-    public static boolean compareDate(String d1, String d2) {
-        try {
-            int a = Integer.parseInt(d1.substring(0, 2));
-            int a1 = Integer.parseInt(d2.substring(0, 2));
-            int b = Integer.parseInt(d1.substring(2, 4));
-            int b1 = Integer.parseInt(d2.substring(2, 4));
-            int c = Integer.parseInt(d1.substring(4, 6));
-            int c1 = Integer.parseInt(d2.substring(4, 6));
-            boolean r;
-            if (c < c1) {
-                r = true;
-            } else if (c == c1) {
-                if (b < b1) {
-                    r = true;
-                } else if (b == b1) {
-                    r = a <= a1;
-                } else {
-                    r = false;
-                }
-            } else {
-                r = false;
-            }
-
-            return r;
-        } catch (NumberFormatException var9) {
-            return false;
-        }
-    }
-
-    public static String decript(String s) {
-        StringBuilder result = new StringBuilder();
-
-        for(int i = 2; i < s.length(); i += 3) {
-            char c = s.charAt(i);
-            result.append(c);
-            if (result.length() == 6) {
-                break;
-            }
-        }
-
-        return result.toString();
-    }
-
-    public static void verifyComputer() throws IOException {
-        Utils.createAppDirectory();
-        if (!Utils.verify()) {
-            serviceManager.viderLicence();
-        }
-
-    }
-
     public static boolean checkLicence() {
         return true;
     }
 
-    public static boolean verifierLicence() {
-        try {
-            boolean val = false;
-            String mac = Utils.getMacAddress();
-            String secretKey = Utils.hacher("MD5", "$!LACUS@2020!1.2.6$");
-            if (mac != null && !mac.isEmpty()) {
-                secretKey = secretKey + Utils.hacher("MD5", mac);
-                List<com.abouna.lacussms.entities.Licence> licences = serviceManager.getLicences();
-                SimpleDateFormat format = new SimpleDateFormat("ddMMyy");
-                Date date = null;
-                String dest = null;
-                String s = null;
-                if (!licences.isEmpty()) {
-                    Licence li = licences.get(0);
-                    date = new Date();
-                    dest = format.format(date);
-
-                    String hache = Utils.hacher("MD5", secretKey);
-                    s = AES.decrypt(li.getValeur(), hache) == null ? "" : AES.decrypt(li.getValeur(), hache);
-
-                    if (s != null) {
-                        Date d1 = format.parse(s);
-                        Date d2 = format.parse(dest);
-                        val = d1.after(d2);
-                    }
-                }
-
-                return val;
-            } else {
-                return false;
-            }
-        } catch (Exception var10) {
-            serviceManager.viderLicence();
-            return false;
-        }
-    }
-
-
-    public static boolean testLicence() {
-        boolean b = checkLicence();
-        if (!b) {
-            LicencePanel nouveau1 = new LicencePanel((Licence)null);
-            nouveau1.setSize(450, 150);
-            nouveau1.setLocationRelativeTo((Component)null);
-            nouveau1.setModal(true);
-            nouveau1.setResizable(false);
-            nouveau1.setDefaultCloseOperation(2);
-            nouveau1.setVisible(true);
-            nouveau1.setUndecorated(true);
-            nouveau1.getRootPane().setWindowDecorationStyle(0);
-        }
-
-        return b;
-    }
 
     public static void test() {
         List<BkEve> list = serviceManager.getBkEveBySendParam(true, listString);
@@ -977,24 +790,6 @@ public class Utils {
         } catch (IOException var21) {
             logger.error(var21.getMessage() + var21.getCause());
         }
-    }
-
-    public static void testAffichage() {
-        Thread t = new Thread(() -> {
-            int i = 1;
-            logger.info("Démarrage....");
-            boolean running = true;
-
-            while(true) {
-                BottomPanel.settextLabel("Traitement.... " + i, Color.BLACK);
-                ++i;
-                if (i % 10 == 0) {
-                    BottomPanel.settextLabel("Chargement des données.... " + i, Color.RED);
-                }
-            }
-
-        });
-        t.start();
     }
 
     public static Connection initConnection(LacusSmsService service, String secret) throws SQLException {

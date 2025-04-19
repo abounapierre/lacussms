@@ -6,9 +6,11 @@
 package com.abouna.lacussms.config;
 
 import com.abouna.lacussms.entities.Licence;
+import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.LogFile;
 import com.abouna.lacussms.views.tools.Utils;
+import org.jasypt.encryption.StringEncryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +19,15 @@ import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.swing.*;
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -47,10 +53,13 @@ public class Tache {
     @Autowired
     private Environment env;
 
+    @Autowired
+    @Qualifier("jasyptStringEncryptor")
+    private StringEncryptor encryptor;
+
     public Tache() {
     }
 
-    ////@Scheduled(cron = "*/10 * * * * *")
     @Scheduled(cron = "0 0 1,8,12,17 * * *")
     public void executeTask() {
         Utils.enregistrerMail(service);
@@ -76,22 +85,49 @@ public class Tache {
     @Scheduled(cron = "*/1 * * * * *")
     public void logTask() {
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(path));
-            //LogFile logBean = ApplicationConfig.getApplicationContext().getBean(LogFile.class);
+            String file = Paths.get(".").toAbsolutePath().getParent().getParent().toString() + File.separator + path;
+            BufferedReader reader = new BufferedReader(new FileReader(file));
             logBean.setLog(reader.lines().collect(Collectors.joining("\n")));
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             logger.error(e.getMessage());
         }
     }
 
     @Scheduled(cron = "*/1 * * * * *")
     public void controlLicence() {
-        String original = env.getProperty("application.validDate");
-        //logger.info("date {}", original);
-        Date date = Utils.getDateSimpleFormat("ddMMyyHHmmss", original);
-        if(date != null && date.before(Utils.getTimeFromInternet())) {
-            logger.error("une erreur est survenue lors de l'éxécution de l'application");
-            System.exit(0);
+        String message = "La date de validité de la licence est dépassée ou licence non valide. \n" +
+                "Veuillez contacter le support technique pour renouveler votre licence.";
+        try {
+            String original = encryptor.decrypt(getKey());//env.getProperty("application.validDate");
+            Date date = Utils.getDateSimpleFormat("ddMMyyHHmmss", original);
+            if(date != null && date.before(Utils.getTimeFromInternet())) {
+                close(message, null);
+            }
+        } catch (Exception e) {
+            close(message, e);
+        }
+    }
+
+    private static void close(String message, Exception e) {
+        App.stopper();
+        logger.error(message, e);
+        JOptionPane.showMessageDialog(null, message);
+        System.exit(0);
+    }
+
+    private String getKey() {
+        String keyPath = env.getProperty("application.key.path");
+        try {
+            String filePath = Paths.get(".").toAbsolutePath().getParent().getParent().toString() + File.separator + keyPath;
+            BufferedReader reader = new BufferedReader(new FileReader(filePath));
+            String key = reader.lines().collect(Collectors.joining("\n"));
+            String temp = new String(Base64.getDecoder().decode(key));
+            temp = temp.replace(temp.substring(0, 1000), "");
+            int length = temp.length();
+            temp = temp.replace(temp.substring(length - 1000, length), "");
+            return temp;
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 }

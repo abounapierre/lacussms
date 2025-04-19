@@ -16,9 +16,9 @@ import java.util.List;
  * @author ABOUNA
  */
 public interface IBkTelCliDao extends IDao<BkTelCli,Integer>{
-    public List<BkTelCli> getListBkTelByCli(BkCli b);
-    public BkTelCli getBkTelCliDefault(BkCli b,boolean d);
+    List<BkTelCli> getListBkTelByCli(BkCli b);
+    BkTelCli getBkTelCliDefault(BkCli b, boolean d);
 
-    public List<BkTelCli> getListBkTelByCli();
+    List<BkTelCli> getListBkTelByCli();
 
 }

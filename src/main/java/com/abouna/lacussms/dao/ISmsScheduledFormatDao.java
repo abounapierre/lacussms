@@ -17,6 +17,6 @@ import java.util.List;
  * @author SATELLITE
  */
 public interface ISmsScheduledFormatDao extends IDao<SmsScheduledFormat, Long>{
-    public List<SmsScheduledFormat> getScheduledFormats(SmsScheduled smsScheduled);
-    public Integer deleteScheduledFormats(SmsScheduled smsScheduled);
+    List<SmsScheduledFormat> getScheduledFormats(SmsScheduled smsScheduled);
+    Integer deleteScheduledFormats(SmsScheduled smsScheduled);
 }

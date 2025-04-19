@@ -17,6 +17,6 @@ import java.util.List;
  * @author SATELLITE
  */
 public interface IMessageDao extends IDao<Message, Integer>{
-    public List<Message> getMessageFromPeriode(Date d1,Date d2);
-    public int supprimerTout();
+    List<Message> getMessageFromPeriode(Date d1, Date d2);
+    int supprimerTout();
 }

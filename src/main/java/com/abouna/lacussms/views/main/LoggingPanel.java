@@ -23,7 +23,7 @@ public class LoggingPanel extends JPanel {
         setLayout(new BorderLayout(10, 10));
         add(new JScrollPane(textArea), BorderLayout.CENTER);
 
-        timer = new Timer(1000, e -> textArea.setText(Utils.getLog()));
+        timer = new Timer(3000, e -> textArea.setText(Utils.getLog()));
     }
 
     public void printLogging() {

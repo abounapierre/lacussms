@@ -18,27 +18,25 @@ import java.util.List;
  * @author SATELLITE
  */
 public interface IBkEveDao extends IDao<BkEve, Integer>{
-    public List<BkEve> getBkEvesByEtat(String etat,Date date);
-    public List<BkEve> getBkEveMaxDate();
-    public List<BkEve> getBkEveByDate(Date date);
-    public List<BkEve> getBkEveBySendParam(boolean send);
-    //public List<BkEve> getBkEveBySendParam(boolean send);
-    public Integer getMaxIndexBkEve();
-    public Integer getMaxIndexBkEve(TypeEvent type);
-    public List<BkEve> getBkEveByPeriode(Date d1,Date d2);
-    public List<BkEve> getBkEveBySendParam(boolean send,List<String> list);
-    public List<BkEve> getBkEveBySendParam(boolean send,List<String> list,TypeEvent type);
-    public List<BkEve> getBkEveByCriteria(String code,String date,String compte);
-    public List<BkEve> getBkEveByCriteria(String code,Date date,String compte);
-    public List<BkEve> getBkEveByCriteria2(String code,Date date,String compte);
-    public List<BkEve> getBkEveByCriteria(String code);
-    public int supprimerParPeriode(String date1,String date2);
-    public int supprimerParPeriode(Date date1,Date date2);
-    public List<BkEve> getBkEveByCriteria(String date1,String date2);
-    public List<BkEve> getBkEveByLimit(int limit);
-    public List<BkEve> getBkEveByCriteria(String code,String compte,String heure,String montant);
-    public List<BkEve> getBkEveByCriteriaMontant(String code,String compte,String montant);
-
-    public List<BkEve> getBkEveByPeriode(String code, String compte, Date date1, Date date2);
+    List<BkEve> getBkEvesByEtat(String etat, Date date);
+    List<BkEve> getBkEveMaxDate();
+    List<BkEve> getBkEveByDate(Date date);
+    List<BkEve> getBkEveBySendParam(boolean send);
+    Integer getMaxIndexBkEve();
+    Integer getMaxIndexBkEve(TypeEvent type);
+    List<BkEve> getBkEveByPeriode(Date d1, Date d2);
+    List<BkEve> getBkEveBySendParam(boolean send, List<String> list);
+    List<BkEve> getBkEveBySendParam(boolean send, List<String> list, TypeEvent type);
+    List<BkEve> getBkEveByCriteria(String code, String date, String compte);
+    List<BkEve> getBkEveByCriteria(String code, Date date, String compte);
+    List<BkEve> getBkEveByCriteria2(String code, Date date, String compte);
+    List<BkEve> getBkEveByCriteria(String code);
+    int supprimerParPeriode(String date1, String date2);
+    int supprimerParPeriode(Date date1, Date date2);
+    List<BkEve> getBkEveByCriteria(String date1, String date2);
+    List<BkEve> getBkEveByLimit(int limit);
+    List<BkEve> getBkEveByCriteria(String code, String compte, String heure, String montant);
+    List<BkEve> getBkEveByCriteriaMontant(String code, String compte, String montant);
+    List<BkEve> getBkEveByPeriode(String code, String compte, Date date1, Date date2);
     
 }

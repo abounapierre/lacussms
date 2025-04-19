@@ -45,7 +45,6 @@ public class MainMenuPanel extends JPanel {
         JXHyperlink rapportMandatBtn = createLink("Rapports Mandats", MessageMandatPanel.class);
         JXHyperlink commandBtn = createLink("Requêtes", CommandPanel.class);
         JXHyperlink serviceBtn = createLink("Services", ServiceOffertPanel.class);
-        //JXHyperlink programBtn = createLink("Prog. Mail");
         JXHyperlink programSmsBtn = createLink("Prog. SMS", SmsProgrammingPanel.class);
         JXHyperlink configReqBtn = createLink("Conf. req.", ParametreRequetePanel.class);
         JXHyperlink accueilBtn = createLink("Accueil", HomePanel.class);
@@ -88,8 +87,6 @@ public class MainMenuPanel extends JPanel {
         donneesPane.add(serviceBtn);
         donneesPane.add(formatMsgBtn);
         donneesPane.add(eveBtn);
-        //donneesPane.add(holidayBtn);
-        //donneesPane.add(programBtn);
         donneesPane.add(programSmsBtn);
         donneesPane.add(envoieMsgBtn);
         donneesPane.add(remoteBdBtn);
@@ -97,16 +94,13 @@ public class MainMenuPanel extends JPanel {
         donneesPane.add(urlParam);
 
         JXTaskPane comptePane = createTaskPane("Profil");
-        //donneesPane.add(typeMsgBtn);
         comptePane.setTitle("Profil");
         comptePane.add(licenceBtn);
         comptePane.add(userBtn);
 
         JXTaskPane rapportPane = createTaskPane("Rapports");
-        //rapportPane.add(rapportTypeBtn);
         rapportPane.add(rapportBtn);
         rapportPane.add(commandBtn);
-        //rapportPane.add(rapportMandatBtn);
 
         /* creation du menu */
         JXTaskPaneContainer menu = new JXTaskPaneContainer();

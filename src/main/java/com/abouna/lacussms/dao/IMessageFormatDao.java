@@ -17,6 +17,6 @@ import java.util.List;
  * @author SATELLITE
  */
 public interface IMessageFormatDao extends IDao<MessageFormat, Integer>{
-   public List<MessageFormat> getMessageFormatByOpe(BkOpe bkOpe);
-   public MessageFormat getMessageFormatByOpe(BkOpe bkOpe,String langue);
+   List<MessageFormat> getMessageFormatByOpe(BkOpe bkOpe);
+   MessageFormat getMessageFormatByOpe(BkOpe bkOpe, String langue);
 }

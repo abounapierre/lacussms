@@ -6,39 +6,30 @@
 package com.abouna.lacussms.views.main;
 
 
-import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.entities.BkCompCli;
 import com.abouna.lacussms.entities.Config;
-import com.abouna.lacussms.entities.Parametre;
 import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.DateSoldeDialog;
-import com.abouna.lacussms.views.tools.ConstantUtils;
-import com.abouna.lacussms.views.tools.Utils;
+import com.abouna.lacussms.views.tools.CSVFileImport;
 import com.abouna.lacussms.views.tools.XlsGenerator;
 import com.abouna.lacussms.views.utils.DialogUtils;
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.factories.ButtonBarFactory;
-import com.jgoodies.forms.layout.FormLayout;
-import org.jdesktop.swingx.JXDatePicker;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author Administrateur
  */
 public class HeaderMenu extends JMenuBar {
-
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MainFrame.class);
     private JMenu employe;
     private JMenuItem langue;
     private final LacusSmsService serviceManager;
@@ -79,8 +70,8 @@ public class HeaderMenu extends JMenuBar {
         JMenuItem typeRapport = new JMenuItem("Type de Rapports");
         JMenuItem rapport = new JMenuItem("Fichier de Banque");
         JMenuItem voirContact = new JMenuItem("Afficher");
-        JMenuItem importFichierClient = new JMenuItem("Import excel");
-        JMenuItem exportFichierClient = new JMenuItem("Export excel");
+        JMenuItem importFichierClient = new JMenuItem("Import csv");
+        JMenuItem exportFichierClient = new JMenuItem("Export csv");
         event = new JCheckBoxMenuItem("Evenement");
         bkmac = new JCheckBoxMenuItem("Crédit");
         bkmad = new JCheckBoxMenuItem("Mandat");
@@ -187,7 +178,6 @@ public class HeaderMenu extends JMenuBar {
 
         profil.add(licence);
         profil.add(user);
-        //rapports.add(typeRapport);
         rapports.add(rapport);
         contact.add(voirContact);
         
@@ -222,52 +212,41 @@ public class HeaderMenu extends JMenuBar {
                      App.appliRun = false;
                  }
                  MainFrame.main(new String[]{});
-                 /*try {
-                     MainFrame.main(null);
-                 } catch (IOException | ClassNotFoundException | SQLException ex) {
-                     Logger.getLogger(HeaderMenu.class.getName()).log(Level.SEVERE, null, ex);
-                 }*/
              }
         });
         
         voirContact.addActionListener((ActionEvent e) -> {
-            String msg = "";/*"ABOUNA PIERRE EMMANUEL Ingénieur de conception en Iformatique\n"
-            + " Option Génie Logiciel Tel: 698984176\n" +
-            "Email: abouna.emmanuel@yahoo.fr";*/
+            String msg = "";
             JOptionPane.showMessageDialog(HeaderMenu.this.getParent(),msg);
         });
         
         importFichierClient.addActionListener((ActionEvent e) -> {
             try {
-                File repertoireCourant = null;
+                File repertoireCourant;
                 repertoireCourant = new File(".").getCanonicalFile();
-                System.out.println("Répertoire courant : " + repertoireCourant);
+                logger.info("Répertoire courant : {}",repertoireCourant);
                 JFileChooser dialogue = new JFileChooser(repertoireCourant);
                 // affichage
                 dialogue.showOpenDialog(null);
                 // récupération du fichier sélectionné
                 if (dialogue.getSelectedFile() != null) {
-                    System.out.println("Fichier choisi : " + dialogue.getSelectedFile());
+                    logger.info("Fichier choisi : {}", dialogue.getSelectedFile());
                     final String chemein = dialogue.getSelectedFile().getPath();
                     final String extension = chemein.substring(chemein.lastIndexOf("."));
-                    System.out.println("L'extension est: " + extension);
-                    if (extension.equals(".xls") || extension.equals(".xlsx")) {
+                    logger.info("L'extension est: {}", extension);
+                    if (extension.equals(".csv")) {
                         Thread t = new Thread(() -> {
-                            String result = Utils.importExcel(chemein, extension, serviceManager);
-                            if (result.contentEquals("OK")) {
-                                JOptionPane.showMessageDialog(HeaderMenu.this.getParent(), "Importation réussie avec success!!", "OK", JOptionPane.INFORMATION_MESSAGE);
-                            } else {
-                                JOptionPane.showMessageDialog(HeaderMenu.this.getParent(), "Importation du fichier terminée avec les erreurs!!", "Error", JOptionPane.ERROR_MESSAGE);
-                            }
+                            CSVFileImport.parseFile(chemein);//Utils.importExcel(chemein, extension, serviceManager);
+                            JOptionPane.showMessageDialog(HeaderMenu.this.getParent(), "Importation réussie avec success!!", "OK", JOptionPane.INFORMATION_MESSAGE);
                         });
                         t.start();
-                        
                     } else {
                         JOptionPane.showMessageDialog(HeaderMenu.this.getParent(), "Fichier non valide");
                     }
                 }
             } catch (IOException ex) {
-                Logger.getLogger(HeaderMenu.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error("Erreur de chargement du fichier", ex);
+                JOptionPane.showMessageDialog(HeaderMenu.this.getParent(), "Importation du fichier terminée avec les erreurs!!", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
         
@@ -276,7 +255,7 @@ public class HeaderMenu extends JMenuBar {
             int val_retour = fc.showSaveDialog(employe);
             if (val_retour == JFileChooser.APPROVE_OPTION) {
                 File fichier = fc.getSelectedFile();
-                final String path = fichier.getAbsolutePath() + ".xls";
+                final String path = fichier.getAbsolutePath() + ".csv";
                 Thread t = new Thread(() -> {
                     List<BkCompCli> bkCompClis = serviceManager.getAllBkCompClis();
                     XlsGenerator xlsGenerator = new XlsGenerator(bkCompClis, path);
@@ -292,11 +271,11 @@ public class HeaderMenu extends JMenuBar {
                                 Desktop.getDesktop().open(pdfFile);
                             } else {
                                 JOptionPane.showMessageDialog(null,"Ce type de fichier n'est pas pris en charge");
-                                System.out.println("Awt Desktop is not supported!");
+                                logger.info("Awt Desktop is not supported!");
                             }
                         } else {
                             JOptionPane.showMessageDialog(null, "Ce fichier n'existe pas");
-                            System.out.println("File is not exists!");
+                            logger.info("File is not exists!");
                         }
                     } catch (IOException | HeadlessException ex) {
                         JOptionPane.showMessageDialog(HeaderMenu.this.getParent(), "error " + ex.getMessage());
@@ -306,7 +285,7 @@ public class HeaderMenu extends JMenuBar {
         });
         
         rapport.addActionListener((ActionEvent e) -> {
-            CbsFileDialog nouveau1 = null;
+            CbsFileDialog nouveau1;
             try {
                 nouveau1 = new CbsFileDialog();
                 nouveau1.setSize(375, 200);
@@ -316,7 +295,7 @@ public class HeaderMenu extends JMenuBar {
                 nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 nouveau1.setVisible(true);
             } catch (ParseException ex) {
-                Logger.getLogger(HeaderMenu.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error("Erreur de parsing", ex);
             }    
         });
         

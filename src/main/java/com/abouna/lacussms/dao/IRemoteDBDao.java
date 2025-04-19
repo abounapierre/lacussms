@@ -14,5 +14,5 @@ import com.abouna.lacussms.entities.RemoteDB;
  * @author SATELLITE
  */
 public interface IRemoteDBDao extends IDao<RemoteDB, Integer>{
-    public RemoteDB getDefaultRemoteDB(boolean b);
+    RemoteDB getDefaultRemoteDB(boolean b);
 }

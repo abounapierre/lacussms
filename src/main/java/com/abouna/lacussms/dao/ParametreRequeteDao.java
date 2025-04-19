@@ -17,6 +17,6 @@ import java.util.List;
  * @author SATELLITE
  */
 public interface ParametreRequeteDao extends IDao<ParametreRequete, Long>{
-    public List<ParametreRequete> getParametersByService(TypeService typeService);
-    public List<ParametreRequete> getParametersByService(String code,TypeService typeService);
+    List<ParametreRequete> getParametersByService(TypeService typeService);
+    List<ParametreRequete> getParametersByService(String code, TypeService typeService);
 }

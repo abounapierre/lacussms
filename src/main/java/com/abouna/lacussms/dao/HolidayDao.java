@@ -16,5 +16,5 @@ import java.util.List;
  * @author SATELLITE
  */
 public interface HolidayDao extends IDao<Holiday, Integer>{
-    public List<Holiday> getHolidaysByDate(String date);
+    List<Holiday> getHolidaysByDate(String date);
 }

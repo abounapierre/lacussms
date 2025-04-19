@@ -16,6 +16,6 @@ import java.util.List;
  * @author SATELLITE
  */
 public interface ServiceOffertDao extends IDao<ServiceOffert, Integer>{
-    public List<ServiceOffert> getServiceOfferts();
-    public ServiceOffert findServiceByCode(String code);
+    List<ServiceOffert> getServiceOfferts();
+    ServiceOffert findServiceByCode(String code);
 }

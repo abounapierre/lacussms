@@ -15,7 +15,6 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
@@ -29,11 +28,12 @@ import java.util.Objects;
 public class MainFrame extends JFrame {
     private static final Logger logger = LoggerFactory.getLogger(MainFrame.class);
     private Image img;
-    private final BottomPanel bottomPanel = new BottomPanel();
+    private final BottomPanel bottomPanel;
 
     public static Thread thread;
 
     public MainFrame(MainMenuPanel mainMenuPanel, LacusSmsService service, Environment env) throws IOException {
+        this.bottomPanel = new BottomPanel(env.getProperty("application.signature.text"));
         mainMenuPanel.setContent(new HomePanel());
         this.setTitle("LACUS SMS " + env.getProperty("application.version"));
         HeaderMenu menu = new HeaderMenu(service);
@@ -83,18 +83,21 @@ public class MainFrame extends JFrame {
 
 
     public static void main(String[] args) {
-        thread = new Thread(SplashScreen::new);
-        thread.start();
-        ApplicationConfig.setApplicationContext(new SpringApplicationBuilder(MainFrame.class).headless(false).run(args));
         try {
+            thread = new Thread(SplashScreen::new);
+            thread.start();
+            ApplicationConfig.setApplicationContext(new SpringApplicationBuilder(MainFrame.class).headless(false).run(args));
             App.initApp();
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Erreur de démarrage de l'application ");
-        } catch (ClassNotFoundException e) {
-            JOptionPane.showMessageDialog(null, "Erreur de démarrage de l'application fichier introuvable");
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erreur de démarrage de l'application problème de connexion à la base de données");
+        } catch (Exception e) {
+            logError(e);
         }
+    }
+
+    private static void logError(Exception e) {
+        String message = "Erreur de démarrage de l'application, plus de details dans le fichier de log";
+        logger.error(message, e);
+        JOptionPane.showMessageDialog(null, message);
+        thread.interrupt();
     }
 
 }

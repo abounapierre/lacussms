@@ -17,7 +17,7 @@ import java.util.List;
  * @author SATELLITE
  */
 public interface ICutOffDao extends IDao<CutOff, Integer>{
-    public List<CutOff> getCutOffs();
+    List<CutOff> getCutOffs();
     
-    public CutOff getLastCutOff(Date dateDebut);
+    CutOff getLastCutOff(Date dateDebut);
 }

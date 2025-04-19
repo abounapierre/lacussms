@@ -18,11 +18,11 @@ import java.util.List;
  * @author SATELLITE
  */
 public interface IBkCompCliDao extends IDao<BkCompCli, String>{
-    public List<BkCompCli> getBkCompCliByCli(BkCli cli) throws DataAccessException;
-    public List<BkCompCli> getBkCompCliByCli(BkCli cli,boolean actif) throws DataAccessException;
-    public List<BkCompCli> getBkCompCliByCli(BkCli cli,String compte,boolean actif) throws DataAccessException;
-    public BkCompCli getBkCompCliByCriteria(BkCli cli,String compte,boolean actif);
-    public List<BkCompCli> getBkCompCliByCli(String compte) throws DataAccessException;
-    public List<BkCompCli> getBkCompCliLimit(int limit) throws DataAccessException;
-    public BkCli getBkCli(String numc) throws DataAccessException;
+    List<BkCompCli> getBkCompCliByCli(BkCli cli) throws DataAccessException;
+    List<BkCompCli> getBkCompCliByCli(BkCli cli, boolean actif) throws DataAccessException;
+    List<BkCompCli> getBkCompCliByCli(BkCli cli, String compte, boolean actif) throws DataAccessException;
+    BkCompCli getBkCompCliByCriteria(BkCli cli, String compte, boolean actif);
+    List<BkCompCli> getBkCompCliByCli(String compte) throws DataAccessException;
+    List<BkCompCli> getBkCompCliLimit(int limit) throws DataAccessException;
+    BkCli getBkCli(String numc) throws DataAccessException;
 }

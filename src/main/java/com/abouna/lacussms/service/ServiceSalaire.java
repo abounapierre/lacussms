@@ -142,7 +142,7 @@ public class ServiceSalaire {
 
             });
         } else {
-            BottomPanel.settextLabel("Message non envoyé Problème de Licence veuillez contacter le fournieur 1.2.5 !!", Color.RED);
+            BottomPanel.settextLabel("Message non envoyé Problème de Licence veuillez contacter le fournieur !!", Color.RED);
         }
     }
 }

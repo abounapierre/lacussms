@@ -1,7 +1,6 @@
 package com.abouna.lacussms.service;
 
 import com.abouna.lacussms.entities.*;
-import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.views.tools.ConstantUtils;
 import com.abouna.lacussms.views.tools.Sender;
 import com.abouna.lacussms.views.main.BottomPanel;
@@ -40,10 +39,10 @@ private static final Logger logger = LoggerFactory.getLogger(ServiceRequete.clas
         String decryptedString = AES.decrypt(remoteDB.getPassword(), ConstantUtils.SECRET_KEY);
         Connection conn = DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
         List<Command> commands = serviceManager.getCommandByStatus(Status.PENDING);
-        String query = null;
+        String query;
         Iterator<Command> var7 = commands.iterator();
-
-        while(true) {
+        boolean running = true;
+        while(running) {
             while(var7.hasNext()) {
                 Command command = var7.next();
                 ServiceOffert ser;
@@ -53,30 +52,28 @@ private static final Logger logger = LoggerFactory.getLogger(ServiceRequete.clas
                         query = "SELECT b.SIN FROM BKCOM b WHERE b.NCP='" + command.getCompte() + "'";
                         System.err.println("Resquete " + query);
                         PreparedStatement ps = conn.prepareStatement(query);
-                        Throwable var28 = null;
+                        Throwable throwable = null;
 
                         String solde;
                         try {
                             ResultSet rs = ps.executeQuery();
-
                             for(solde = ""; rs.next(); solde = rs.getBigDecimal("SIN").toPlainString()) {
                             }
-                        } catch (Throwable var23) {
-                            var28 = var23;
-                            throw var23;
+                        } catch (Throwable throwable1) {
+                            throwable = throwable1;
+                            throw throwable1;
                         } finally {
                             if (ps != null) {
-                                if (var28 != null) {
+                                if (throwable != null) {
                                     try {
                                         ps.close();
                                     } catch (Throwable var22) {
-                                        var28.addSuppressed(var22);
+                                        throwable.addSuppressed(var22);
                                     }
                                 } else {
                                     ps.close();
                                 }
                             }
-
                         }
 
                         String msg = "Cher client au compte " + command.getCompte() + " votre solde est de " + solde + ".";
@@ -136,7 +133,7 @@ private static final Logger logger = LoggerFactory.getLogger(ServiceRequete.clas
                         Sender.send(urlParam, command.getPhone(), command.getMessage());
                         break;
                     case "METHO2":
-                        Sender.send(urlParam, "" + command.getPhone(), command.getMessage());
+                        Sender.send(urlParam, command.getPhone(), command.getMessage());
                 }
             } else {
                 msg = "Message non envoyé à.... " + command.getCompte() + " Problème de connexion internet!!";

@@ -17,5 +17,5 @@ import java.util.List;
  * @author SATELLITE
  */
 public interface IJobAccountDao extends IDao<JobAccount, Long>{
-    public List<JobAccount> getClientJobInfos(SmsScheduled smsScheduled);
+    List<JobAccount> getClientJobInfos(SmsScheduled smsScheduled);
 }

@@ -17,5 +17,5 @@ import java.util.List;
  * @author SATELLITE
  */
 public interface ISentMailDao extends IDao<SentMail, Integer>{
-    public List<SentMail> getMailByDate(Date d);
+    List<SentMail> getMailByDate(Date d);
 }

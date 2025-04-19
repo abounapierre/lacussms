@@ -13,6 +13,8 @@ import com.abouna.lacussms.entities.BkEve;
 import com.abouna.lacussms.entities.BkOpe;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.MainMenuPanel;
+import com.abouna.lacussms.views.utils.CustomTable;
+import com.abouna.lacussms.views.utils.CustomTableCellRenderer;
 import com.abouna.lacussms.views.utils.DialogUtils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
@@ -32,6 +34,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  *
@@ -42,6 +46,7 @@ public class BkEvePanel extends JPanel{
     private JTable table;
     private final MainMenuPanel parentPanel;
     private final LacusSmsService serviceManager;
+    private final CustomTableCellRenderer renderer = new CustomTableCellRenderer();
 
     public BkEvePanel() throws IOException{
         serviceManager = ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
@@ -138,22 +143,7 @@ public class BkEvePanel extends JPanel{
                 try {
                     val = searchField.getText().toUpperCase();
                     tableModel.setNumRows(0);
-                    List<BkEve> bkeveList = serviceManager.getBkEveByCriteria(val);
-                    bkeveList.forEach((a) -> {
-                        tableModel.addRow(new Object[]{
-                            a.getId(),
-                            a.getNumEve(),
-                            a.getCli() == null?"":a.getCli().getNom() + " " + a.getCli().getPrenom(),
-                            a.getOpe()==null?"":a.getOpe().getLib(),
-                            a.getCompte(),
-                            a.getMontant(),
-                            a.getEtat(),
-                            a.getBkAgence()==null?"":a.getBkAgence().getNoma(),
-                            a.getDVAB()==null?"":a.getDVAB(),
-                            a.getHsai(),
-                            a.isSent()
-                        });
-                    });
+                    addData(serviceManager.getBkEveByCriteria(val));
                 } catch (Exception ex) {
                     Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -162,35 +152,32 @@ public class BkEvePanel extends JPanel{
         contenu.add(BorderLayout.AFTER_LAST_LINE, bas);
         contenu.add(BorderLayout.BEFORE_FIRST_LINE, filtrePanel);
         tableModel = new DefaultTableModel(new Object[]{"Id","Code","Client", "Opération","Compte","Montant","Etat","Agence","Date","Heure","Traité?"}, 0);
-
-        table = new JTable(tableModel);
+        table = new CustomTable(tableModel, renderer);
         table.setBackground(Color.WHITE);
-        //table.setBackground(Color.LIGHT_GRAY);
-        //table.setFont(new Font("Comic Sans MS", 1, 14));
-        //table.setForeground(Color.MAGENTA);
-        //table.getColumnModel().getColumn(2).setPreferredWidth(280);
-        //table.removeColumn(table.getColumnModel().getColumn(0));
         contenu.add(BorderLayout.CENTER, new JScrollPane(table));
         add(BorderLayout.CENTER, contenu);
         try {
-            serviceManager.getBkEveByLimit(100).forEach((a) -> {
-                tableModel.addRow(new Object[]{
-                    a.getId(),
-                    a.getNumEve(),
-                    a.getCli() == null?"":a.getCli().getNom() + " " + a.getCli().getPrenom(),
-                    a.getOpe()==null?"":a.getOpe().getLib(),
-                    a.getCompte(),
-                    a.getMontant()==null?a.getMont():a.getMontant(),
-                    a.getEtat(),
-                    a.getBkAgence()==null?"":a.getBkAgence().getNoma(),
-                    a.getDVAB()==null?"":a.getDVAB(),
-                    a.getHsai(),
-                    a.isSent()
-                });
-            });
+            addData(serviceManager.getBkEveByLimit(100));
         } catch (Exception ex) {
             Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    private void addData(List<BkEve> bkeveList) {
+        renderer.setSelectedRows(IntStream.range(0, bkeveList.size()).filter(i -> !bkeveList.get(i).isSent()).boxed().collect(Collectors.toList()));
+        bkeveList.forEach((a) -> tableModel.addRow(new Object[]{
+            a.getId(),
+            a.getNumEve(),
+            a.getCli() == null ? "" : a.getCli().getNom() + " " + a.getCli().getPrenom(),
+            a.getOpe() == null ? "" : a.getOpe().getLib(),
+            a.getCompte(),
+            a.getMontant(),
+            a.getEtat(),
+            a.getBkAgence() == null ? "" : a.getBkAgence().getNoma(),
+            a.getDVAB() == null ? "" : a.getDVAB(),
+            a.getHsai(),
+            a.isSent()
+        }));
     }
 
     private class Nouveau extends JDialog {
@@ -201,7 +188,12 @@ public class BkEvePanel extends JPanel{
         private final JComboBox<BkCli> bkCliBox;
         private final JComboBox<BkAgence> bkAgenceBox;
         private final JTextField montText,codeText;
-        private int c = 0, rang =0,c1 = 0, rang1 =0,c2=0,rang2=0;
+        private int c = 0;
+        private int rang =0;
+        private int c1 = 0;
+        private int rang1 =0;
+        private final int c2=0;
+        private int rang2=0;
 
         public Nouveau(final BkEve bkeve) {
             setTitle("NOUVEL EVENEMENT");
@@ -292,20 +284,20 @@ public class BkEvePanel extends JPanel{
 
             okBtn.addActionListener(ae -> {
                 BkEve a = new BkEve();
-                 if (!compteText.getText().equals("")) {
+                 if (!compteText.getText().isEmpty()) {
                     a.setCompte(compteText.getText());
                 } else {
                     JOptionPane.showMessageDialog(BkEvePanel.this.getParent(), "Le compte est obligatoire");
                     return;
                 }
-                 if (!montText.getText().equals("")) {
+                 if (!montText.getText().isEmpty()) {
                     a.setMont(Double.parseDouble(montText.getText()));
                 } else {
                     JOptionPane.showMessageDialog(BkEvePanel.this.getParent(), "Le compte est obligatoire");
                     return;
                 }
 
-                if (!codeText.getText().equals("")) {
+                if (!codeText.getText().isEmpty()) {
                     a.setNumEve(codeText.getText());
                 } else {
                     JOptionPane.showMessageDialog(BkEvePanel.this.getParent(), "Le code est obligatoire");

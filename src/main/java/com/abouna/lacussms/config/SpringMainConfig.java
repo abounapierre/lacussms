@@ -6,7 +6,6 @@
 
 package com.abouna.lacussms.config;
 
-import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.views.main.LogFile;
 import com.abouna.lacussms.views.tools.ConstantUtils;
 import com.google.common.base.Preconditions;
@@ -15,7 +14,7 @@ import org.jasypt.encryption.StringEncryptor;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
@@ -29,7 +28,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
-import java.nio.file.FileSystems;
 import java.util.Properties;
 
 /**
@@ -101,11 +99,8 @@ public class SpringMainConfig {
     }
 
     @Bean("logPath")
-    public String logPath() {
-        String fileSeparator = FileSystems.getDefault().getSeparator();
-        return System.getProperty("user.home")
-                .concat(fileSeparator).concat(".lacuss")
-                .concat(fileSeparator).concat("lacuss-application.log");
+    public String logPath(@Value("${application.log.path}") String logPath) {
+        return logPath;
     }
 
     @Bean

@@ -15,5 +15,5 @@ import java.util.List;
  * @author ABOUNA
  */
 public interface IBkEtatOpDao extends IDao<BkEtatOp, Integer>{
-    public List<BkEtatOp> getListBkEtatOp(boolean actif);
+    List<BkEtatOp> getListBkEtatOp(boolean actif);
 }

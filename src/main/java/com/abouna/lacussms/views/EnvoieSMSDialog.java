@@ -21,6 +21,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -94,7 +95,7 @@ public class EnvoieSMSDialog extends JDialog {
                             UrlMessage urlMessage = serviceManager.getDefaultUrlMessage();
                             String urlText = urlMessage.getUrlValue();
                             String methode = urlMessage.getMethode();
-                            List<String> list = Utils.getNumFromExcel(chemein);
+                            List<String> list = new ArrayList<>();//Utils.getNumFromExcel(chemein);
                             assert list != null;
                             System.out.println("Taille: " + list.size());
                             if (Utils.checkLicence()) {

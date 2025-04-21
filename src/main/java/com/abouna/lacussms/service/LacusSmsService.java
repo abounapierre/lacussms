@@ -5,6 +5,7 @@
  */
 package com.abouna.lacussms.service;
 
+import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.dto.SmsScheduledDto;
 import com.abouna.lacussms.entities.*;
 
@@ -19,360 +20,364 @@ import java.util.concurrent.ExecutionException;
  */
 public interface LacusSmsService {
 
-    public MessageFormat enregistrer(MessageFormat mf);
+    static LacusSmsService getInstance() {
+        return ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
+    }
 
-    public List<MessageFormat> getAll();
+    MessageFormat enregistrer(MessageFormat mf);
 
-    public MessageFormat modifier(MessageFormat mf);
+    List<MessageFormat> getAll();
 
-    public void supprimerFormat(Integer id);
+    MessageFormat modifier(MessageFormat mf);
 
-    public MessageFormat getFormatById(Integer id);
+    void supprimerFormat(Integer id);
 
-    public List<MessageFormat> getFormatByBkOpe(BkOpe bkOpe);
+    MessageFormat getFormatById(Integer id);
 
-    public RemoteDB getDefaultRemoteDB(boolean b);
+    List<MessageFormat> getFormatByBkOpe(BkOpe bkOpe);
 
-    public Integer getMaxIndexBkEve();
+    RemoteDB getDefaultRemoteDB(boolean b);
 
-    public RemoteDB enregistrer(RemoteDB mf);
+    Integer getMaxIndexBkEve();
 
-    public List<RemoteDB> getAllRemoteDB();
+    RemoteDB enregistrer(RemoteDB mf);
 
-    public RemoteDB modifier(RemoteDB mf);
+    List<RemoteDB> getAllRemoteDB();
 
-    public void supprimerRemoteDB(Integer id);
+    RemoteDB modifier(RemoteDB mf);
 
-    public RemoteDB getRemoteDBById(Integer id);
+    void supprimerRemoteDB(Integer id);
 
-    public Message enregistrer(Message msg);
+    RemoteDB getRemoteDBById(Integer id);
 
-    public List<Message> getAllMessages();
+    Message enregistrer(Message msg);
 
-    public Message modifier(Message msg);
+    List<Message> getAllMessages();
 
-    public void supprimerMessage(Integer id);
+    Message modifier(Message msg);
 
-    public Message getMessageById(Integer id);
+    void supprimerMessage(Integer id);
 
-    public int supprimerToutMessage();
+    Message getMessageById(Integer id);
 
-    public UrlMessage enregistrer(UrlMessage url);
+    int supprimerToutMessage();
 
-    public List<UrlMessage> getAllUrlMessages();
+    UrlMessage enregistrer(UrlMessage url);
 
-    public UrlMessage modifier(UrlMessage url);
+    List<UrlMessage> getAllUrlMessages();
 
-    public void supprimerUrlMessage(Integer id);
+    UrlMessage modifier(UrlMessage url);
 
-    public UrlMessage getUrlMessageById(Integer id);
+    void supprimerUrlMessage(Integer id);
 
-    public UrlMessage getDefaultUrlMessage();
+    UrlMessage getUrlMessageById(Integer id);
 
-    public List<BkEtatOp> getListBkEtatOp(boolean actif);
+    UrlMessage getDefaultUrlMessage();
 
-    public BkEtatOp enregistrer(BkEtatOp etat);
+    List<BkEtatOp> getListBkEtatOp(boolean actif);
 
-    public List<BkEtatOp> getAllBkEtatOps();
+    BkEtatOp enregistrer(BkEtatOp etat);
 
-    public BkEtatOp modifier(BkEtatOp etat);
+    List<BkEtatOp> getAllBkEtatOps();
 
-    public void supprimerBkEtatOp(Integer id);
+    BkEtatOp modifier(BkEtatOp etat);
 
-    public BkEtatOp getBkEtatOpById(Integer id);
+    void supprimerBkEtatOp(Integer id);
 
-    public List<MessageFormat> getFormatByName(String val);
+    BkEtatOp getBkEtatOpById(Integer id);
 
-    public BkCli enregistrer(BkCli cli);
+    List<MessageFormat> getFormatByName(String val);
 
-    public List<BkCli> getAllCli();
+    BkCli enregistrer(BkCli cli);
 
-    public BkCli modifier(BkCli cli);
+    List<BkCli> getAllCli();
 
-    public void supprimerBkCli(String id);
+    BkCli modifier(BkCli cli);
 
-    public BkCli getBkCliById(String id);
+    void supprimerBkCli(String id);
 
-    public BkCli getBkCliByNumCompte(String compte);
+    BkCli getBkCliById(String id);
 
-    public BkEve enregistrer(BkEve eve);
+    BkCli getBkCliByNumCompte(String compte);
 
-    public List<BkEve> getAllBkEves();
+    BkEve enregistrer(BkEve eve);
 
-    public BkEve modifier(BkEve eve);
+    List<BkEve> getAllBkEves();
 
-    public void supprimerBkEve(Integer id);
+    BkEve modifier(BkEve eve);
 
-    public BkEve getBkEveById(Integer id);
+    void supprimerBkEve(Integer id);
 
-    public List<BkEve> getBkEveByEtat(String etat, Date date);
+    BkEve getBkEveById(Integer id);
 
-    public List<BkEve> getBkEveBySendParam(boolean send);
+    List<BkEve> getBkEveByEtat(String etat, Date date);
 
-    public int supprimerToutBkEve();
+    List<BkEve> getBkEveBySendParam(boolean send);
 
-    public BkOpe enregistrer(BkOpe ope);
+    int supprimerToutBkEve();
 
-    public List<BkOpe> getAllBkOpes();
+    BkOpe enregistrer(BkOpe ope);
 
-    public BkOpe modifier(BkOpe ope);
+    List<BkOpe> getAllBkOpes();
 
-    public void supprimerBkOpe(String id);
+    BkOpe modifier(BkOpe ope);
 
-    public BkOpe getBkOpeById(String id);
+    void supprimerBkOpe(String id);
 
-    public BkCompCli enregistrer(BkCompCli com);
+    BkOpe getBkOpeById(String id);
 
-    public List<BkCompCli> getAllBkCompClis();
+    BkCompCli enregistrer(BkCompCli com);
 
-    public BkCompCli modifier(BkCompCli com);
+    List<BkCompCli> getAllBkCompClis();
 
-    public void supprimerBkCompCli(String id);
+    BkCompCli modifier(BkCompCli com);
 
-    public BkCompCli getBkCompCliById(String id);
+    void supprimerBkCompCli(String id);
 
-    public List<BkCompCli> getBkCompCliByCli(BkCli cli);
+    BkCompCli getBkCompCliById(String id);
 
-    public List<BkCompCli> getBkCompCliByCli(BkCli cli, boolean actif);
+    List<BkCompCli> getBkCompCliByCli(BkCli cli);
 
-    public List<BkCompCli> getBkCompCliByCriteria(String cli);
+    List<BkCompCli> getBkCompCliByCli(BkCli cli, boolean actif);
 
-    public TypeMessage enregistrer(TypeMessage tm);
+    List<BkCompCli> getBkCompCliByCriteria(String cli);
 
-    public List<TypeMessage> getAllTypeMessages();
+    TypeMessage enregistrer(TypeMessage tm);
 
-    public TypeMessage modifier(TypeMessage tm);
+    List<TypeMessage> getAllTypeMessages();
 
-    public void supprimerTypeMessage(Integer id);
+    TypeMessage modifier(TypeMessage tm);
 
-    public TypeMessage getTypeMessageById(Integer id);
+    void supprimerTypeMessage(Integer id);
 
-    public User enregistrer(User u);
+    TypeMessage getTypeMessageById(Integer id);
 
-    public List<User> getAllUsers();
+    User enregistrer(User u);
 
-    public User modifier(User u);
+    List<User> getAllUsers();
 
-    public void supprimerUser(String id);
+    User modifier(User u);
 
-    public User getUserById(String id);
+    void supprimerUser(String id);
 
-    public BkAgence enregistrer(BkAgence a);
+    User getUserById(String id);
 
-    public List<BkAgence> getAllBkAgences();
+    BkAgence enregistrer(BkAgence a);
 
-    public BkAgence modifier(BkAgence a);
+    List<BkAgence> getAllBkAgences();
 
-    public void supprimerBkAgence(String id);
+    BkAgence modifier(BkAgence a);
 
-    public BkAgence getBkAgenceById(String id);
+    void supprimerBkAgence(String id);
 
-    public List<BkCli> getBkCliByName(String val);
+    BkAgence getBkAgenceById(String id);
 
-    public List<BkOpe> getBkOpeByName(String val);
+    List<BkCli> getBkCliByName(String val);
 
-    public List<BkEve> getBkEveByName(String val);
+    List<BkOpe> getBkOpeByName(String val);
 
-    public List<BkEve> getBkEveByDate(Date date);
+    List<BkEve> getBkEveByName(String val);
 
-    public List<BkEve> getBkEveMaxDate();
+    List<BkEve> getBkEveByDate(Date date);
 
-    public MessageFormat getFormatByBkOpe(BkOpe ope, String langue);
+    List<BkEve> getBkEveMaxDate();
 
-    public List<BkEve> getBkEveByPeriode(Date d1, Date d2);
+    MessageFormat getFormatByBkOpe(BkOpe ope, String langue);
 
-    public List<Message> getMessageFromPeriode(Date d1, Date d2);
+    List<BkEve> getBkEveByPeriode(Date d1, Date d2);
 
-    public List<Licence> getLicences();
+    List<Message> getMessageFromPeriode(Date d1, Date d2);
 
-    public Licence enregistrer(Licence licence);
+    List<Licence> getLicences();
 
-    public Licence modifier(Licence licence);
+    Licence enregistrer(Licence licence);
 
-    public List<BkTelCli> getListBkTelByCli(BkCli b);
+    Licence modifier(Licence licence);
 
-    public BkTelCli getListBkTelByCliDefault(BkCli b, boolean d);
+    List<BkTelCli> getListBkTelByCli(BkCli b);
 
-    public BkTelCli enregistrer(BkTelCli bkTelCli);
+    BkTelCli getListBkTelByCliDefault(BkCli b, boolean d);
 
-    public List<BkTelCli> getBkTelByClis();
+    BkTelCli enregistrer(BkTelCli bkTelCli);
 
-    public BkTelCli modifier(BkTelCli b);
+    List<BkTelCli> getBkTelByClis();
 
-    public void supprimer(Integer id);
+    BkTelCli modifier(BkTelCli b);
 
-    public BkTelCli getBkTelCliById(Integer i);
+    void supprimer(Integer id);
 
-    public Integer count(BkTelCli bkTelCli);
+    BkTelCli getBkTelCliById(Integer i);
 
-    public List<BkEve> getBkEveBySendParam(boolean b, List<String> listString);
+    Integer count(BkTelCli bkTelCli);
 
-    public List<BkCli> getBkCliByCriteria(String criteria);
+    List<BkEve> getBkEveBySendParam(boolean b, List<String> listString);
 
-    public List<BkEve> getBkEveByCriteria(String code, String date, String compte);
+    List<BkCli> getBkCliByCriteria(String criteria);
 
-    public List<BkEve> getBkEveByCriteria(String code);
+    List<BkEve> getBkEveByCriteria(String code, String date, String compte);
 
-    public int supprimerParPeriode(String date1, String date2);
+    List<BkEve> getBkEveByCriteria(String code);
 
-    public int supprimerParPeriode(Date date1, Date date2);
+    int supprimerParPeriode(String date1, String date2);
 
-    public List<BkCli> getBkCliLimit(int limit);
+    int supprimerParPeriode(Date date1, Date date2);
 
-    public List<BkCompCli> getBkCompCliLimit(int limit);
+    List<BkCli> getBkCliLimit(int limit);
 
-    public Integer getMaxIndexBkEve(TypeEvent type);
+    List<BkCompCli> getBkCompCliLimit(int limit);
 
-    public List<BkEve> getBkEveBySendParam(boolean send, List<String> list, TypeEvent type);
+    Integer getMaxIndexBkEve(TypeEvent type);
 
-    public List<BkCompCli> getBkCompCliByCli(BkCli cli, String compte, boolean actif);
+    List<BkEve> getBkEveBySendParam(boolean send, List<String> list, TypeEvent type);
 
-    public BkCompCli getBkCompCliByCriteria(BkCli cli, String compte, boolean actif);
+    List<BkCompCli> getBkCompCliByCli(BkCli cli, String compte, boolean actif);
 
-    public List<BkEve> getBkEveByCriteria(String code, Date date, String compte);
+    BkCompCli getBkCompCliByCriteria(BkCli cli, String compte, boolean actif);
+
+    List<BkEve> getBkEveByCriteria(String code, Date date, String compte);
     
-    public List<BkEve> getBkEveByPeriode(String code, String compte, Date date1, Date date2);
+    List<BkEve> getBkEveByPeriode(String code, String compte, Date date1, Date date2);
 
-    public List<BkMad> getBkMadsByPeriode(Date d1, Date d2);
+    List<BkMad> getBkMadsByPeriode(Date d1, Date d2);
 
-    public int supprimerBkMad(Date d1, Date d2);
+    int supprimerBkMad(Date d1, Date d2);
 
-    public List<BkMad> getbkMadsByCriteria(String val);
+    List<BkMad> getbkMadsByCriteria(String val);
 
-    public BkMad getBkMadByCriteria(String num, String ad1p, Date date);
+    BkMad getBkMadByCriteria(String num, String ad1p, Date date);
 
-    public Integer getMaxBkMad();
+    Integer getMaxBkMad();
 
-    public BkMad enregistrer(BkMad bkMad);
+    BkMad enregistrer(BkMad bkMad);
 
-    public List<BkMad> getAllBkMads();
+    List<BkMad> getAllBkMads();
 
-    public BkMad modifier(BkMad bkMad);
+    BkMad modifier(BkMad bkMad);
 
-    public void supprimerBkMad(Integer id);
+    void supprimerBkMad(Integer id);
 
-    public BkMad getBkMadById(Integer id);
+    BkMad getBkMadById(Integer id);
 
-    public void supprimerToutBkMad();
+    void supprimerToutBkMad();
 
-    public BkMad getBkMadByClesec(String num);
+    BkMad getBkMadByClesec(String num);
 
-    public List<BkMad> getBkMadByTraite();
+    List<BkMad> getBkMadByTraite();
 
-    public MessageMandat enregistrer(MessageMandat mes);
+    MessageMandat enregistrer(MessageMandat mes);
 
-    public List<MessageMandat> getAllMessageMandats();
+    List<MessageMandat> getAllMessageMandats();
 
-    public MessageMandat modifier(MessageMandat mes);
+    MessageMandat modifier(MessageMandat mes);
 
-    public void supprimerMessageMandat(Integer id);
+    void supprimerMessageMandat(Integer id);
 
-    public MessageMandat getMessageMandatById(Integer id);
+    MessageMandat getMessageMandatById(Integer id);
 
-    public List<MessageMandat> getMessageMandatFromPeriode(Date d1, Date d2);
+    List<MessageMandat> getMessageMandatFromPeriode(Date d1, Date d2);
 
-    public int supprimerTout();
+    int supprimerTout();
 
-    public List<BkMad> getBkMadByLimit(int limit);
+    List<BkMad> getBkMadByLimit(int limit);
 
-    public List<BkEve> getBkEveByLimit(int limit);
+    List<BkEve> getBkEveByLimit(int limit);
 
-    public List<BkEve> getBkEveByCriteria2(String code, Date date, String compte);
+    List<BkEve> getBkEveByCriteria2(String code, Date date, String compte);
 
-    public List<BkEve> getBkEveByCriteria(String code, String compte, String heure, String montant);
+    List<BkEve> getBkEveByCriteria(String code, String compte, String heure, String montant);
     
-     public List<BkEve> getBkEveByCriteriaMontant(String code, String compte, String montant);
+     List<BkEve> getBkEveByCriteriaMontant(String code, String compte, String montant);
     
-    public List<BkEve> getBkEveByCriteria(String code, String compte);
+    List<BkEve> getBkEveByCriteria(String code, String compte);
 
-    public List<SentMail> getMailByDate(Date d);
+    List<SentMail> getMailByDate(Date d);
 
-    public SentMail saveMail(SentMail mail);
+    SentMail saveMail(SentMail mail);
 
-    public List<SentMail> getAllEmails();
+    List<SentMail> getAllEmails();
 
-    public Config enregistrerConfig(Config c);
+    Config enregistrerConfig(Config c);
 
-    public Config modifierConfig(Config c);
+    Config modifierConfig(Config c);
 
-    public List<Config> getAllConfig();
+    List<Config> getAllConfig();
 
-    public boolean viderLicence();
+    boolean viderLicence();
     
-    public Holiday saveHoliday(Holiday holiday) throws ExecutionException;
+    Holiday saveHoliday(Holiday holiday) throws ExecutionException;
     
-    public void supprimerHoliday(Integer id);
+    void supprimerHoliday(Integer id);
     
-    public List<Holiday> getHolidays();
+    List<Holiday> getHolidays();
     
-    public Holiday getHolidayById(Integer id);
+    Holiday getHolidayById(Integer id);
     
-    public List<Holiday> getHolidaysByDate(String date);
+    List<Holiday> getHolidaysByDate(String date);
     
     //service des operations 
-    public Command enregistrer(Command cmd);
+    Command enregistrer(Command cmd);
 
-    public List<Command> getAllCommands();
+    List<Command> getAllCommands();
     
-     public List<Command> getAllCommands(Date date);
+     List<Command> getAllCommands(Date date);
      
-     public List<Command> getCommandByStatus(Status status);
+     List<Command> getCommandByStatus(Status status);
 
-    public Command modifier(Command cmd);
+    Command modifier(Command cmd);
 
-    public void supprimerCommand(Integer id);
+    void supprimerCommand(Integer id);
 
-    public Command getCommandById(Integer id);
+    Command getCommandById(Integer id);
     
-    public void serviceRequete();
+    void serviceRequete();
     
-    public List<ServiceOffert> getServiceOfferts();
+    List<ServiceOffert> getServiceOfferts();
     
-    public ServiceOffert findServiceByCode(String code);
+    ServiceOffert findServiceByCode(String code);
     
-    public ServiceOffert enregistrerService(ServiceOffert s);
+    ServiceOffert enregistrerService(ServiceOffert s);
     
-    public ServiceOffert modifierService(ServiceOffert s);
+    ServiceOffert modifierService(ServiceOffert s);
     
-    public void supprimerService(Integer id);
+    void supprimerService(Integer id);
 
-    public ServiceOffert getServiceById(Integer id);
+    ServiceOffert getServiceById(Integer id);
     
-    public ServiceOffert getServiceByCode(String id);
+    ServiceOffert getServiceByCode(String id);
     
-    public List<CutOff> getAllCutOffs();
+    List<CutOff> getAllCutOffs();
     
-    public List<CutOff> getCutOffs();
+    List<CutOff> getCutOffs();
     
-    public CutOff getLastCutOff(Date dateDebut);
+    CutOff getLastCutOff(Date dateDebut);
     
-    public CutOff getCutOffById(Integer id);
+    CutOff getCutOffById(Integer id);
     
-    public SmsProgramming save(SmsProgramming sms);
+    SmsProgramming save(SmsProgramming sms);
     
-    public SmsProgramming uodate(SmsProgramming sms);
+    SmsProgramming uodate(SmsProgramming sms);
     
-    public List<SmsProgramming> findAll();
+    List<SmsProgramming> findAll();
     
-    public List<SmsProgramming> findByDate(Date date);
+    List<SmsProgramming> findByDate(Date date);
 
-    public void enregistrerParametreRequete(Map<String, String> values,TypeService typeService);
+    void enregistrerParametreRequete(Map<String, String> values, TypeService typeService);
     
-    public List<ParametreRequete> getParametreRequetes(TypeService typeService);
+    List<ParametreRequete> getParametreRequetes(TypeService typeService);
     
-    public Map<String,String> getParametreRequeteValues(TypeService typeService);
+    Map<String,String> getParametreRequeteValues(TypeService typeService);
 
-    public SmsScheduled getSmsScheduledById(Long id);
+    SmsScheduled getSmsScheduledById(Long id);
 
-    public List<SmsScheduled> getAllSmsScheduleds();
+    List<SmsScheduled> getAllSmsScheduleds();
     
-    public List<SmsScheduledDto> getAllSmsScheduledDtos();
+    List<SmsScheduledDto> getAllSmsScheduledDtos();
 
-    public SmsScheduledDto getSmsScheduledDtoById(Long id);
+    SmsScheduledDto getSmsScheduledDtoById(Long id);
     
-    public Long saveSmsScheduled(SmsScheduledDto smsScheduledDto);
+    Long saveSmsScheduled(SmsScheduledDto smsScheduledDto);
     
-    public void updateQuartzId(SmsScheduled smsScheduled);
+    void updateQuartzId(SmsScheduled smsScheduled);
 
-    public Parametre enregistrerParametre(Parametre parametre);
+    Parametre enregistrerParametre(Parametre parametre);
 }

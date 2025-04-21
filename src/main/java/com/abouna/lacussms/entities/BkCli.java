@@ -8,6 +8,7 @@ package com.abouna.lacussms.entities;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  *
@@ -140,10 +141,7 @@ public class BkCli implements Serializable {
             return false;
         }
         final BkCli other = (BkCli) obj;
-        if ((this.code == null) ? (other.code != null) : !this.code.equals(other.code)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.code, other.code);
     }
 
     @Override

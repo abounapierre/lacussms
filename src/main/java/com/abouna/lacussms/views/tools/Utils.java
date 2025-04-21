@@ -1,8 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
-
 package com.abouna.lacussms.views.tools;
 
 import com.abouna.lacussms.config.ApplicationConfig;
@@ -13,13 +8,6 @@ import com.abouna.lacussms.views.main.LogFile;
 import com.abouna.lacussms.views.utils.LogParam;
 import org.apache.commons.net.ntp.NTPUDPClient;
 import org.apache.commons.net.ntp.TimeInfo;
-import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,168 +70,6 @@ public class Utils {
         return res.toString();
     }
 
-    public static List<String> getNumFromExcel(String path) {
-        List<String> list = new ArrayList<>();
-        FileInputStream fichier;
-
-        try {
-            fichier = new FileInputStream(path);
-            XSSFWorkbook wb = new XSSFWorkbook(fichier);
-            XSSFSheet sheet = wb.getSheetAt(0);
-            Iterator var5 = sheet.iterator();
-
-            while(true) {
-                String data;
-                label50:
-                do {
-                    for(; var5.hasNext(); list.add(data)) {
-                        Row ligne = (Row)var5.next();
-                        data = "";
-                        if (ligne.getCell(0) != null) {
-                            if (ligne.getCell(0).getCellType() == 0) {
-                                long c = (long)ligne.getCell(0).getNumericCellValue();
-                                data = Long.toString(c);
-                            } else if (ligne.getCell(0).getCellType() == 1) {
-                                data = ligne.getCell(0).getStringCellValue();
-                            }
-                        }
-
-                        if (data.length() != 8 && data.length() != 11) {
-                            continue label50;
-                        }
-
-                        if (!data.startsWith("241")) {
-                            data = "241" + data;
-                        }
-                    }
-
-                    return list;
-                } while(data.length() != 9 && data.length() != 12);
-
-                if (!data.startsWith("237")) {
-                    data = "237" + data;
-                }
-
-                list.add(data);
-            }
-        } catch (IOException var10) {
-            return null;
-        }
-    }
-
-    public static String importExcel(String path, String ext, LacusSmsService service) {
-        FileInputStream fichier = null;
-        boolean end = false;
-
-        String var6;
-        try {
-            fichier = new FileInputStream(path);
-            Workbook wb = WorkbookFactory.create(fichier);
-            DataFormatter objDefaultFormat = new DataFormatter();
-            FormulaEvaluator objFormulaEvaluator = null;
-            if (ext.equals(".xls")) {
-                objFormulaEvaluator = new HSSFFormulaEvaluator((HSSFWorkbook)wb);
-            } else if (ext.equals(".xlsx")) {
-                objFormulaEvaluator = new XSSFFormulaEvaluator((XSSFWorkbook)wb);
-            }
-
-            int i = 1;
-            Sheet sheet = wb.getSheetAt(0);
-
-            for (Row ligne : sheet) {
-                try {
-                    if (ligne.getRowNum() != 0 && objFormulaEvaluator != null) {
-                        Cell cellValue = ligne.getCell(0);
-                        ((FormulaEvaluator) objFormulaEvaluator).evaluate(cellValue);
-                        String cellValueStr = objDefaultFormat.formatCellValue(cellValue, (FormulaEvaluator) objFormulaEvaluator);
-                        BkCli bkCli = new BkCli();
-                        BkCompCli bkCompCli = new BkCompCli();
-                        bkCli.setNom(cellValueStr);
-                        cellValue = ligne.getCell(1);
-                        ((FormulaEvaluator) objFormulaEvaluator).evaluate(cellValue);
-                        cellValueStr = objDefaultFormat.formatCellValue(cellValue, (FormulaEvaluator) objFormulaEvaluator);
-                        bkCli.setPrenom(cellValueStr.toUpperCase());
-                        cellValue = ligne.getCell(2);
-                        ((FormulaEvaluator) objFormulaEvaluator).evaluate(cellValue);
-                        cellValueStr = objDefaultFormat.formatCellValue(cellValue, (FormulaEvaluator) objFormulaEvaluator);
-                        String id = "";
-                        String compte = cellValueStr.replace(" ", "").replace(".", "").replace(";", "").replace(",", "");
-                        id = compte.length() >= 9 ? compte.substring(3, 9) : compte;
-                        bkCli.setCode(id);
-                        cellValue = ligne.getCell(3);
-                        ((FormulaEvaluator) objFormulaEvaluator).evaluate(cellValue);
-                        cellValueStr = objDefaultFormat.formatCellValue(cellValue, (FormulaEvaluator) objFormulaEvaluator);
-                        long num = 0L;
-                        if (cellValueStr.length() == 9) {
-                            num = Long.parseLong("237" + cellValueStr);
-                        } else if (cellValueStr.length() == 8) {
-                            num = Long.parseLong("241" + cellValueStr);
-                        }
-
-                        bkCli.setPhone(num);
-                        cellValue = ligne.getCell(4);
-                        ((FormulaEvaluator) objFormulaEvaluator).evaluate(cellValue);
-                        cellValueStr = objDefaultFormat.formatCellValue(cellValue, (FormulaEvaluator) objFormulaEvaluator);
-                        bkCli.setEmail(cellValueStr);
-                        cellValue = ligne.getCell(5);
-                        ((FormulaEvaluator) objFormulaEvaluator).evaluate(cellValue);
-                        cellValueStr = objDefaultFormat.formatCellValue(cellValue, (FormulaEvaluator) objFormulaEvaluator);
-                        bkCli.setLangue(cellValueStr);
-                        bkCli.setEnabled(true);
-                        cellValue = ligne.getCell(6);
-                        ((FormulaEvaluator) objFormulaEvaluator).evaluate(cellValue);
-                        cellValueStr = objDefaultFormat.formatCellValue(cellValue, (FormulaEvaluator) objFormulaEvaluator);
-                        bkCli.setLibelle(cellValueStr);
-                        if (service.getBkCliById(id) == null) {
-                            service.enregistrer(bkCli);
-                        }
-
-                        bkCompCli.setCli(bkCli);
-                        bkCompCli.setNumc(compte.toUpperCase());
-                        bkCompCli.setEnabled(true);
-                        if (service.getBkCompCliById(compte) == null) {
-                            service.enregistrer(bkCompCli);
-                        }
-                    }
-
-                    ++i;
-                } catch (NumberFormatException var34) {
-                    logger.error("Format incorrect nouvelle version " + var34.getMessage());
-                    end = true;
-                }
-            }
-
-            String var40;
-            if (end) {
-                var40 = "KO";
-                return var40;
-            }
-
-            var40 = "OK";
-            return var40;
-        } catch (FileNotFoundException var35) {
-            logger.error("Fichier non trouvé");
-            var6 = var35.getMessage();
-        } catch (IOException var36) {
-            logger.error("Erreur lors de l'ouverture du fichier");
-            var6 = var36.getMessage();
-            return var6;
-        } catch (InvalidFormatException var37) {
-            logger.error("probleme de format de la cellule");
-            var6 = var37.getMessage();
-            return var6;
-        } finally {
-            try {
-                assert fichier != null;
-                fichier.close();
-            } catch (IOException var33) {
-                logger.error("Erreur lors de la fermeture du fichier");
-            }
-        }
-
-        return var6;
-    }
-
     public static boolean isCorrect(String text) {
         int a = 0;
         int b = 0;
@@ -255,7 +81,6 @@ public class Utils {
                 ++b;
             }
         }
-
         return a == b;
     }
 
@@ -276,7 +101,6 @@ public class Utils {
     }
 
     public static List<String> extract(String text) {
-
         List<String> list = new ArrayList<>();
 
         for(int i = 0; i < text.length(); ++i) {
@@ -289,7 +113,6 @@ public class Utils {
                 list.add(result.toString());
             }
         }
-
         return list;
     }
 
@@ -475,23 +298,6 @@ public class Utils {
         return rs.first();
     }
 
-    public static boolean existAndUsed(String lic, Connection conn) throws SQLException {
-        PreparedStatement pstmt = conn.prepareStatement("select * from licence where code=? and used=?");
-        pstmt.setString(1, lic);
-        pstmt.setBoolean(2, true);
-        ResultSet rs = pstmt.executeQuery();
-        return rs.first();
-    }
-
-    public static boolean updateLic(String lic, Connection conn) throws SQLException {
-       logger.info("Modification distante");
-        PreparedStatement pstmt = conn.prepareStatement("update licence set used=? where code=?");
-        pstmt.setString(2, lic);
-        pstmt.setBoolean(1, true);
-        int r = pstmt.executeUpdate();
-        return r > 0;
-    }
-
     public static Connection getConnection() throws ClassNotFoundException {
         Class.forName("com.mysql.jdbc.Driver");
         Connection conn;
@@ -647,9 +453,9 @@ public class Utils {
             RemoteDB remoteDB = serviceManager.getDefaultRemoteDB(true);
 
             if (remoteDB != null) {
-                logger.info("URL: " + remoteDB.getUrl());
-                logger.info("Username: " + remoteDB.getName());
-                logger.info("Password: " + remoteDB.getPassword());
+                logger.debug("URL: {}", remoteDB.getUrl());
+                logger.debug("Username: {}", remoteDB.getName());
+                logger.debug("Password: {}", remoteDB.getPassword());
                 decryptedString = AES.decrypt(remoteDB.getPassword(), secret);
                 return DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
             }

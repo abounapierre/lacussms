@@ -98,7 +98,7 @@ public class LicencePanel extends JDialog {
                                     serviceManager.getLicences().stream().peek((lic) -> lic.setValeur(nameText.getText())).peek((lic) -> System.out.println("Modification")).forEach(serviceManager::modifier);
                                 }
                                 Utils.ecrire("pid 1");
-                                Utils.updateLic(a.getValeur(), conn);
+                                //Utils.updateLic(a.getValeur(), conn);
                                 JOptionPane.showMessageDialog(null, "Success!");
                                 dispose();
                                 if (App.appliRun) {

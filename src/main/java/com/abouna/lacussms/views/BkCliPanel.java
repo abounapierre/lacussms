@@ -10,6 +10,9 @@ import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.entities.BkCli;
 import com.abouna.lacussms.entities.BkCompCli;
 import com.abouna.lacussms.service.LacusSmsService;
+import com.abouna.lacussms.views.compoents.LacusButton;
+import com.abouna.lacussms.views.compoents.LacusIcon;
+import com.abouna.lacussms.views.compoents.ImportClientComponent;
 import com.abouna.lacussms.views.main.MainMenuPanel;
 import com.abouna.lacussms.views.utils.DialogUtils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -17,13 +20,11 @@ import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
 import org.jdesktop.swingx.JXSearchField;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -52,14 +53,11 @@ public class BkCliPanel extends JPanel{
         contenu.setLayout(new BorderLayout());
         JPanel bas = new JPanel();
         bas.setLayout(new FlowLayout());
-        Image ajouImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Ajouter.png")));
-        Image supprImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Cancel2.png")));
-        Image modifImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/OK.png")));
-        JButton nouveau = new JButton(new ImageIcon(ajouImg));
+        JButton nouveau = new JButton(new LacusIcon("/images/Ajouter.png"));
         nouveau.setToolTipText("Ajouter un nouveau client");
-        JButton supprimer = new JButton(new ImageIcon(supprImg));
+        JButton supprimer = new JButton(new LacusIcon("/images/Cancel2.png"));
         supprimer.setToolTipText("Suprimer un client");
-        JButton modifier = new JButton(new ImageIcon(modifImg));
+        JButton modifier = new JButton(new LacusIcon("/images/OK.png"));
         modifier.setToolTipText("Modifier un client");
         JButton filtre = new JButton("Filtrer");
         nouveau.addActionListener(ae -> DialogUtils.initDialog(new Nouveau(null), BkCliPanel.this.getParent(), 400, 400));
@@ -97,6 +95,7 @@ public class BkCliPanel extends JPanel{
         bas.add(nouveau);
         bas.add(modifier);
         bas.add(supprimer);
+        bas.add(new LacusButton(new LacusIcon("/images/excel.PNG"), a -> new ImportClientComponent(this)));
         JPanel filtrePanel = new JPanel();
         filtrePanel.setLayout(new FlowLayout());
         final JXSearchField searchField = new JXSearchField("Rechercher");
@@ -105,7 +104,7 @@ public class BkCliPanel extends JPanel{
         filtrePanel.add(searchField);
          filtrePanel.setBackground(new Color(166, 202, 240));
         searchField.addActionListener(e -> {
-            String val = null;
+            String val;
             if (searchField.getText() != null) {
                 try {
                     val = searchField.getText().toUpperCase();
@@ -156,6 +155,7 @@ public class BkCliPanel extends JPanel{
             Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
 
     private class Nouveau extends JDialog {
 
@@ -228,7 +228,7 @@ public class BkCliPanel extends JPanel{
 
             okBtn.addActionListener(ae -> {
                 BkCli a = new BkCli();
-                 if (!codeText.getText().equals("")) {
+                 if (!codeText.getText().isEmpty()) {
                      if(codeText.getText().length()>9)
                         a.setCode(codeText.getText().substring(3, 9).toUpperCase());
                      else
@@ -236,12 +236,12 @@ public class BkCliPanel extends JPanel{
                 } else {
                     JOptionPane.showMessageDialog(BkCliPanel.this.getParent(), "Le nom est obligatoire");
                 }
-                if (!nameText.getText().equals("")) {
+                if (!nameText.getText().isEmpty()) {
                     a.setNom(nameText.getText().toUpperCase());
                 } else {
                     JOptionPane.showMessageDialog(BkCliPanel.this.getParent(), "Le nom est obligatoire");
                 }
-                if (!phoneText.getText().equals("")) {
+                if (!phoneText.getText().isEmpty()) {
                     a.setPhone(Long.parseLong(phoneText.getText()));
                 } else {
                     JOptionPane.showMessageDialog(BkCliPanel.this.getParent(), "Le téléphone est obligatoire");

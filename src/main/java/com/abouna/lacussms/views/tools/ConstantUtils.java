@@ -11,6 +11,9 @@ package com.abouna.lacussms.views.tools;
  * @author SATELLITE
  */
 public class ConstantUtils {
+    private ConstantUtils() {
+    }
+
     public static final String SECRET_KEY = "!LACUS@2017!";
     public static final String DATE_SOLDE = "DATE_ENVOIE_SOLDE";
     public static String LOGO_GENU = "/images/genu-logo.png";
@@ -20,11 +23,5 @@ public class ConstantUtils {
     public static final String POSTGRESQL_DRIVER_CLASS = "org.postgresql.Driver";
     public static final String H2_DRIVER_CLASS = "org.h2.Driver";
     public static final String MYSQL_DRIVER_CLASS = "com.mysql.jdbc.Driver";
-
-
-
-
-
-    private ConstantUtils() {
-    }
+    public static final int ACCOUNT_NUMBER_LENGTH = 9;
 }

@@ -153,27 +153,23 @@ public class BkCompCliPanel extends JPanel{
         filtrePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createRaisedBevelBorder(), "Zone de recherche"));
         filtrePanel.add(searchField);
          filtrePanel.setBackground(new Color(166, 202, 240));
-        searchField.addActionListener(new ActionListener() {
+        searchField.addActionListener(e -> {
+            String val = null;
+            if (searchField.getText() != null) {
+                try {
+                    val = searchField.getText().toUpperCase();
+                    tableModel.setNumRows(0);
+                    List<BkCompCli> bkCompCliList = serviceManager.getBkCompCliByCriteria(val);
+                    for (BkCompCli a : bkCompCliList) {
+                        tableModel.addRow(new Object[]{
+                            a.getNumc(),
+                            a.getCli()==null?"":a.getCli().getNom() + " " + a.getCli().getPrenom(),
+                            a.isEnabled()
+                        });
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String val = null;
-                if (searchField.getText() != null) {
-                    try {
-                        val = searchField.getText().toUpperCase();
-                        tableModel.setNumRows(0);
-                        List<BkCompCli> bkCompCliList = serviceManager.getBkCompCliByCriteria(val);
-                        for (BkCompCli a : bkCompCliList) {
-                            tableModel.addRow(new Object[]{
-                                a.getNumc(),
-                                a.getCli()==null?"":a.getCli().getNom() + " " + a.getCli().getPrenom(),
-                                a.isEnabled()
-                            });
-
-                        }
-                    } catch (Exception ex) {
-                        Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
                     }
+                } catch (Exception ex) {
+                    Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });

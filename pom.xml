@@ -3,8 +3,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.abouna</groupId>
-    <artifactId>smsbanking</artifactId>
-    <version>2.0</version>
+    <artifactId>lacussms</artifactId>
+    <version>3.1</version>
     <packaging>jar</packaging>
 
     <name>Lacus sms</name>
@@ -117,29 +117,9 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-            <version>3.9</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml-schemas</artifactId>
-            <version>3.9</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.xmlbeans</groupId>
-            <artifactId>xmlbeans</artifactId>
-            <version>2.3.0</version>
-        </dependency>
-        <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>${dbh2.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.45</version>
         </dependency>
         <dependency>
             <groupId>oracle</groupId>
@@ -190,11 +170,6 @@
             <groupId>com.jgoodies</groupId>
             <artifactId>jgoodies-looks</artifactId>
             <version>2.7.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>3.9</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>

@@ -46,7 +46,7 @@ public class MainFrame extends JFrame {
         }
         setIconImage(img);
         getContentPane().setLayout(new BorderLayout(10, 10));
-        getContentPane().add(getMainPanel(mainMenuPanel), BorderLayout.CENTER);
+        getContentPane().add(getMainPanel(mainMenuPanel, service), BorderLayout.CENTER);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
     }
 
@@ -69,9 +69,9 @@ public class MainFrame extends JFrame {
         this.getContentPane().add(panel, BorderLayout.CENTER);
     }
 
-    public final JPanel getMainPanel(MainMenuPanel mainMenuPanel) throws IOException {
+    public final JPanel getMainPanel(MainMenuPanel mainMenuPanel, LacusSmsService service) throws IOException {
         JPanel mainPanel = new JPanel();
-        HeaderPanel headerPanel = new HeaderPanel();
+        HeaderPanel headerPanel = new HeaderPanel(service);
         headerPanel.setBorder(BorderFactory.createEtchedBorder(Color.lightGray, Color.yellow));
         mainPanel.setLayout(new BorderLayout());
         mainPanel.add(headerPanel, BorderLayout.BEFORE_FIRST_LINE);

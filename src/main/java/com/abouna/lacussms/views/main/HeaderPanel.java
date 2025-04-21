@@ -2,6 +2,7 @@ package com.abouna.lacussms.views.main;
 
 
 import com.abouna.lacussms.main.App;
+import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.ContactPanel;
 import com.abouna.lacussms.views.tools.ConstantUtils;
 import com.abouna.lacussms.views.tools.Utils;
@@ -25,17 +26,17 @@ public  class HeaderPanel extends JPanel{
     private JButton stopBtn;
     private JButton runParaBtn;
     
-    public HeaderPanel() throws IOException{
+    public HeaderPanel(LacusSmsService service) throws IOException{
         setLayout(new FlowLayout(FlowLayout.LEFT,10,10));        
         setBackground(new Color(166, 202, 240));
         setBorder(BorderFactory.createRaisedSoftBevelBorder());
         JPanel pan = new JPanel(new FlowLayout(FlowLayout.RIGHT,10,10));
         pan.setBorder(new EmptyBorder(0, 0, 0, 10));
         setPreferredSize(new Dimension(400,65));
-        init();
+        init(service);
     }
     
-    protected final void init() throws IOException{
+    protected final void init(LacusSmsService service) throws IOException{
        ImageIcon img1 = new ImageIcon(ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/adherent.jpg"))));
        ImageIcon img2 = new ImageIcon(ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/icona.jpg"))));
        ImageIcon img3 = new ImageIcon(ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/run.JPG"))));
@@ -63,7 +64,7 @@ public  class HeaderPanel extends JPanel{
         //runParaBtn.setEnabled(false);
         
         runBtn.addActionListener((ActionEvent e) -> {
-            Connection connection = Utils.testConnexion(ConstantUtils.SECRET_KEY);
+            Connection connection = Utils.testConnexion(service, ConstantUtils.SECRET_KEY);
             if (connection != null) {
                 App.setConnexion(connection);
                 App.demarrerServiceSequenciel();
@@ -77,7 +78,7 @@ public  class HeaderPanel extends JPanel{
             }
        });       
          runParaBtn.addActionListener((ActionEvent e) -> {
-             Connection connection = Utils.testConnexion(ConstantUtils.SECRET_KEY);
+             Connection connection = Utils.testConnexion(service, ConstantUtils.SECRET_KEY);
              if(connection != null){
                  App.setConnexion(connection);
                  App.demarrerServiceData();

@@ -4,8 +4,6 @@ package com.abouna.lacussms.views.main;
 import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.ContactPanel;
-import com.abouna.lacussms.views.tools.ConstantUtils;
-import com.abouna.lacussms.views.tools.Utils;
 import org.jdesktop.swingx.JXButton;
 
 import javax.imageio.ImageIO;
@@ -14,7 +12,6 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.Objects;
 
 /**
@@ -58,39 +55,23 @@ public  class HeaderPanel extends JPanel{
         runParaBtn.setToolTipText("Démarrer le service SMS Parallèle");
         add(adBtn);
         add(cotBtn);
-        add(runBtn);
+        //add(runBtn);
         add(runParaBtn);
         add(stopBtn);
         //runParaBtn.setEnabled(false);
         
         runBtn.addActionListener((ActionEvent e) -> {
-            Connection connection = Utils.testConnexion(service, ConstantUtils.SECRET_KEY);
-            if (connection != null) {
-                App.setConnexion(connection);
-                App.demarrerServiceSequenciel();
-                //App.demarrerServiceRequete();
-                stopBtn.setEnabled(true);
-                runBtn.setEnabled(false);
-                runParaBtn.setEnabled(false);
-                JOptionPane.showMessageDialog(HeaderPanel.this.getParent(), "Le service a démarré avec succès");
-            } else {
-                JOptionPane.showMessageDialog(HeaderPanel.this.getParent(), "Erreur lors du démarrage du service, la connexion à la base de donnees n'est pas prête!!");
-            }
+            stopBtn.setEnabled(true);
+            runBtn.setEnabled(false);
+            runParaBtn.setEnabled(false);
+            JOptionPane.showMessageDialog(HeaderPanel.this.getParent(), "Le service a démarré avec succès");
        });       
          runParaBtn.addActionListener((ActionEvent e) -> {
-             Connection connection = Utils.testConnexion(service, ConstantUtils.SECRET_KEY);
-             if(connection != null){
-                 App.setConnexion(connection);
-                 App.demarrerServiceData();
-                 App.demarrerServiceSms();
-                 //App.demarrerServiceRequete();
-                 stopBtn.setEnabled(true);
-                 runBtn.setEnabled(false);
-                 runParaBtn.setEnabled(false);
-                 JOptionPane.showMessageDialog(HeaderPanel.this.getParent(), "Le service a démarré avec succès");
-             }else{
-                 JOptionPane.showMessageDialog(HeaderPanel.this.getParent(), "Erreur lors du démarrage du service, la connexion à la base de donnees n'est pas prête!!");
-             }
+             stopBtn.setEnabled(true);
+             runBtn.setEnabled(false);
+             runParaBtn.setEnabled(false);
+             App.start();
+             JOptionPane.showMessageDialog(HeaderPanel.this.getParent(), "Le service a démarré avec succès");
        });
        
         stopBtn.addActionListener((ActionEvent e) -> {

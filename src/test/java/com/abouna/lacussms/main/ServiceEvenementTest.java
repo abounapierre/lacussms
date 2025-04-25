@@ -7,6 +7,7 @@
 package com.abouna.lacussms.main;
 
 import com.abouna.lacussms.dao.IRemoteDBDao;
+import com.abouna.lacussms.dto.BkEtatOpConfigBean;
 import com.abouna.lacussms.entities.*;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.service.ServiceEvenement;
@@ -54,7 +55,7 @@ public class ServiceEvenementTest {
         remoteDB.setParDefault(true);
         remoteDB.setUrl("jdbc:h2:mem:testDb;DB_CLOSE_DELAY=-1");
         remoteDB.setPassword("");
-        serviceEvenement = new ServiceEvenement(serviceManager, "", Arrays.asList("OA", "OP"));
+        serviceEvenement = new ServiceEvenement(serviceManager, new BkEtatOpConfigBean(Arrays.asList("OA", "OP"), ""));
         serviceEvenement.setConn(conn);
     }
 

@@ -132,4 +132,9 @@ public class SpringMainConfig {
     public String messageConfigPath() {
         return env.getProperty("application.message.config.path");
     }
+
+    @Bean
+    public AppRunConfig getAppRunConfig() {
+        return new AppRunConfig(Boolean.FALSE, Boolean.FALSE);
+    }
 }

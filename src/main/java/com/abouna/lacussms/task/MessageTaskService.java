@@ -1,5 +1,6 @@
 package com.abouna.lacussms.task;
 
+import com.abouna.lacussms.config.AppRunConfig;
 import com.abouna.lacussms.entities.Config;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.service.ServiceCredit;
@@ -13,25 +14,30 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class MessageTaskService {
-    private static final Logger logger = LoggerFactory.getLogger(DataTaskService.class);
+    private static final Logger logger = LoggerFactory.getLogger(MessageTaskService.class);
     private final LacusSmsService lacusSmsService;
     private final ServiceEvenement serviceEvenement;
     private final ServiceSalaire serviceSalaire;
     private final ServiceCredit serviceCredit;
     private final ServiceMandat serviceMandat;
+    private final AppRunConfig appRunConfig;
 
-    public MessageTaskService(LacusSmsService lacusSmsService, ServiceEvenement serviceEvenement, ServiceSalaire serviceSalaire, ServiceCredit serviceCredit, ServiceMandat serviceMandat) {
+    public MessageTaskService(LacusSmsService lacusSmsService, ServiceEvenement serviceEvenement, ServiceSalaire serviceSalaire, ServiceCredit serviceCredit, ServiceMandat serviceMandat, AppRunConfig appRunConfig) {
         this.lacusSmsService = lacusSmsService;
         this.serviceEvenement = serviceEvenement;
         this.serviceSalaire = serviceSalaire;
         this.serviceCredit = serviceCredit;
         this.serviceMandat = serviceMandat;
+        this.appRunConfig = appRunConfig;
     }
 
 
-    @Scheduled(cron = "*/1 * * * * *")
+    @Scheduled(cron = "*/60 * * * * *")
     public void executeTask() {
-        executeMessageBash();
+        logger.info("Scheduled task executed service message: {}", appRunConfig.getMessageServiceEnabled());
+        if(appRunConfig.getMessageServiceEnabled()) {
+            executeMessageBash();
+        }
     }
 
     private void executeMessageBash() {

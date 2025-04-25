@@ -427,7 +427,7 @@ public class Utils {
     public static void initDriver() throws ClassNotFoundException {
         TimeZone timeZone = TimeZone.getTimeZone("GMT");
         TimeZone.setDefault(timeZone);
-        Class.forName("oracle.jdbc.OracleDriver");
+        Class.forName("oracle.jdbc.driver.OracleDriver");
     }
 
     public static boolean checkLicence() {
@@ -457,12 +457,13 @@ public class Utils {
                 logger.debug("Username: {}", remoteDB.getName());
                 logger.debug("Password: {}", remoteDB.getPassword());
                 decryptedString = AES.decrypt(remoteDB.getPassword(), secret);
+                logger.info("Password: {}, Username: {}, url {}", decryptedString, remoteDB.getName(), remoteDB.getUrl());
                 return DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
             }
 
             return null;
         } catch (ClassNotFoundException | SQLException | NullPointerException ex) {
-            logger.info("problème de connexion bd " + ex.getMessage());
+            logger.error("problème de connexion bd {}", ex.getMessage());
             return null;
         }
     }
@@ -598,21 +599,6 @@ public class Utils {
         }
     }
 
-    public static Connection initConnection(LacusSmsService service, String secret) throws SQLException, ClassNotFoundException {
-        try {
-            RemoteDB remoteDB = service.getDefaultRemoteDB(true);
-            if(remoteDB == null) {
-                return null;
-            }
-            logger.info("remote{}", remoteDB);
-            String decryptedString = AES.decrypt(remoteDB.getPassword(), secret);
-            initDriver();
-            return DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
-        } catch (Exception e) {
-            logger.error("Erreur de connexion à la base de données: {}", e.getMessage());
-            return null;
-        }
-    }
 
 
     public static String testPhone(String num) {

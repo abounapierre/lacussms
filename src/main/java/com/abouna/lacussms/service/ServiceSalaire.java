@@ -20,17 +20,13 @@ import java.util.List;
 public class ServiceSalaire {
     private static final Logger logger = LoggerFactory.getLogger(ServiceSalaire.class);
     private final LacusSmsService serviceManager;
-    private final String methode;
-    private final String urlParam;
     private Connection conn;
     private final List<String> listString;
     private final SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
     private final SimpleDateFormat format2 = new SimpleDateFormat("dd/MM/yyyy");
 
-    public ServiceSalaire(LacusSmsService serviceManager, String methode, String urlParam, List<String> listString) {
+    public ServiceSalaire(LacusSmsService serviceManager, List<String> listString) {
         this.serviceManager = serviceManager;
-        this.methode = methode;
-        this.urlParam = urlParam;
         this.listString = listString;
     }
 
@@ -99,7 +95,7 @@ public class ServiceSalaire {
             List<BkEve> list = serviceManager.getBkEveBySendParam(false, listString, TypeEvent.salaire);
             list.forEach((eve) -> {
                 BkCli bkCli = eve.getCli();
-                if (bkCli != null && eve.getOpe() != null && !"".equals(methode) && bkCli.isEnabled() && serviceManager.getBkCompCliByCriteria(bkCli, eve.getCompte(), true) != null && bkCli.getPhone() != 0L) {
+                if (bkCli != null && eve.getOpe() != null && bkCli.isEnabled() && serviceManager.getBkCompCliByCriteria(bkCli, eve.getCompte(), true) != null && bkCli.getPhone() != 0L) {
                     MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), bkCli.getLangue());
                     if (mf != null) {
                         String text = Utils.remplacerVariable(bkCli, eve.getOpe(), eve, mf);
@@ -111,12 +107,7 @@ public class ServiceSalaire {
                             msg = "Envoie du Message à.... " + eve.getCompte();
                             logger.info(msg);
                             BottomPanel.settextLabel(msg, Color.BLACK);
-                            switch (methode) {
-                                case "METHO1":
-                                case "METHO2":
-                                    Sender.send(urlParam, "" + bkCli.getPhone(), text);
-                                    break;
-                            }
+                            Sender.send(String.valueOf(bkCli.getPhone()), text);
                         } else {
                             msg = "Message non envoyé à.... " + eve.getCompte() + " Problème de connexion internet!!";
                             logger.info(msg);

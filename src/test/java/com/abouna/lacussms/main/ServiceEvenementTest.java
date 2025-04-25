@@ -54,18 +54,12 @@ public class ServiceEvenementTest {
         remoteDB.setParDefault(true);
         remoteDB.setUrl("jdbc:h2:mem:testDb;DB_CLOSE_DELAY=-1");
         remoteDB.setPassword("");
-
-        serviceEvenement = new ServiceEvenement(serviceManager, "METHODE1", remoteDB.getUrl(), conn, "", Arrays.asList("OA", "OP"));
-        
-        //ReflectionTestUtils.setField(ServiceEvenement.class, "serviceManager", serviceManager);
-        //ReflectionTestUtils.setField(App.class, "remoteDB", remoteDB);
-        //ReflectionTestUtils.setField(ServiceEvenement.class, "conn", conn);
-
+        serviceEvenement = new ServiceEvenement(serviceManager, "", Arrays.asList("OA", "OP"));
+        serviceEvenement.setConn(conn);
     }
 
     @Test
     public void testServiceEvenementCompteurNonNUll() throws SQLException, ParseException{
-        //new App();
         BkEve eve = new BkEve();
         eve.setCompte("14554524545545");
         eve.setDCO(new Date());
@@ -94,15 +88,6 @@ public class ServiceEvenementTest {
         mapClient.put(RequeteClient.NOM_TABLE.name(), "BKTELCLI");
         mapClient.put(RequeteClient.NUMERO_TELEPHONE.name(), "NUM");
         mapClient.put(RequeteClient.TYPE_CLIENT.name(), "TYP");
-        
-        //PreparedStatement prepStmt = EasyMock.createMock(PreparedStatement.class);
-        //ResultSet rs = EasyMock.createMock(ResultSet.class);
-
-        //EasyMock.expect(conn.prepareStatement(EasyMock.isA(String.class))).andReturn(prepStmt);
-        //EasyMock.expect(prepStmt.executeQuery()).andReturn(rs);
-        //EasyMock.expect(rs.next()).andReturn(true);
-        //EasyMock.replay(conn);
-        
         
         EasyMock.expect(serviceManager.getMaxIndexBkEve(TypeEvent.ordinaire)).andReturn(compteur);
         EasyMock.expect(serviceManager.getBkEveById(compteur)).andReturn(eve);
@@ -154,15 +139,6 @@ public class ServiceEvenementTest {
         mapClient.put(RequeteClient.NOM_TABLE.name(), "BKTELCLI");
         mapClient.put(RequeteClient.NUMERO_TELEPHONE.name(), "NUM");
         mapClient.put(RequeteClient.TYPE_CLIENT.name(), "TYP");
-
-        //PreparedStatement prepStmt = EasyMock.createMock(PreparedStatement.class);
-        //ResultSet rs = EasyMock.createMock(ResultSet.class);
-
-        //EasyMock.expect(conn.prepareStatement(EasyMock.isA(String.class))).andReturn(prepStmt);
-        //EasyMock.expect(prepStmt.executeQuery()).andReturn(rs);
-        //EasyMock.expect(rs.next()).andReturn(true);
-        //EasyMock.replay(conn);
-
 
         EasyMock.expect(serviceManager.getMaxIndexBkEve(TypeEvent.ordinaire)).andReturn(compteur);
         EasyMock.expect(serviceManager.getBkEveById(compteur)).andReturn(eve);

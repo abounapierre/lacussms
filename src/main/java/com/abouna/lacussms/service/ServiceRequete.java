@@ -19,16 +19,11 @@ import java.util.List;
 
 public class ServiceRequete {
 private final LacusSmsService serviceManager;
-private final String methode;
-
-private final String urlParam;
 
 private static final Logger logger = LoggerFactory.getLogger(ServiceRequete.class);
 
-    public ServiceRequete(LacusSmsService serviceManager, String methode, String urlParam) {
+    public ServiceRequete(LacusSmsService serviceManager) {
         this.serviceManager = serviceManager;
-        this.methode = methode;
-        this.urlParam = urlParam;
     }
 
     public void serviceRequete() throws SQLException, ParseException {
@@ -128,13 +123,7 @@ private static final Logger logger = LoggerFactory.getLogger(ServiceRequete.clas
             BottomPanel.settextLabel("Test connexion ...." + res, Color.BLACK);
             if (res.equals("OK")) {
                 BottomPanel.settextLabel("Envoie du Message à.... " + command.getCompte(), Color.BLACK);
-                switch (methode) {
-                    case "METHO1":
-                        Sender.send(urlParam, command.getPhone(), command.getMessage());
-                        break;
-                    case "METHO2":
-                        Sender.send(urlParam, command.getPhone(), command.getMessage());
-                }
+                Sender.send(command.getPhone(), command.getMessage());
             } else {
                 msg = "Message non envoyé à.... " + command.getCompte() + " Problème de connexion internet!!";
                 logger.info(msg);

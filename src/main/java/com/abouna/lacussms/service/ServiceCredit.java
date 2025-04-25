@@ -20,9 +20,6 @@ import java.util.List;
 public class ServiceCredit {
     private static final Logger logger = LoggerFactory.getLogger(ServiceCredit.class);
     private final LacusSmsService serviceManager;
-    private final String methode;
-
-    private final String urlParam;
 
     private Connection conn;
 
@@ -30,10 +27,8 @@ public class ServiceCredit {
 
     private final List<String> listString;
 
-    public ServiceCredit(LacusSmsService serviceManager, String methode, String urlParam, List<String> listString) {
+    public ServiceCredit(LacusSmsService serviceManager, List<String> listString) {
         this.serviceManager = serviceManager;
-        this.methode = methode;
-        this.urlParam = urlParam;
         this.listString = listString;
     }
 
@@ -148,53 +143,40 @@ public class ServiceCredit {
     }
 
     public void envoieSMSCredit() {
-        if (Utils.checkLicence()) {
-            List<BkEve> list = serviceManager.getBkEveBySendParam(false, listString, TypeEvent.credit);
-            list.forEach((eve) -> {
-                BkCli bkCli = eve.getCli();
-                if (bkCli != null && eve.getOpe() != null && !"".equals(methode) && bkCli.isEnabled() && serviceManager.getBkCompCliByCriteria(bkCli, eve.getCompte(), true) != null && bkCli.getPhone() != 0L) {
-                    MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), bkCli.getLangue());
-                    if (mf != null) {
-                        String text = Utils.remplacerVariable(bkCli, eve.getOpe(), eve, mf);
-                        String res = Utils.testConnexionInternet();
-                        BottomPanel.settextLabel("Test connexion ...." + res, Color.BLACK);
-                        if (res.equals("OK")) {
-                            BottomPanel.settextLabel("Envoie du Message à.... " + eve.getCompte(), Color.BLACK);
-                            switch (methode) {
-                                case "METHO1":
-                                case "METHO2":
-                                    Sender.send(urlParam, "" + bkCli.getPhone(), text);
-                                    break;
-                            }
-                        } else {
-                            String msg1 = "Message non envoyé à.... " + eve.getCompte() + " Problème de connexion internet!!";
-                            logger.info(msg1);
-                            BottomPanel.settextLabel(msg1, Color.RED);
-                        }
-
-                        Message message = new Message();
-                        message.setTitle(eve.getOpe().getLib());
-                        message.setContent(text);
-                        message.setBkEve(eve);
-                        message.setSendDate(new Date());
-                        message.setNumero(Long.toString(bkCli.getPhone()));
-                        if (res.equals("OK")) {
-                            serviceManager.enregistrer(message);
-                            eve.setSent(true);
-                            serviceManager.modifier(eve);
-                            String msg = "OK Message envoyé ";
-                            logger.info(msg);
-                            BottomPanel.settextLabel(msg, Color.BLACK);
-                        }
+        List<BkEve> list = serviceManager.getBkEveBySendParam(false, listString, TypeEvent.credit);
+        list.forEach((eve) -> {
+            BkCli bkCli = eve.getCli();
+            if (bkCli != null && eve.getOpe() != null && bkCli.isEnabled() && serviceManager.getBkCompCliByCriteria(bkCli, eve.getCompte(), true) != null && bkCli.getPhone() != 0L) {
+                MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), bkCli.getLangue());
+                if (mf != null) {
+                    String text = Utils.remplacerVariable(bkCli, eve.getOpe(), eve, mf);
+                    String res = Utils.testConnexionInternet();
+                    BottomPanel.settextLabel("Test connexion ...." + res, Color.BLACK);
+                    if (res.equals("OK")) {
+                        BottomPanel.settextLabel("Envoie du Message à.... " + eve.getCompte(), Color.BLACK);
+                        Sender.send(String.valueOf(bkCli.getPhone()) , text);
+                    } else {
+                        String msg1 = "Message non envoyé à.... " + eve.getCompte() + " Problème de connexion internet!!";
+                        logger.info(msg1);
+                        BottomPanel.settextLabel(msg1, Color.RED);
+                    }
+                    Message message = new Message();
+                    message.setTitle(eve.getOpe().getLib());
+                    message.setContent(text);
+                    message.setBkEve(eve);
+                    message.setSendDate(new Date());
+                    message.setNumero(Long.toString(bkCli.getPhone()));
+                    if (res.equals("OK")) {
+                        serviceManager.enregistrer(message);
+                        eve.setSent(true);
+                        serviceManager.modifier(eve);
+                        String msg = "OK Message envoyé ";
+                        logger.info(msg);
+                        BottomPanel.settextLabel(msg, Color.BLACK);
                     }
                 }
+            }
 
-            });
-        } else {
-            String msg = "Message non envoyé Problème de Licence veuillez contacter le fournieur 2.0 !!";
-            logger.info(msg);
-            BottomPanel.settextLabel(msg, Color.RED);
-        }
-
+        });
     }
 }

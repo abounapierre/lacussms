@@ -24,7 +24,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
@@ -32,6 +31,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+
+import static com.abouna.lacussms.views.tools.ConstantUtils.ROOT_LACUS_PATH;
 
 /**
  *
@@ -85,7 +86,7 @@ public class Tache {
     @Scheduled(cron = "*/1 * * * * *")
     public void logTask() {
         try {
-            String file = Paths.get(".").toAbsolutePath().getParent().getParent().toString() + File.separator + path;
+            String file = ROOT_LACUS_PATH + File.separator + path;
             BufferedReader reader = new BufferedReader(new FileReader(file));
             logBean.setLog(reader.lines().collect(Collectors.joining("\n")));
         } catch (IOException e) {
@@ -118,7 +119,7 @@ public class Tache {
     private String getKey() {
         String keyPath = env.getProperty("application.key.path");
         try {
-            String filePath = Paths.get(".").toAbsolutePath().getParent().getParent().toString() + File.separator + keyPath;
+            String filePath = ROOT_LACUS_PATH + File.separator + keyPath;
             BufferedReader reader = new BufferedReader(new FileReader(filePath));
             String key = reader.lines().collect(Collectors.joining("\n"));
             String temp = new String(Base64.getDecoder().decode(key));

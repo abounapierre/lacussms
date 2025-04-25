@@ -6,13 +6,11 @@
 package com.abouna.lacussms.views.main;
 
 
-import com.abouna.lacussms.entities.BkCompCli;
 import com.abouna.lacussms.entities.Config;
 import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.DateSoldeDialog;
 import com.abouna.lacussms.views.tools.CSVFileImport;
-import com.abouna.lacussms.views.tools.XlsGenerator;
 import com.abouna.lacussms.views.utils.DialogUtils;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +20,6 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.List;
 
 /**
  *
@@ -256,11 +253,6 @@ public class HeaderMenu extends JMenuBar {
             if (val_retour == JFileChooser.APPROVE_OPTION) {
                 File fichier = fc.getSelectedFile();
                 final String path = fichier.getAbsolutePath() + ".csv";
-                Thread t = new Thread(() -> {
-                    List<BkCompCli> bkCompClis = serviceManager.getAllBkCompClis();
-                    XlsGenerator xlsGenerator = new XlsGenerator(bkCompClis, path);
-                });
-                t.start();
                 int response = JOptionPane.showConfirmDialog(null, "<html>Rapport généré avec success!!<br>Voulez vous l'ouvrir?", "Confirmation",
                         JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
                 if (response == JOptionPane.YES_OPTION) {

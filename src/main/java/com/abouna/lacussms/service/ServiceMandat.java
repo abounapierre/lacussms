@@ -20,17 +20,13 @@ import java.util.List;
 public class ServiceMandat {
     private static final Logger logger = LoggerFactory.getLogger(ServiceMandat.class);
     private final LacusSmsService serviceManager;
-    private final String methode;
-    private final String urlParam;
     private Connection conn;
     private final SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
     private final SimpleDateFormat format2 = new SimpleDateFormat("dd/MM/yyyy");
 
 
-    public ServiceMandat(LacusSmsService serviceManager, String methode, String urlParam) {
+    public ServiceMandat(LacusSmsService serviceManager) {
         this.serviceManager = serviceManager;
-        this.methode = methode;
-        this.urlParam = urlParam;
     }
 
     public void setConn(Connection conn) {
@@ -117,74 +113,58 @@ public class ServiceMandat {
         msg = "Debut envoie de message";
         logger.info(msg);
         BottomPanel.settextLabel(msg, Color.BLACK);
-        if (Utils.checkLicence()) {
-            List<BkMad> list = serviceManager.getBkMadByTraite();
+        List<BkMad> list = serviceManager.getBkMadByTraite();
 
-            for (BkMad eve : list) {
-                if (Utils.testPhone(eve.getAd1p()) != null && Utils.testPhone(eve.getAd2p()) != null && eve.getOpe() != null && !"".equals(methode)) {
-                    MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), "FR");
-                    if (mf != null) {
-                        String text = Utils.remplacerVariable(eve, mf);
-                        String res = Utils.testConnexionInternet();
-                        BottomPanel.settextLabel("Test connexion ...." + res, Color.BLACK);
-                        if (res.equals("OK")) {
-                            if (eve.getTraite() == 0) {
-                                BottomPanel.settextLabel("Envoie du Message à.... " + eve.getAd2p(), Color.BLACK);
-                                switch (methode) {
-                                    case "METHO1":
-                                    case "METHO2":
-                                        Sender.send(urlParam, eve.getAd2p(), text);
-                                        break;
-                                }
-                            } else if (eve.getTraite() == 1) {
-                                mf = serviceManager.getFormatByBkOpe(serviceManager.getBkOpeById("100"), "FR");
-                                if (mf != null) {
-                                    text = Utils.remplacerVariable(eve, mf);
-                                    bon = true;
-                                    BottomPanel.settextLabel("Envoie du Message à.... " + eve.getAd1p(), Color.BLACK);
-                                    switch (methode) {
-                                        case "METHO1":
-                                        case "METHO2":
-                                            Sender.send(urlParam, eve.getAd1p(), text);
-                                            break;
-                                    }
-                                }
+        for (BkMad eve : list) {
+            if (Utils.testPhone(eve.getAd1p()) != null && Utils.testPhone(eve.getAd2p()) != null && eve.getOpe() != null) {
+                MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), "FR");
+                if (mf != null) {
+                    String text = Utils.remplacerVariable(eve, mf);
+                    String res = Utils.testConnexionInternet();
+                    BottomPanel.settextLabel("Test connexion ...." + res, Color.BLACK);
+                    if (res.equals("OK")) {
+                        if (eve.getTraite() == 0) {
+                            BottomPanel.settextLabel("Envoie du Message à.... " + eve.getAd2p(), Color.BLACK);
+                            Sender.send(eve.getAd2p(), text);
+                        } else if (eve.getTraite() == 1) {
+                            mf = serviceManager.getFormatByBkOpe(serviceManager.getBkOpeById("100"), "FR");
+                            if (mf != null) {
+                                text = Utils.remplacerVariable(eve, mf);
+                                bon = true;
+                                BottomPanel.settextLabel("Envoie du Message à.... " + eve.getAd1p(), Color.BLACK);
+                                Sender.send(eve.getAd1p(), text);
                             }
-                        } else {
-                            msg = "Message non envoyé problème de connexion internet!!";
-                            logger.info(msg);
-                            BottomPanel.settextLabel(msg, Color.RED);
+                        }
+                    } else {
+                        msg = "Message non envoyé problème de connexion internet!!";
+                        logger.info(msg);
+                        BottomPanel.settextLabel(msg, Color.RED);
+                    }
+
+                    MessageMandat message = new MessageMandat();
+                    message.setTitle(eve.getOpe().getLib());
+                    message.setContent(text);
+                    message.setBkMad(eve);
+                    message.setSendDate(new Date());
+                    if (res.equals("OK")) {
+                        if (eve.getTraite() == 0) {
+                            eve.setTraite(1);
+                            message.setNumero(eve.getAd2p());
+                            serviceManager.enregistrer(message);
+                        } else if (eve.getTraite() == 1 && bon) {
+                            eve.setTraite(2);
+                            eve.setSent(true);
+                            message.setNumero(eve.getAd1p());
+                            serviceManager.enregistrer(message);
                         }
 
-                        MessageMandat message = new MessageMandat();
-                        message.setTitle(eve.getOpe().getLib());
-                        message.setContent(text);
-                        message.setBkMad(eve);
-                        message.setSendDate(new Date());
-                        if (res.equals("OK")) {
-                            if (eve.getTraite() == 0) {
-                                eve.setTraite(1);
-                                message.setNumero(eve.getAd2p());
-                                serviceManager.enregistrer(message);
-                            } else if (eve.getTraite() == 1 && bon) {
-                                eve.setTraite(2);
-                                eve.setSent(true);
-                                message.setNumero(eve.getAd1p());
-                                serviceManager.enregistrer(message);
-                            }
-
-                            serviceManager.modifier(eve);
-                            msg = "OK Message envoyé ";
-                            logger.info(msg);
-                            BottomPanel.settextLabel(msg, Color.BLACK);
-                        }
+                        serviceManager.modifier(eve);
+                        msg = "OK Message envoyé ";
+                        logger.info(msg);
+                        BottomPanel.settextLabel(msg, Color.BLACK);
                     }
                 }
             }
-        } else {
-            msg = "Message non envoyé Problème de Licence veuillez contacter le fournieur 2.0 !!";
-            BottomPanel.settextLabel(msg, Color.RED);
         }
-
     }
 }

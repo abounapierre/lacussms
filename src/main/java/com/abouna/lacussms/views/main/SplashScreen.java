@@ -10,7 +10,7 @@ import java.awt.event.ActionListener;
 
 public class SplashScreen extends JWindow {
     private static final JProgressBar progressBar = new JProgressBar();
-    private static SplashScreen execute;
+    public static SplashScreen execute;
     private static int count;
     private static Timer timer;
 

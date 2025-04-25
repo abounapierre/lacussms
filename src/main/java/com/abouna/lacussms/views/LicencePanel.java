@@ -79,7 +79,7 @@ public class LicencePanel extends JDialog {
                 Licence a = new Licence();
                 BottomPanel.settextLabel("Etablissement de la connexion sur le serveur...", java.awt.Color.BLACK);
                 Connection conn = Utils.getConnection();
-                if (!nameText.getText().equals("")) {
+                if (!nameText.getText().isEmpty()) {
                     a.setValeur(nameText.getText());
                 } else {
                     JOptionPane.showMessageDialog(null, "La licence est obligatoire");

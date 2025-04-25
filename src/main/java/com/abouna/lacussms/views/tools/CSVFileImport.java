@@ -1,6 +1,6 @@
 package com.abouna.lacussms.views.tools;
 
-import com.abouna.lacussms.dto.AccountCSVModel;
+import com.abouna.lacussms.dto.ClientCSV;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -9,14 +9,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class CSVFileImport {
-    public static List<AccountCSVModel> parseFile(String path) {
+    public static List<ClientCSV> parseFile(String path) {
         try(BufferedReader reader = new BufferedReader(new FileReader(path))) {
             List<String> lines = reader.lines().collect(Collectors.toList());
             return lines.stream()
                     .skip(1) // Skip the header line
                     .map(line -> {
                         String[] fields = line.split(";");
-                        return new AccountCSVModel(
+                        return new ClientCSV(
+                                1,
                                 getValue(fields,0),
                                 getValue(fields,1),
                                 getValue(fields,2),

@@ -127,4 +127,9 @@ public class SpringMainConfig {
     public String logoApp() {
         return env.getProperty("application.logo");
     }
+
+    @Bean("messageConfigPath")
+    public String messageConfigPath() {
+        return env.getProperty("application.message.config.path");
+    }
 }

@@ -19,9 +19,6 @@ import java.util.List;
 
 public class ServiceEvenement {
     private final LacusSmsService serviceManager;
-    private final String methode;
-
-    private final String urlParam;
 
     private Connection conn;
 
@@ -35,19 +32,8 @@ public class ServiceEvenement {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceEvenement.class);
 
-    public ServiceEvenement(LacusSmsService serviceManager, String methode, String urlParam, String condition, List<String> listString) {
+    public ServiceEvenement(LacusSmsService serviceManager,String condition, List<String> listString) {
         this.serviceManager = serviceManager;
-        this.methode = methode;
-        this.urlParam = urlParam;
-        this.condition = condition;
-        this.listString = listString;
-    }
-
-    public ServiceEvenement(LacusSmsService serviceManager, String methode, String urlParam, Connection conn, String condition, List<String> listString) {
-        this.serviceManager = serviceManager;
-        this.methode = methode;
-        this.urlParam = urlParam;
-        this.conn = conn;
         this.condition = condition;
         this.listString = listString;
     }
@@ -57,58 +43,46 @@ public class ServiceEvenement {
     }
 
     public void envoieSMSEvenement() {
-        if (Utils.checkLicence()) {
-            List<BkEve> list = serviceManager.getBkEveBySendParam(false, listString, TypeEvent.ordinaire);
-            list.forEach((eve) -> {
-                BkCli bkCli = eve.getCli();
-                if (bkCli != null && eve.getOpe() != null && !"".equals(methode) && bkCli.isEnabled() && serviceManager.getBkCompCliByCriteria(bkCli, eve.getCompte(), true) != null && bkCli.getPhone() != 0L) {
-                    MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), bkCli.getLangue());
-                    if (mf != null) {
-                        String text = Utils.remplacerVariable(bkCli, eve.getOpe(), eve, mf);
-                        String res = Utils.testConnexionInternet();
-                        String msg = "Test connexion ...." + res;
+        List<BkEve> list = serviceManager.getBkEveBySendParam(false, listString, TypeEvent.ordinaire);
+        list.forEach((eve) -> {
+            BkCli bkCli = eve.getCli();
+            if (bkCli != null && eve.getOpe() != null && bkCli.isEnabled() && serviceManager.getBkCompCliByCriteria(bkCli, eve.getCompte(), true) != null && bkCli.getPhone() != 0L) {
+                MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), bkCli.getLangue());
+                if (mf != null) {
+                    String text = Utils.remplacerVariable(bkCli, eve.getOpe(), eve, mf);
+                    String res = Utils.testConnexionInternet();
+                    String msg = "Test connexion ...." + res;
+                    logger.info(msg);
+                    BottomPanel.settextLabel(msg, Color.BLACK);
+                    if (res.equals("OK")) {
+                        msg = "Envoie du Message à.... " + eve.getCompte();
                         logger.info(msg);
                         BottomPanel.settextLabel(msg, Color.BLACK);
-                        if (res.equals("OK")) {
-                            msg = "Envoie du Message à.... " + eve.getCompte();
-                            logger.info(msg);
-                            BottomPanel.settextLabel(msg, Color.BLACK);
-                            switch (methode) {
-                                case "METHO1":
-                                case "METHO2":
-                                    Sender.send(urlParam, "" + bkCli.getPhone(), text);
-                                    break;
-                            }
-                        } else {
-                            msg = "Message non envoyé à.... " + eve.getCompte() + " Problème de connexion internet!!";
-                            logger.info(msg);
-                            BottomPanel.settextLabel(msg, Color.RED);
-                        }
+                        Sender.send(String.valueOf(bkCli.getPhone()), text);
+                    } else {
+                        msg = "Message non envoyé à.... " + eve.getCompte() + " Problème de connexion internet!!";
+                        logger.info(msg);
+                        BottomPanel.settextLabel(msg, Color.RED);
+                    }
 
-                        Message message = new Message();
-                        message.setTitle(eve.getOpe().getLib());
-                        message.setContent(text);
-                        message.setBkEve(eve);
-                        message.setSendDate(new Date());
-                        message.setNumero(Long.toString(bkCli.getPhone()));
-                        if (res.equals("OK")) {
-                            serviceManager.enregistrer(message);
-                            eve.setSent(true);
-                            serviceManager.modifier(eve);
-                            msg = "OK Message envoyé ";
-                            logger.info(msg);
-                            BottomPanel.settextLabel(msg, Color.BLACK);
-                        }
+                    Message message = new Message();
+                    message.setTitle(eve.getOpe().getLib());
+                    message.setContent(text);
+                    message.setBkEve(eve);
+                    message.setSendDate(new Date());
+                    message.setNumero(Long.toString(bkCli.getPhone()));
+                    if (res.equals("OK")) {
+                        serviceManager.enregistrer(message);
+                        eve.setSent(true);
+                        serviceManager.modifier(eve);
+                        msg = "OK Message envoyé ";
+                        logger.info(msg);
+                        BottomPanel.settextLabel(msg, Color.BLACK);
                     }
                 }
+            }
 
-            });
-        } else {
-            String msg = "Message non envoyé Problème de Licence veuillez contacter le fournieur!!";
-            logger.info(msg);
-            BottomPanel.settextLabel(msg, Color.RED);
-        }
-
+        });
     }
 
     public void serviceEvenement() throws SQLException, ParseException {

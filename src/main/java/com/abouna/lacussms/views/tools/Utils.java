@@ -599,14 +599,19 @@ public class Utils {
     }
 
     public static Connection initConnection(LacusSmsService service, String secret) throws SQLException, ClassNotFoundException {
-        RemoteDB remoteDB = service.getDefaultRemoteDB(true);
-        if(remoteDB == null) {
+        try {
+            RemoteDB remoteDB = service.getDefaultRemoteDB(true);
+            if(remoteDB == null) {
+                return null;
+            }
+            logger.info("remote{}", remoteDB);
+            String decryptedString = AES.decrypt(remoteDB.getPassword(), secret);
+            initDriver();
+            return DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
+        } catch (Exception e) {
+            logger.error("Erreur de connexion à la base de données: {}", e.getMessage());
             return null;
         }
-        logger.info("remote{}", remoteDB);
-        String decryptedString = AES.decrypt(remoteDB.getPassword(), secret);
-        initDriver();
-        return DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
     }
 
 

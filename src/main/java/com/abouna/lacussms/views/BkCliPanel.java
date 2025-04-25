@@ -28,6 +28,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.abouna.lacussms.views.tools.ConstantUtils.ICON_ADD;
+import static com.abouna.lacussms.views.tools.ConstantUtils.ICON_DELETE;
+import static com.abouna.lacussms.views.tools.ConstantUtils.ICON_EXCEL;
+import static com.abouna.lacussms.views.tools.ConstantUtils.ICON_UPDATE;
+
 /**
  *
  * @author SATELLITE
@@ -53,11 +58,11 @@ public class BkCliPanel extends JPanel{
         contenu.setLayout(new BorderLayout());
         JPanel bas = new JPanel();
         bas.setLayout(new FlowLayout());
-        JButton nouveau = new JButton(new LacusIcon("/images/Ajouter.png"));
+        JButton nouveau = new JButton(new LacusIcon(ICON_ADD));
         nouveau.setToolTipText("Ajouter un nouveau client");
-        JButton supprimer = new JButton(new LacusIcon("/images/Cancel2.png"));
+        JButton supprimer = new JButton(new LacusIcon(ICON_DELETE));
         supprimer.setToolTipText("Suprimer un client");
-        JButton modifier = new JButton(new LacusIcon("/images/OK.png"));
+        JButton modifier = new JButton(new LacusIcon(ICON_UPDATE));
         modifier.setToolTipText("Modifier un client");
         JButton filtre = new JButton("Filtrer");
         nouveau.addActionListener(ae -> DialogUtils.initDialog(new Nouveau(null), BkCliPanel.this.getParent(), 400, 400));
@@ -95,7 +100,7 @@ public class BkCliPanel extends JPanel{
         bas.add(nouveau);
         bas.add(modifier);
         bas.add(supprimer);
-        bas.add(new LacusButton(new LacusIcon("/images/excel.PNG"), a -> new ImportClientComponent(this)));
+        bas.add(new LacusButton(new LacusIcon(ICON_EXCEL), "Importer les clients depuis un csv", a -> new ImportClientComponent(this)));
         JPanel filtrePanel = new JPanel();
         filtrePanel.setLayout(new FlowLayout());
         final JXSearchField searchField = new JXSearchField("Rechercher");

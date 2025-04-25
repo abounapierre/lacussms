@@ -11,7 +11,6 @@ import com.abouna.lacussms.entities.BkCli;
 import com.abouna.lacussms.entities.BkCompCli;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.MainMenuPanel;
-import com.abouna.lacussms.views.tools.XlsGenerator;
 import com.abouna.lacussms.views.utils.DialogUtils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
@@ -24,7 +23,6 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -112,15 +110,6 @@ public class BkCompCliPanel extends JPanel{
             if (val_retour == JFileChooser.APPROVE_OPTION) {
                 File fichier = fc.getSelectedFile();
                 final String path = fichier.getAbsolutePath() + ".xls";
-                Thread t = new Thread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        List<BkCompCli> bkCompClis = serviceManager.getAllBkCompClis();
-                        new XlsGenerator(bkCompClis, path);
-                    }
-                });
-                t.start();
                 int response = JOptionPane.showConfirmDialog(BkCompCliPanel.this.getParent(), "<html>Rapport généré avec success!!<br>Voulez vous l'ouvrir?", "Confirmation",
                         JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
                 if (response == JOptionPane.YES_OPTION) {
@@ -154,7 +143,7 @@ public class BkCompCliPanel extends JPanel{
         filtrePanel.add(searchField);
          filtrePanel.setBackground(new Color(166, 202, 240));
         searchField.addActionListener(e -> {
-            String val = null;
+            String val;
             if (searchField.getText() != null) {
                 try {
                     val = searchField.getText().toUpperCase();
@@ -199,7 +188,6 @@ public class BkCompCliPanel extends JPanel{
 
     private class Nouveau extends JDialog {
 
-        private final JButton okBtn, annulerBtn;
         private final JTextField codeText;
         private final JComboBox<BkCli> clientBox; 
         private final JCheckBox chkBox;
@@ -229,7 +217,9 @@ public class BkCompCliPanel extends JPanel{
                 }
                 c++;
             }
-           
+
+            JButton okBtn;
+            JButton annulerBtn;
             JPanel buttonBar = ButtonBarFactory.buildOKCancelBar(okBtn = new JButton("Enrégistrer"), annulerBtn = new JButton("Annuler"));
             builder.append(buttonBar, builder.getColumnCount());
             add(BorderLayout.CENTER, builder.getPanel());
@@ -244,7 +234,7 @@ public class BkCompCliPanel extends JPanel{
 
             okBtn.addActionListener(ae -> {
                 BkCompCli a = new BkCompCli();
-                 if (!codeText.getText().equals("")) {
+                 if (!codeText.getText().isEmpty()) {
                     a.setNumc(codeText.getText());
                 } else {
                     JOptionPane.showMessageDialog(null, "Le num compte est obligatoire");

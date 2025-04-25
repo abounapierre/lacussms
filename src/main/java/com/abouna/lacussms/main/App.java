@@ -11,7 +11,6 @@ import com.abouna.lacussms.entities.Config;
 import com.abouna.lacussms.service.*;
 import com.abouna.lacussms.views.main.BottomPanel;
 import com.abouna.lacussms.views.tools.ConstantUtils;
-import com.abouna.lacussms.views.tools.Sender;
 import com.abouna.lacussms.views.tools.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +24,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -52,10 +50,6 @@ public class App {
             serviceManager.enregistrerConfig(new Config(true, true, true, true));
         }
 
-        String urlParam = serviceManager.getDefaultUrlMessage() == null ? "" : serviceManager.getDefaultUrlMessage().getUrlValue();
-        String methode = serviceManager.getDefaultUrlMessage() == null ? "" : serviceManager.getDefaultUrlMessage().getMethode();
-        String urlMessage = serviceManager.getDefaultUrlMessage() == null ? "" : serviceManager.getDefaultUrlMessage().getRoot();
-        logger.info("Root: " + urlMessage + "URL: " + urlParam + " Methode : " + methode);
         List<BkEtatOp> list = serviceManager.getListBkEtatOp(true);
         int taille = list.size();
         int i = 0;
@@ -71,12 +65,6 @@ public class App {
                 condition.append("b.ETA='").append(nextOp.getValeur()).append("'");
             }
         }
-
-        logger.info("MAC address " + Utils.getMacAddress());
-        boolean bb = Sender.send("http://keudal.com/assmsserver/assmsserver?user=AS-6853&password=J5676FTJ&sms=<msg>&receive=<num>&sender=CEPI+SA", "237698984176", Utils.hacher("MD5", Objects.requireNonNull(Utils.getMacAddress())));
-
-        logger.info(" envoie " + bb);
-
         vl = true;
         try {
             UIManager.setLookAndFeel("com.jgoodies.looks.plastic.Plastic3DLookAndFeel");
@@ -85,12 +73,12 @@ public class App {
         }
 
         /* initialisation des differents services */
-        serviceRequete = new ServiceRequete(serviceManager, methode, urlParam);
-        serviceEvenement = new ServiceEvenement(serviceManager, methode, urlParam, condition.toString(), listString);
-        serviceCredit = new ServiceCredit(serviceManager, methode, urlParam, listString);
-        serviceMandat = new ServiceMandat(serviceManager, methode, urlParam);
+        serviceRequete = new ServiceRequete(serviceManager);
+        serviceEvenement = new ServiceEvenement(serviceManager, condition.toString(), listString);
+        serviceCredit = new ServiceCredit(serviceManager, listString);
+        serviceMandat = new ServiceMandat(serviceManager);
         serviceSalaireBKMVTI = new ServiceSalaireBKMVTI(serviceManager);
-        serviceSalaire = new ServiceSalaire(serviceManager, methode, urlParam, listString);
+        serviceSalaire = new ServiceSalaire(serviceManager, listString);
 
         /* initialisation de la connexion de la base de données */
         Connection conn = Utils.initConnection(serviceManager, ConstantUtils.SECRET_KEY);

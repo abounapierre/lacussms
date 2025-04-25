@@ -98,6 +98,8 @@ public class MainFrame extends JFrame {
         logger.error(message, e);
         JOptionPane.showMessageDialog(null, message);
         thread.interrupt();
+        SplashScreen.execute.dispose();
+        System.exit(0);
     }
 
 }

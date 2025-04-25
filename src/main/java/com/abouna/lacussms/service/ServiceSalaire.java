@@ -1,5 +1,6 @@
 package com.abouna.lacussms.service;
 
+import com.abouna.lacussms.dto.BkEtatOpConfigBean;
 import com.abouna.lacussms.entities.*;
 import com.abouna.lacussms.views.main.BottomPanel;
 import com.abouna.lacussms.views.tools.Sender;
@@ -25,9 +26,9 @@ public class ServiceSalaire {
     private final SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
     private final SimpleDateFormat format2 = new SimpleDateFormat("dd/MM/yyyy");
 
-    public ServiceSalaire(LacusSmsService serviceManager, List<String> listString) {
+    public ServiceSalaire(LacusSmsService serviceManager, BkEtatOpConfigBean etatOpConfigBean) {
         this.serviceManager = serviceManager;
-        this.listString = listString;
+        this.listString = etatOpConfigBean.getListString();
     }
 
     public void setConn(Connection conn) {

@@ -8,6 +8,7 @@ import com.abouna.lacussms.views.tools.AES;
 import com.abouna.lacussms.views.tools.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.awt.*;
 import java.sql.*;
@@ -17,6 +18,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+@Component
 public class ServiceRequete {
 private final LacusSmsService serviceManager;
 

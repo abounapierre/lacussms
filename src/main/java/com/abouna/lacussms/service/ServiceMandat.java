@@ -6,6 +6,7 @@ import com.abouna.lacussms.views.main.BottomPanel;
 import com.abouna.lacussms.views.tools.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.awt.*;
 import java.sql.Connection;
@@ -17,6 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+@Component
 public class ServiceMandat {
     private static final Logger logger = LoggerFactory.getLogger(ServiceMandat.class);
     private final LacusSmsService serviceManager;

@@ -1,11 +1,13 @@
 package com.abouna.lacussms.service;
 
+import com.abouna.lacussms.dto.BkEtatOpConfigBean;
 import com.abouna.lacussms.entities.*;
 import com.abouna.lacussms.views.tools.Sender;
 import com.abouna.lacussms.views.main.BottomPanel;
 import com.abouna.lacussms.views.tools.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.awt.*;
 import java.sql.Connection;
@@ -17,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+@Component
 public class ServiceCredit {
     private static final Logger logger = LoggerFactory.getLogger(ServiceCredit.class);
     private final LacusSmsService serviceManager;
@@ -27,9 +30,9 @@ public class ServiceCredit {
 
     private final List<String> listString;
 
-    public ServiceCredit(LacusSmsService serviceManager, List<String> listString) {
+    public ServiceCredit(LacusSmsService serviceManager, BkEtatOpConfigBean etatOpConfigBean) {
         this.serviceManager = serviceManager;
-        this.listString = listString;
+        this.listString = etatOpConfigBean.getListString();
     }
 
     public void setConn(Connection conn) {

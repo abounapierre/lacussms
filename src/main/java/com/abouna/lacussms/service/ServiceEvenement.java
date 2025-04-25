@@ -1,11 +1,13 @@
 package com.abouna.lacussms.service;
 
+import com.abouna.lacussms.dto.BkEtatOpConfigBean;
 import com.abouna.lacussms.entities.*;
 import com.abouna.lacussms.views.tools.Sender;
 import com.abouna.lacussms.views.main.BottomPanel;
 import com.abouna.lacussms.views.tools.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.awt.*;
 import java.sql.Connection;
@@ -17,13 +19,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+@Component
 public class ServiceEvenement {
     private final LacusSmsService serviceManager;
-
     private Connection conn;
-
     private final String condition;
-
     private final List<String> listString;
 
     SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
@@ -32,10 +32,10 @@ public class ServiceEvenement {
 
     private static final Logger logger = LoggerFactory.getLogger(ServiceEvenement.class);
 
-    public ServiceEvenement(LacusSmsService serviceManager,String condition, List<String> listString) {
+    public ServiceEvenement(LacusSmsService serviceManager, BkEtatOpConfigBean bkEtatOpConfigBean) {
         this.serviceManager = serviceManager;
-        this.condition = condition;
-        this.listString = listString;
+        this.condition = bkEtatOpConfigBean.getCondition();
+        this.listString = bkEtatOpConfigBean.getListString();
     }
 
     public void setConn(Connection conn) {

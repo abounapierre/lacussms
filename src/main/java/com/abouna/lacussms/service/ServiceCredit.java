@@ -85,76 +85,9 @@ public class ServiceCredit {
         Logger.info(query, ServiceCredit.class);
         try (PreparedStatement ps = getConn().prepareStatement(query)) {
             ResultSet rs = ps.executeQuery();
-            Logger.info(String.format("nombre de lignes trouvées: %s", rs.getFetchSize()), ServiceCredit.class);
+            Logger.info(String.format("nombre de lignes trouvées: %s", ColUtils.getSize(rs)), ServiceCredit.class);
             while (rs.next()) {
-                BottomPanel.settextLabel("Recherche évènements credits.... ", java.awt.Color.BLACK);
-                String numeroCompte = rs.getString(1);
-                if (numeroCompte != null && rs.getString(2) != null) {
-                    BottomPanel.settextLabel(String.format("Salaire Récupération client: %s", numeroCompte), java.awt.Color.BLACK);
-                    if (numeroCompte.trim().length() >= 10) {
-                        String age;
-
-                        String queryAgence = "SELECT AGE FROM BKCOM WHERE NCP = '" + rs.getString(1).trim() + "'";
-
-                        try (PreparedStatement agencePreparedStatement = getConn().prepareStatement(queryAgence)) {
-                            ResultSet result = agencePreparedStatement.executeQuery();
-                            age = null;
-                            while (result.next()) {
-                                age = result.getString(1).trim();
-                            }
-                        }
-                        BkEve eve = new BkEve();
-                        BkAgence bkAgence;
-                        if (age != null) {
-                            bkAgence = serviceManager.getBkAgenceById(age);
-                        } else {
-                            bkAgence = serviceManager.getBkAgenceById("00200");
-                        }
-                        eve.setBkAgence(bkAgence);
-                        String cli = rs.getString(1).trim();
-                        if (cli.length() >= 9) {
-                            cli = cli.substring(3, 9);
-                        }
-                        BkCli bkCli = serviceManager.getBkCliById(cli);
-                        if (bkCli == null) {
-                            bkCli = serviceManager.getBkCliByNumCompte(cli);
-                        }
-                        eve.setCli(bkCli);
-                        eve.setCompte(rs.getString(1).trim());
-                        eve.setEtat(rs.getString(7).trim());
-                        eve.setHsai(rs.getString(6).trim());
-                        eve.setMont(Double.parseDouble(rs.getString(5).trim().replace(".", "")));
-                        eve.setMontant(rs.getString(5).trim().replace(".", "").replace(" ", ""));
-                        BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString(3).trim());
-                        eve.setOpe(bkOpe);
-                        eve.setDVAB(format.format(new Date()));
-                        eve.setEventDate(format.parse(format.format(new Date())));
-                        eve.setSent(false);
-                        eve.setNumEve(rs.getString(4).trim());
-                        eve.setId(serviceManager.getMaxIndexBkEve() + 1);
-                        eve.setType(TypeEvent.credit);
-
-                        boolean traitement = bkCli != null;
-
-                        if (!serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getEventDate(), eve.getCompte()).isEmpty()) {
-                            traitement = false;
-                        }
-
-                        if (!serviceManager.getBkEveByCriteriaMontant(eve.getNumEve(), eve.getCompte(), eve.getNumEve()).isEmpty()) {
-                            traitement = false;
-                        }
-
-                        if (!serviceManager.getBkEveByPeriode(eve.getNumEve(), eve.getCompte(), Utils.add(eve.getEventDate(), -3), eve.getEventDate()).isEmpty()) {
-                            traitement = false;
-                        }
-
-                        if (traitement) {
-                            BottomPanel.settextLabel("Chargement données credits.... " + eve.getCompte(), java.awt.Color.BLACK);
-                            serviceManager.enregistrer(eve);
-                            ServiceUtils.mettreAjourNumero(serviceManager, conn, bkCli, cli);
-                        }
-                    }
-                }
+                runServiceCredit(rs);
             }
         }catch (Exception e) {
             String errorMessage = "Erreur lors du traitement des crédit";
@@ -165,6 +98,82 @@ public class ServiceCredit {
                 conn.close();
                 conn = null;
             }
+        }
+    }
+
+    private void runServiceCredit(ResultSet rs) {
+        try {
+            BottomPanel.settextLabel("Recherche évènements credits.... ", Color.BLACK);
+            String numeroCompte = rs.getString(1);
+            if (numeroCompte != null && rs.getString(2) != null) {
+                BottomPanel.settextLabel(String.format("Salaire Récupération client: %s", numeroCompte), Color.BLACK);
+                if (numeroCompte.trim().length() >= 10) {
+                    String age;
+
+                    String queryAgence = "SELECT AGE FROM BKCOM WHERE NCP = '" + rs.getString(1).trim() + "'";
+
+                    try (PreparedStatement agencePreparedStatement = getConn().prepareStatement(queryAgence)) {
+                        ResultSet result = agencePreparedStatement.executeQuery();
+                        age = null;
+                        while (result.next()) {
+                            age = result.getString(1).trim();
+                        }
+                    }
+                    BkEve eve = new BkEve();
+                    BkAgence bkAgence;
+                    if (age != null) {
+                        bkAgence = serviceManager.getBkAgenceById(age);
+                    } else {
+                        bkAgence = serviceManager.getBkAgenceById("00200");
+                    }
+                    eve.setBkAgence(bkAgence);
+                    String cli = rs.getString(1).trim();
+                    if (cli.length() >= 9) {
+                        cli = cli.substring(3, 9);
+                    }
+                    BkCli bkCli = serviceManager.getBkCliById(cli);
+                    if (bkCli == null) {
+                        bkCli = serviceManager.getBkCliByNumCompte(cli);
+                    }
+                    eve.setCli(bkCli);
+                    eve.setCompte(rs.getString(1).trim());
+                    eve.setEtat(rs.getString(7).trim());
+                    eve.setHsai(rs.getString(6).trim());
+                    eve.setMont(Double.parseDouble(rs.getString(5).trim().replace(".", "")));
+                    eve.setMontant(rs.getString(5).trim().replace(".", "").replace(" ", ""));
+                    BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString(3).trim());
+                    eve.setOpe(bkOpe);
+                    eve.setDVAB(format.format(new Date()));
+                    eve.setEventDate(format.parse(format.format(new Date())));
+                    eve.setSent(false);
+                    eve.setNumEve(rs.getString(4).trim());
+                    eve.setId(serviceManager.getMaxIndexBkEve() + 1);
+                    eve.setType(TypeEvent.credit);
+
+                    boolean traitement = bkCli != null;
+
+                    if (!serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getEventDate(), eve.getCompte()).isEmpty()) {
+                        traitement = false;
+                    }
+
+                    if (!serviceManager.getBkEveByCriteriaMontant(eve.getNumEve(), eve.getCompte(), eve.getNumEve()).isEmpty()) {
+                        traitement = false;
+                    }
+
+                    if (!serviceManager.getBkEveByPeriode(eve.getNumEve(), eve.getCompte(), Utils.add(eve.getEventDate(), -3), eve.getEventDate()).isEmpty()) {
+                        traitement = false;
+                    }
+
+                    if (traitement) {
+                        BottomPanel.settextLabel("Chargement données credits.... " + eve.getCompte(), Color.BLACK);
+                        serviceManager.enregistrer(eve);
+                        ServiceUtils.mettreAjourNumero(serviceManager, conn, bkCli, cli);
+                    }
+                }
+            }
+        }catch (Exception e) {
+            String errorMessage = "Erreur lors du traitement des crédits";
+            Logger.error(String.format("%s: %s", errorMessage, e.getMessage()), e, ServiceCredit.class);
         }
     }
 

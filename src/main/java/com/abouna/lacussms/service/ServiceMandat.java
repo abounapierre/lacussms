@@ -52,55 +52,9 @@ public class ServiceMandat {
         Logger.info(query, ServiceMandat.class);
         try (PreparedStatement ps = getConn().prepareStatement(query)) {
             ResultSet rs = ps.executeQuery();
-            Logger.info(String.format("nombre de lignes trouvées: %s", rs.getFetchSize()), ServiceMandat.class);
+            Logger.info(String.format("nombre de lignes trouvées: %s", ColUtils.getSize(rs)), ServiceMandat.class);
             while (rs.next()) {
-                msg = "Recherche données de mandats.... ";
-                Logger.info(msg, ServiceMandat.class);
-                BottomPanel.settextLabel(msg, Color.BLACK);
-                BkMad bkMad = serviceManager.getBkMadByClesec(rs.getString(1).trim());
-                String result = rs.getString(2).trim();
-                if (bkMad == null) {
-                    BkMad eve = new BkMad();
-                    BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString(3).trim());
-                    eve.setAge(bkAgence);
-                    eve.setMnt(rs.getString(10).trim());
-                    BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString(5).trim());
-                    eve.setOpe(bkOpe);
-                    eve.setDco(rs.getString(4).trim());
-                    eve.setDateEnvoie(format2.parse(format2.format(format1.parse(rs.getString(4).trim()))));
-                    if (rs.getString(8) != null) {
-                        eve.setAd1p(rs.getString(8).trim());
-                    }
-                    if (rs.getString(9) != null) {
-                        eve.setAd2p(rs.getString(9).trim());
-                    }
-                    eve.setSent(false);
-                    eve.setEve(rs.getString(6).trim());
-                    eve.setClesec(rs.getString(1).trim());
-                    eve.setId(serviceManager.getMaxBkMad() + 1);
-                    switch (result) {
-                        case "9":
-                            eve.setTraite(1);
-                            break;
-                        case "0":
-                            eve.setTraite(0);
-                            break;
-                    }
-                    eve.setCtr(result);
-                    msg = "Chargement données salaires.... " + eve.getAd1p();
-                    Logger.info(msg, ServiceMandat.class);
-                    BottomPanel.settextLabel(msg, Color.BLACK);
-                    serviceManager.enregistrer(eve);
-                } else if (!bkMad.getCtr().equals("9")) {
-                    if (result.equals("9")) {
-                        String date = rs.getString(7).trim();
-                        bkMad.setDbd(date);
-                        bkMad.setDateRetrait(format2.parse(format2.format(format1.parse(date))));
-                        bkMad.setCtr("9");
-                        bkMad.setTraite(1);
-                        serviceManager.modifier(bkMad);
-                    }
-                }
+                runServiceMandat(rs);
             }
         }catch (Exception e) {
             String errorMessage = "Erreur lors du traitement des mandats";
@@ -111,6 +65,61 @@ public class ServiceMandat {
                 conn.close();
                 conn = null;
             }
+        }
+    }
+
+    private void runServiceMandat(ResultSet rs) {
+        String msg;
+        try {
+            msg = "Recherche données de mandats.... ";
+            Logger.info(msg, ServiceMandat.class);
+            BottomPanel.settextLabel(msg, Color.BLACK);
+            BkMad bkMad = serviceManager.getBkMadByClesec(rs.getString(1).trim());
+            String result = rs.getString(2).trim();
+            if (bkMad == null) {
+                BkMad eve = new BkMad();
+                BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString(3).trim());
+                eve.setAge(bkAgence);
+                eve.setMnt(rs.getString(10).trim());
+                BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString(5).trim());
+                eve.setOpe(bkOpe);
+                eve.setDco(rs.getString(4).trim());
+                eve.setDateEnvoie(format2.parse(format2.format(format1.parse(rs.getString(4).trim()))));
+                if (rs.getString(8) != null) {
+                    eve.setAd1p(rs.getString(8).trim());
+                }
+                if (rs.getString(9) != null) {
+                    eve.setAd2p(rs.getString(9).trim());
+                }
+                eve.setSent(false);
+                eve.setEve(rs.getString(6).trim());
+                eve.setClesec(rs.getString(1).trim());
+                eve.setId(serviceManager.getMaxBkMad() + 1);
+                switch (result) {
+                    case "9":
+                        eve.setTraite(1);
+                        break;
+                    case "0":
+                        eve.setTraite(0);
+                        break;
+                }
+                eve.setCtr(result);
+                msg = "Chargement données salaires.... " + eve.getAd1p();
+                Logger.info(msg, ServiceMandat.class);
+                BottomPanel.settextLabel(msg, Color.BLACK);
+                serviceManager.enregistrer(eve);
+            } else if (!bkMad.getCtr().equals("9")) {
+                if (result.equals("9")) {
+                    String date = rs.getString(7).trim();
+                    bkMad.setDbd(date);
+                    bkMad.setDateRetrait(format2.parse(format2.format(format1.parse(date))));
+                    bkMad.setCtr("9");
+                    bkMad.setTraite(1);
+                    serviceManager.modifier(bkMad);
+                }
+            }
+        } catch (Exception e) {
+            Logger.error(String.format("%s: %s", "Impossible de traiter ce mandat", e.getMessage()), e, ServiceMandat.class);
         }
     }
 

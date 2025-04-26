@@ -62,19 +62,27 @@ public class OrangeSMSPlateforme {
             post.setHeader("Authorization", "Bearer " + token);
             post.setHeader("Content-Type", "application/json");
             post.setHeader("Accept", "application/json");
-            post.setEntity(buildEntity(number, msg));
-            return postRequest(post, null) == null;
+            post.setEntity(buildEntity(formatPhone(number), msg));
+            boolean resp = Objects.isNull(postRequest(post, null));
+            com.abouna.lacussms.views.utils.Logger.info(String.format("%s Message envoyé au numéro: %s", resp, number), OrangeSMSPlateforme.class);
+            return resp;
         } catch (Exception e) {
             logger.error("Error sending SMS", e);
             return false;
         }
     }
 
+    private static String formatPhone(String number) {
+        return number;
+    }
+
     private static <T> T postRequest(HttpPost post, Class<T> t) {
         try(CloseableHttpClient client = HttpClients.createDefault();
             CloseableHttpResponse response = client.execute(post)) {
             int statusCode = response.getStatusLine().getStatusCode();
-            logger.info("Response status code: {}", statusCode);
+            String respMsg = "Response status code";
+            com.abouna.lacussms.views.utils.Logger.info(String.format("%s: %s", respMsg, statusCode), OrangeSMSPlateforme.class);
+            logger.info("{}: {}", respMsg, statusCode);
             if (statusCode == 201 || statusCode == 200) {
                 logger.info("Request successful: {}", statusCode);
                 return Objects.isNull(t) ? null : jsonMapper.readValue(response.getEntity().getContent(), t);
@@ -86,9 +94,8 @@ public class OrangeSMSPlateforme {
     }
 
     private static HttpEntity buildEntity(String number, String msg) {
-        BodyRequest bodyRequest = new BodyRequest("SMS Campaign", msg, "CEPISA", number);
+        BodyRequest bodyRequest = new BodyRequest("Notification", msg, "CEPISA", number);
         String json = toJson(bodyRequest);
-        logger.info("Request body: {}", json);
         return new StringEntity(json, ContentType.APPLICATION_JSON);
     }
 
@@ -115,7 +122,6 @@ public class OrangeSMSPlateforme {
             String password = properties.getProperty("orange.sms.account.password");
             post.setHeader("Content-Type", "application/json");
             post.setHeader("Accept", "application/json");
-            logger.info("Requesting  with body: {}", toJson(username, password));
             post.setEntity(new StringEntity(toJson(username, password), ContentType.APPLICATION_JSON));
             return Objects.requireNonNull(postRequest(post, TokenResponse.class)).getToken();
         } catch (Exception e) {

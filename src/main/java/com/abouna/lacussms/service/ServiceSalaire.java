@@ -56,50 +56,9 @@ public class ServiceSalaire {
         Logger.info(query, ServiceSalaire.class);
         try (PreparedStatement ps = getConn().prepareStatement(query)) {
             ResultSet rs = ps.executeQuery();
-            Logger.info(String.format("nombre de lignes trouvées: %s", rs.getFetchSize()), ServiceSalaire.class);
+            Logger.info(String.format("nombre de lignes trouvées: %s", ColUtils.getSize(rs)), ServiceSalaire.class);
             while (rs.next()) {
-                Logger.info(msg, ServiceSalaire.class);
-                BottomPanel.settextLabel(msg, java.awt.Color.BLACK);
-                String numeroCompte = rs.getString(1);
-                if (numeroCompte != null) {
-                    numeroCompte = numeroCompte.trim();
-                    if (numeroCompte.length() >= 10) {
-                        BkEve eve = new BkEve();
-                        BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString(2).trim());
-                        eve.setBkAgence(bkAgence);
-                        BkCli bkCli;
-                        String cli;
-                        cli = numeroCompte.substring(3, 9);
-                        bkCli = serviceManager.getBkCliById(cli);
-                        if (bkCli == null) {
-                            bkCli = serviceManager.getBkCliByNumCompte(numeroCompte);
-                        }
-                        eve.setCli(bkCli);
-                        eve.setCompte(numeroCompte);
-                        eve.setEtat("VA");
-                        eve.setHsai("00:00:00.000");
-                        eve.setMont(Double.parseDouble(rs.getString(6).trim()));
-                        eve.setMontant(rs.getString(6).trim());
-                        BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString(4).trim());
-                        eve.setOpe(bkOpe);
-                        eve.setDVAB(rs.getString(3).trim());
-                        eve.setEventDate(format2.parse(format2.format(format1.parse(rs.getString(3).trim()))));
-                        eve.setSent(false);
-                        eve.setNumEve(rs.getString(5).trim());
-                        eve.setId(serviceManager.getMaxIndexBkEve() + 1);
-                        eve.setType(TypeEvent.salaire);
-
-                        if (bkCli != null) {
-                            if (serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getEventDate(), eve.getCompte()).isEmpty()) {
-                                msg = "Chargement données salaires.... " + eve.getCompte();
-                                Logger.info(msg, ServiceSalaire.class);
-                                BottomPanel.settextLabel(msg, java.awt.Color.BLACK);
-                                serviceManager.enregistrer(eve);
-                                ServiceUtils.mettreAjourNumero(serviceManager, conn, bkCli, cli);
-                            }
-                        }
-                    }
-                }
+                runServiceSalaire(msg, rs);
             }
         }catch (Exception e) {
             String errorMessage = "Erreur lors du traitement des salaires";
@@ -110,6 +69,55 @@ public class ServiceSalaire {
                 conn.close();
                 conn = null;
             }
+        }
+    }
+
+    private void runServiceSalaire(String msg, ResultSet rs) {
+        try {
+            Logger.info(msg, ServiceSalaire.class);
+            BottomPanel.settextLabel(msg, Color.BLACK);
+            String numeroCompte = rs.getString(1);
+            if (numeroCompte != null) {
+                numeroCompte = numeroCompte.trim();
+                if (numeroCompte.length() >= 10) {
+                    BkEve eve = new BkEve();
+                    BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString(2).trim());
+                    eve.setBkAgence(bkAgence);
+                    BkCli bkCli;
+                    String cli;
+                    cli = numeroCompte.substring(3, 9);
+                    bkCli = serviceManager.getBkCliById(cli);
+                    if (bkCli == null) {
+                        bkCli = serviceManager.getBkCliByNumCompte(numeroCompte);
+                    }
+                    eve.setCli(bkCli);
+                    eve.setCompte(numeroCompte);
+                    eve.setEtat("VA");
+                    eve.setHsai("00:00:00.000");
+                    eve.setMont(Double.parseDouble(rs.getString(6).trim()));
+                    eve.setMontant(rs.getString(6).trim());
+                    BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString(4).trim());
+                    eve.setOpe(bkOpe);
+                    eve.setDVAB(rs.getString(3).trim());
+                    eve.setEventDate(format2.parse(format2.format(format1.parse(rs.getString(3).trim()))));
+                    eve.setSent(false);
+                    eve.setNumEve(rs.getString(5).trim());
+                    eve.setId(serviceManager.getMaxIndexBkEve() + 1);
+                    eve.setType(TypeEvent.salaire);
+
+                    if (bkCli != null) {
+                        if (serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getEventDate(), eve.getCompte()).isEmpty()) {
+                            msg = "Chargement données salaires.... " + eve.getCompte();
+                            Logger.info(msg, ServiceSalaire.class);
+                            BottomPanel.settextLabel(msg, Color.BLACK);
+                            serviceManager.enregistrer(eve);
+                            ServiceUtils.mettreAjourNumero(serviceManager, conn, bkCli, cli);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Logger.error(String.format("%s: %s", "Impossible de traiter ce salaire", e.getMessage()), e, ServiceSalaire.class);
         }
     }
 

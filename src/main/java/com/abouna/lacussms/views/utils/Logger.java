@@ -9,22 +9,22 @@ public class Logger {
     private static final String RETURN_LINE = "\n";
     public static void info(String message, Class<?> clazz) {
         LoggerFactory.getLogger(clazz).info(message);
-        LogScreenPanel.textArea.append(getCurrentTime() + message + RETURN_LINE);
+        LogScreenPanel.append(getCurrentTime() + message + RETURN_LINE);
     }
 
     public static void error(String message, Exception e, Class<?> clazz) {
         LoggerFactory.getLogger(clazz).error(message, e);
-        LogScreenPanel.textArea.append(getCurrentTime() + message + RETURN_LINE);
+        LogScreenPanel.append(getCurrentTime() + message + RETURN_LINE);
     }
 
     public static void warning(String message, Class<?> clazz) {
         LoggerFactory.getLogger(clazz).warn(message);
-        LogScreenPanel.textArea.append(getCurrentTime() + message + RETURN_LINE);
+        LogScreenPanel.append(getCurrentTime() + message + RETURN_LINE);
     }
 
     public static void debug(String message, Class<?> clazz) {
         LoggerFactory.getLogger(clazz).debug(message);
-        LogScreenPanel.textArea.append(getCurrentTime() + message + RETURN_LINE);
+        LogScreenPanel.append(getCurrentTime() + message + RETURN_LINE);
     }
 
     private static String getCurrentTime() {

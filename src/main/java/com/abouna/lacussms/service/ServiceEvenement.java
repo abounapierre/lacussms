@@ -100,68 +100,11 @@ public class ServiceEvenement {
         Logger.info(query, ServiceEvenement.class);
         try (PreparedStatement ps = getConn().prepareStatement(query)) {
             ResultSet rs = ps.executeQuery();
-            Logger.info(String.format("nombre de lignes trouvées: %s", rs.getFetchSize()), ServiceEvenement.class);
+            Logger.info(String.format("nombre de lignes trouvées: %s", ColUtils.getSize(rs)), ServiceEvenement.class);
             String msg = "Recherche des évènements en cours...." + ps.getFetchSize();
             Logger.info(String.format("##### %s ######", msg), ServiceEvenement.class);
             while (rs.next()) {
-                String numeroCompte = rs.getString("NCP1");
-                if (numeroCompte != null && numeroCompte.trim().length() >= 10) {
-                    BottomPanel.settextLabel(String.format("Service évenement récupération client: %s", numeroCompte), java.awt.Color.BLACK);
-                    numeroCompte = numeroCompte.trim();
-                    BkEve eve = new BkEve();
-                    BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString("AGE").trim());
-                    eve.setBkAgence(bkAgence);
-                    BkCli bkCli;
-                    String cli = "";
-                    if (numeroCompte.length() >= 9) {
-                        cli = numeroCompte.substring(3, 9);
-                    }
-                    bkCli = serviceManager.getBkCliById(cli);
-                    if (bkCli == null) {
-                        bkCli = serviceManager.getBkCliByNumCompte(numeroCompte);
-                    }
-                    eve.setCli(bkCli);
-                    eve.setCompte(numeroCompte);
-                    eve.setEtat(rs.getString("ETA").trim());
-                    eve.setHsai(rs.getString("HSAI").trim());
-                    eve.setMont(Double.parseDouble(rs.getString("MON1").trim()));
-                    eve.setMontant(rs.getString("MON1").trim());
-                    BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString("OPE").trim());
-                    eve.setOpe(bkOpe);
-                    eve.setDVAB(rs.getString("DSAI").trim());
-                    eve.setEventDate(format3.parse(format3.format(format2.parse(rs.getString("DSAI").trim()))));
-                    eve.setSent(false);
-                    eve.setNumEve(rs.getString("EVE").trim());
-                    eve.setId(serviceManager.getMaxIndexBkEve() + 1);
-                    eve.setType(TypeEvent.ordinaire);
-
-
-                    boolean traitement = bkCli != null;
-
-                    if (!serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getEventDate(), eve.getCompte()).isEmpty()) {
-                        traitement = false;
-                    }
-
-                    if (!serviceManager.getBkEveByPeriode(eve.getNumEve(), eve.getCompte(), Utils.add(eve.getEventDate(), -2), eve.getEventDate()).isEmpty()) {
-                        traitement = false;
-                    }
-
-                    if (!serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getCompte(), eve.getHsai(), eve.getMontant()).isEmpty()) {
-                        traitement = false;
-                    }
-
-                    if (!serviceManager.getBkEveByCriteriaMontant(eve.getNumEve(), eve.getCompte(), eve.getMontant()).isEmpty()) {
-                        traitement = false;
-                    }
-
-                    if (traitement) {
-                        msg = "Chargement données évenement.... " + eve.getCompte();
-                        Logger.info(msg, ServiceEvenement.class);
-                        BottomPanel.settextLabel(msg, java.awt.Color.BLACK);
-                        serviceManager.enregistrer(eve);
-                        ServiceUtils.mettreAjourNumero(serviceManager, conn, bkCli, cli);
-                    }
-                }
+                runServiceEvt(rs);
             }
         }catch (Exception e) {
             String errorMessage = "Erreur lors du traitement des évènements";
@@ -172,6 +115,72 @@ public class ServiceEvenement {
                 conn.close();
                 conn = null;
             }
+        }
+    }
+
+    private void runServiceEvt(ResultSet rs) {
+        String msg;
+        try {
+            String numeroCompte = rs.getString("NCP1");
+            if (numeroCompte != null && numeroCompte.trim().length() >= 10) {
+                BottomPanel.settextLabel(String.format("Service évenement récupération client: %s", numeroCompte), Color.BLACK);
+                numeroCompte = numeroCompte.trim();
+                BkEve eve = new BkEve();
+                BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString("AGE").trim());
+                eve.setBkAgence(bkAgence);
+                BkCli bkCli;
+                String cli = "";
+                if (numeroCompte.length() >= 9) {
+                    cli = numeroCompte.substring(3, 9);
+                }
+                bkCli = serviceManager.getBkCliById(cli);
+                if (bkCli == null) {
+                    bkCli = serviceManager.getBkCliByNumCompte(numeroCompte);
+                }
+                eve.setCli(bkCli);
+                eve.setCompte(numeroCompte);
+                eve.setEtat(rs.getString("ETA").trim());
+                eve.setHsai(rs.getString("HSAI").trim());
+                eve.setMont(Double.parseDouble(rs.getString("MON1").trim()));
+                eve.setMontant(rs.getString("MON1").trim());
+                BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString("OPE").trim());
+                eve.setOpe(bkOpe);
+                eve.setDVAB(rs.getString("DSAI").trim());
+                eve.setEventDate(format3.parse(format3.format(format2.parse(rs.getString("DSAI").trim()))));
+                eve.setSent(false);
+                eve.setNumEve(rs.getString("EVE").trim());
+                eve.setId(serviceManager.getMaxIndexBkEve() + 1);
+                eve.setType(TypeEvent.ordinaire);
+
+
+                boolean traitement = bkCli != null;
+
+                if (!serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getEventDate(), eve.getCompte()).isEmpty()) {
+                    traitement = false;
+                }
+
+                if (!serviceManager.getBkEveByPeriode(eve.getNumEve(), eve.getCompte(), Utils.add(eve.getEventDate(), -2), eve.getEventDate()).isEmpty()) {
+                    traitement = false;
+                }
+
+                if (!serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getCompte(), eve.getHsai(), eve.getMontant()).isEmpty()) {
+                    traitement = false;
+                }
+
+                if (!serviceManager.getBkEveByCriteriaMontant(eve.getNumEve(), eve.getCompte(), eve.getMontant()).isEmpty()) {
+                    traitement = false;
+                }
+
+                if (traitement) {
+                    msg = "Chargement données évenement.... " + eve.getCompte();
+                    Logger.info(msg, ServiceEvenement.class);
+                    BottomPanel.settextLabel(msg, Color.BLACK);
+                    serviceManager.enregistrer(eve);
+                    ServiceUtils.mettreAjourNumero(serviceManager, conn, bkCli, cli);
+                }
+            }
+        } catch (Exception e) {
+            Logger.error(String.format("Impossible de traiter cet évènement: %s", e.getMessage()), e, ServiceEvenement.class);
         }
     }
 

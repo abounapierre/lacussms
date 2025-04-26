@@ -33,4 +33,6 @@ public class ConstantUtils {
     public static final String [] HEADER = {"code","civilite", "nom", "prenom", "telephone","compte", "langue"};
     public static final String ROOT_LACUS_PATH = Paths.get(".").toAbsolutePath().getParent().getParent().toString();
     public static final String GET_CONNECTION_NULL_ERROR = "Connexion cannot be null";
+    public static final String DEFAULT_AGENCE_CODE = "00200";
+    public static final int DEFAULT_ACCOUNT_LENGTH = 10;
 }

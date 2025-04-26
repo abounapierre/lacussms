@@ -1,13 +1,11 @@
 package com.abouna.lacussms.service;
 
 import java.sql.ResultSet;
+import java.util.Objects;
 
 public class ColUtils {
-    public static <T> T getColValue(Object col, Class<T> clazz) {
-        if (col == null) {
-            throw new IllegalArgumentException("Column value cannot be null");
-        }
-        return clazz.cast(col);
+    public static <T> T getColValue(Object col, String colName, Class<T> clazz) {
+        return Objects.requireNonNull(clazz.cast(col), String.format("%s ne peut pas être récupéré", colName));
     }
 
     public static String getSize(ResultSet rs) {

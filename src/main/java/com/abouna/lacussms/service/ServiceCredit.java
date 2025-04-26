@@ -19,6 +19,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+import static com.abouna.lacussms.service.ColUtils.getColValue;
+import static com.abouna.lacussms.views.tools.ConstantUtils.DEFAULT_ACCOUNT_LENGTH;
+import static com.abouna.lacussms.views.tools.ConstantUtils.DEFAULT_AGENCE_CODE;
 import static com.abouna.lacussms.views.tools.ConstantUtils.GET_CONNECTION_NULL_ERROR;
 import static com.abouna.lacussms.views.tools.ConstantUtils.SECRET_KEY;
 
@@ -104,71 +107,70 @@ public class ServiceCredit {
     private void runServiceCredit(ResultSet rs) {
         try {
             BottomPanel.settextLabel("Recherche évènements credits.... ", Color.BLACK);
-            String numeroCompte = rs.getString(1);
-            if (numeroCompte != null && rs.getString(2) != null) {
-                BottomPanel.settextLabel(String.format("Salaire Récupération client: %s", numeroCompte), Color.BLACK);
-                if (numeroCompte.trim().length() >= 10) {
-                    String age;
+            String numeroCompte = getColValue(rs.getString(1), "NCP", String.class);
+            String ope = getColValue(rs.getString(3), "OPE", String.class);
+            BottomPanel.settextLabel(String.format("Salaire Récupération client: %s", numeroCompte), Color.BLACK);
+            if (numeroCompte.trim().length() >= DEFAULT_ACCOUNT_LENGTH) {
+                String age;
 
-                    String queryAgence = "SELECT AGE FROM BKCOM WHERE NCP = '" + rs.getString(1).trim() + "'";
+                String queryAgence = "SELECT AGE FROM BKCOM WHERE NCP = '" + numeroCompte.trim() + "'";
 
-                    try (PreparedStatement agencePreparedStatement = getConn().prepareStatement(queryAgence)) {
-                        ResultSet result = agencePreparedStatement.executeQuery();
-                        age = null;
-                        while (result.next()) {
-                            age = result.getString(1).trim();
-                        }
+                try (PreparedStatement agencePreparedStatement = getConn().prepareStatement(queryAgence)) {
+                    ResultSet result = agencePreparedStatement.executeQuery();
+                    age = null;
+                    while (result.next()) {
+                        age = result.getString(1).trim();
                     }
-                    BkEve eve = new BkEve();
-                    BkAgence bkAgence;
-                    if (age != null) {
-                        bkAgence = serviceManager.getBkAgenceById(age);
-                    } else {
-                        bkAgence = serviceManager.getBkAgenceById("00200");
-                    }
-                    eve.setBkAgence(bkAgence);
-                    String cli = rs.getString(1).trim();
-                    if (cli.length() >= 9) {
-                        cli = cli.substring(3, 9);
-                    }
-                    BkCli bkCli = serviceManager.getBkCliById(cli);
-                    if (bkCli == null) {
-                        bkCli = serviceManager.getBkCliByNumCompte(cli);
-                    }
-                    eve.setCli(bkCli);
-                    eve.setCompte(rs.getString(1).trim());
-                    eve.setEtat(rs.getString(7).trim());
-                    eve.setHsai(rs.getString(6).trim());
-                    eve.setMont(Double.parseDouble(rs.getString(5).trim().replace(".", "")));
-                    eve.setMontant(rs.getString(5).trim().replace(".", "").replace(" ", ""));
-                    BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString(3).trim());
-                    eve.setOpe(bkOpe);
-                    eve.setDVAB(format.format(new Date()));
-                    eve.setEventDate(format.parse(format.format(new Date())));
-                    eve.setSent(false);
-                    eve.setNumEve(rs.getString(4).trim());
-                    eve.setId(serviceManager.getMaxIndexBkEve() + 1);
-                    eve.setType(TypeEvent.credit);
+                }
+                BkEve eve = new BkEve();
+                BkAgence bkAgence;
+                if (age != null) {
+                    bkAgence = serviceManager.getBkAgenceById(age);
+                } else {
+                    bkAgence = serviceManager.getBkAgenceById(DEFAULT_AGENCE_CODE);
+                }
+                eve.setBkAgence(bkAgence);
+                String cli = rs.getString(1).trim();
+                if (cli.length() >= 9) {
+                    cli = cli.substring(3, 9);
+                }
+                BkCli bkCli = serviceManager.getBkCliById(cli);
+                if (bkCli == null) {
+                    bkCli = serviceManager.getBkCliByNumCompte(cli);
+                }
+                eve.setCli(bkCli);
+                eve.setCompte(rs.getString(1).trim());
+                eve.setEtat(rs.getString(7).trim());
+                eve.setHsai(rs.getString(6).trim());
+                eve.setMont(Double.parseDouble(rs.getString(5).trim().replace(".", "")));
+                eve.setMontant(rs.getString(5).trim().replace(".", "").replace(" ", ""));
+                BkOpe bkOpe = serviceManager.getBkOpeById(ope.trim());
+                eve.setOpe(bkOpe);
+                eve.setDVAB(format.format(new Date()));
+                eve.setEventDate(format.parse(format.format(new Date())));
+                eve.setSent(false);
+                eve.setNumEve(rs.getString(4).trim());
+                eve.setId(serviceManager.getMaxIndexBkEve() + 1);
+                eve.setType(TypeEvent.credit);
 
-                    boolean traitement = bkCli != null;
+                boolean traitement = bkCli != null;
 
-                    if (!serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getEventDate(), eve.getCompte()).isEmpty()) {
-                        traitement = false;
-                    }
+                if (!serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getEventDate(), eve.getCompte()).isEmpty()) {
+                    traitement = false;
+                }
 
-                    if (!serviceManager.getBkEveByCriteriaMontant(eve.getNumEve(), eve.getCompte(), eve.getNumEve()).isEmpty()) {
-                        traitement = false;
-                    }
+                if (!serviceManager.getBkEveByCriteriaMontant(eve.getNumEve(), eve.getCompte(), eve.getNumEve()).isEmpty()) {
+                    traitement = false;
+                }
 
-                    if (!serviceManager.getBkEveByPeriode(eve.getNumEve(), eve.getCompte(), Utils.add(eve.getEventDate(), -3), eve.getEventDate()).isEmpty()) {
-                        traitement = false;
-                    }
+                if (!serviceManager.getBkEveByPeriode(eve.getNumEve(), eve.getCompte(), Utils.add(eve.getEventDate(), -3), eve.getEventDate()).isEmpty()) {
+                    traitement = false;
+                }
 
-                    if (traitement) {
-                        BottomPanel.settextLabel("Chargement données credits.... " + eve.getCompte(), Color.BLACK);
-                        serviceManager.enregistrer(eve);
-                        ServiceUtils.mettreAjourNumero(serviceManager, conn, bkCli, cli);
-                    }
+                if (traitement) {
+                    BottomPanel.settextLabel("Chargement données credits.... " + eve.getCompte(), Color.BLACK);
+                    serviceManager.enregistrer(eve);
+                    ServiceUtils.mettreAjourNumero(serviceManager, conn, bkCli, cli);
                 }
             }
         }catch (Exception e) {

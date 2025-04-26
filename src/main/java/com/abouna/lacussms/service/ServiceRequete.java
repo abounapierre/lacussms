@@ -29,7 +29,7 @@ private static final Logger logger = LoggerFactory.getLogger(ServiceRequete.clas
     }
 
     public void serviceRequete() throws SQLException, ParseException {
-        BottomPanel.settextLabel("Traitement des requetes en cours.... ", Color.BLACK);
+        BottomPanel.settextLabel("Traitement des requêtes en cours.... ", Color.BLACK);
         new SimpleDateFormat("yyyy-MM-dd");
         new SimpleDateFormat("dd/MM/yyyy");
         RemoteDB remoteDB = serviceManager.getDefaultRemoteDB(true);

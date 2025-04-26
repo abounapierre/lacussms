@@ -153,6 +153,7 @@ public class RemoteDBPanel extends JPanel {
     private JButton getTestConnexionButton() {
         JButton testBtn = new JButton("Test Connexion");
         testBtn.addActionListener((ActionEvent e) -> {
+            com.abouna.lacussms.views.utils.Logger.info("### Test de connexion de la BD ###", RemoteDBPanel.class);
             if (Utils.testConnexion(serviceManager, ConstantUtils.SECRET_KEY) != null) {
                 JOptionPane.showMessageDialog(parentPanel, "Connexion réussie");
                 BottomPanel.settextLabel("Connexion réussie", Color.GREEN);

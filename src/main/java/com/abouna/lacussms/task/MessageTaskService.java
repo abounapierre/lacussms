@@ -9,7 +9,6 @@ import com.abouna.lacussms.service.ServiceMandat;
 import com.abouna.lacussms.service.ServiceSalaire;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -32,17 +31,16 @@ public class MessageTaskService {
     }
 
 
-    @Scheduled(cron = "*/60 * * * * *")
+    //@Scheduled(fixedDelay = 1000)
     public void executeTask() {
-        logger.info("Scheduled task executed service message: {}", appRunConfig.getMessageServiceEnabled());
+        //logger.info("Démarrage du service sms ...");
         if(appRunConfig.getMessageServiceEnabled()) {
             executeMessageBash();
         }
     }
 
     private void executeMessageBash() {
-        Config config = lacusSmsService.getAllConfig().get(0);
-        logger.info("Démarrage du service sms ...");
+        Config config = new Config(true, true, true, true);//lacusSmsService.getAllConfig().get(0);
         if (config.isEvent()) {
             serviceEvenement.envoieSMSEvenement();
         }

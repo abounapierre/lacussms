@@ -445,22 +445,17 @@ public class Utils {
     }
 
     public static Connection testConnexion(LacusSmsService serviceManager, String secret) {
-        logger.info("### Test de connexion de la BD ###");
-
         try {
             String decryptedString;
             Utils.initDriver();
             RemoteDB remoteDB = serviceManager.getDefaultRemoteDB(true);
-
             if (remoteDB != null) {
                 logger.debug("URL: {}", remoteDB.getUrl());
                 logger.debug("Username: {}", remoteDB.getName());
                 logger.debug("Password: {}", remoteDB.getPassword());
                 decryptedString = AES.decrypt(remoteDB.getPassword(), secret);
-                logger.info("Password: {}, Username: {}, url {}", decryptedString, remoteDB.getName(), remoteDB.getUrl());
                 return DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
             }
-
             return null;
         } catch (ClassNotFoundException | SQLException | NullPointerException ex) {
             logger.error("problème de connexion bd {}", ex.getMessage());

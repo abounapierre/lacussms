@@ -5,8 +5,7 @@ import com.abouna.lacussms.entities.*;
 import com.abouna.lacussms.views.tools.Sender;
 import com.abouna.lacussms.views.main.BottomPanel;
 import com.abouna.lacussms.views.tools.Utils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.abouna.lacussms.views.utils.Logger;
 import org.springframework.stereotype.Component;
 
 import java.awt.*;
@@ -18,6 +17,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+
+import static com.abouna.lacussms.views.tools.ConstantUtils.GET_CONNECTION_NULL_ERROR;
+import static com.abouna.lacussms.views.tools.ConstantUtils.SECRET_KEY;
 
 @Component
 public class ServiceEvenement {
@@ -26,11 +29,9 @@ public class ServiceEvenement {
     private final String condition;
     private final List<String> listString;
 
-    SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
-    SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
-    SimpleDateFormat f2 = new SimpleDateFormat("dd/MM/yyyy");
-
-    private static final Logger logger = LoggerFactory.getLogger(ServiceEvenement.class);
+    SimpleDateFormat format1 = new SimpleDateFormat("dd-MM-yyyy");
+    SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd");
+    SimpleDateFormat format3 = new SimpleDateFormat("dd/MM/yyyy");
 
     public ServiceEvenement(LacusSmsService serviceManager, BkEtatOpConfigBean bkEtatOpConfigBean) {
         this.serviceManager = serviceManager;
@@ -42,7 +43,15 @@ public class ServiceEvenement {
         this.conn = conn;
     }
 
+    public Connection getConn() {
+        if (conn == null) {
+            conn = Objects.requireNonNull(Utils.testConnexion(serviceManager, SECRET_KEY), GET_CONNECTION_NULL_ERROR);
+        }
+        return conn;
+    }
+
     public void envoieSMSEvenement() {
+        Logger.info("Debut envoie de message des évènements....", ServiceEvenement.class);
         List<BkEve> list = serviceManager.getBkEveBySendParam(false, listString, TypeEvent.ordinaire);
         list.forEach((eve) -> {
             BkCli bkCli = eve.getCli();
@@ -52,16 +61,16 @@ public class ServiceEvenement {
                     String text = Utils.remplacerVariable(bkCli, eve.getOpe(), eve, mf);
                     String res = Utils.testConnexionInternet();
                     String msg = "Test connexion ...." + res;
-                    logger.info(msg);
+                    Logger.info(msg, ServiceEvenement.class);
                     BottomPanel.settextLabel(msg, Color.BLACK);
                     if (res.equals("OK")) {
                         msg = "Envoie du Message à.... " + eve.getCompte();
-                        logger.info(msg);
+                        Logger.info(msg, ServiceEvenement.class);
                         BottomPanel.settextLabel(msg, Color.BLACK);
                         Sender.send(String.valueOf(bkCli.getPhone()), text);
                     } else {
                         msg = "Message non envoyé à.... " + eve.getCompte() + " Problème de connexion internet!!";
-                        logger.info(msg);
+                        Logger.info(msg, ServiceEvenement.class);
                         BottomPanel.settextLabel(msg, Color.RED);
                     }
 
@@ -76,7 +85,7 @@ public class ServiceEvenement {
                         eve.setSent(true);
                         serviceManager.modifier(eve);
                         msg = "OK Message envoyé ";
-                        logger.info(msg);
+                        Logger.info(msg, ServiceEvenement.class);
                         BottomPanel.settextLabel(msg, Color.BLACK);
                     }
                 }
@@ -86,14 +95,18 @@ public class ServiceEvenement {
     }
 
     public void serviceEvenement() throws SQLException, ParseException {
-        try (PreparedStatement ps = conn.prepareStatement(getQuery())) {
+        String query = getQuery();
+        BottomPanel.settextLabel("Recherche évènements....", java.awt.Color.BLACK);
+        Logger.info(query, ServiceEvenement.class);
+        try (PreparedStatement ps = getConn().prepareStatement(query)) {
             ResultSet rs = ps.executeQuery();
-            String msg = "Recherche des évenements en cours....";
+            Logger.info(String.format("nombre de lignes trouvées: %s", rs.getFetchSize()), ServiceEvenement.class);
+            String msg = "Recherche des évènements en cours...." + ps.getFetchSize();
+            Logger.info(String.format("##### %s ######", msg), ServiceEvenement.class);
             while (rs.next()) {
-                logger.info(msg);
-                BottomPanel.settextLabel(msg, java.awt.Color.BLACK);
                 String numeroCompte = rs.getString("NCP1");
                 if (numeroCompte != null && numeroCompte.trim().length() >= 10) {
+                    BottomPanel.settextLabel(String.format("Service évenement récupération client: %s", numeroCompte), java.awt.Color.BLACK);
                     numeroCompte = numeroCompte.trim();
                     BkEve eve = new BkEve();
                     BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString("AGE").trim());
@@ -116,7 +129,7 @@ public class ServiceEvenement {
                     BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString("OPE").trim());
                     eve.setOpe(bkOpe);
                     eve.setDVAB(rs.getString("DSAI").trim());
-                    eve.setEventDate(f2.parse(f2.format(format1.parse(rs.getString("DSAI").trim()))));
+                    eve.setEventDate(format3.parse(format3.format(format2.parse(rs.getString("DSAI").trim()))));
                     eve.setSent(false);
                     eve.setNumEve(rs.getString("EVE").trim());
                     eve.setId(serviceManager.getMaxIndexBkEve() + 1);
@@ -143,12 +156,21 @@ public class ServiceEvenement {
 
                     if (traitement) {
                         msg = "Chargement données évenement.... " + eve.getCompte();
-                        logger.info(msg);
+                        Logger.info(msg, ServiceEvenement.class);
                         BottomPanel.settextLabel(msg, java.awt.Color.BLACK);
                         serviceManager.enregistrer(eve);
                         ServiceUtils.mettreAjourNumero(serviceManager, conn, bkCli, cli);
                     }
                 }
+            }
+        }catch (Exception e) {
+            String errorMessage = "Erreur lors du traitement des évènements";
+            Logger.error(String.format("%s: %s", errorMessage, e.getMessage()), e, ServiceEvenement.class);
+            BottomPanel.settextLabel(errorMessage, Color.RED);
+        } finally {
+            if (conn != null) {
+                conn.close();
+                conn = null;
             }
         }
     }
@@ -160,7 +182,7 @@ public class ServiceEvenement {
         String query, query1, finalquery, heureInit = "00:00:00.000";
         if (compteur == 0) {
             heure = "00:00:00.000";
-            date = format.format(current);
+            date = format1.format(current);
             if (!condition.isEmpty()) {
                 finalquery = "SELECT b.NCP1,b.EVE,b.CLI1,b.ETA,b.DSAI,b.HSAI,b.DVAB,b.OPE,b.MON1,b.AGE FROM bkeve b WHERE b.NCP1 >= '0' AND b.DSAI = '" + date + "' AND b.HSAI > '" + heure + "'" + " AND (" + condition + ")" + "  ORDER BY b.DSAI,b.HSAI ASC";
             } else {
@@ -188,7 +210,7 @@ public class ServiceEvenement {
 
             String[] tab = date.split("-");
             date = tab[2] + "-" + tab[1] + "-" + tab[0];
-            currentString = format.format(current);
+            currentString = format1.format(current);
             String suffix = " ORDER BY DSAI,HSAI ASC";
 
             if (!currentString.equals(date)) {

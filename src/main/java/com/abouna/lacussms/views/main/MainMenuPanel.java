@@ -133,13 +133,13 @@ public class MainMenuPanel extends JPanel {
     }
 
     public void setContent(JPanel pan) {
-        stopTimer(pan);
+        //stopTimer(pan);
         container.removeAll();
         container.add(pan);
         container.validate();
     }
 
-    private void stopTimer(JPanel pan) {
+    /*private void stopTimer(JPanel pan) {
         if(container.getCurrent() != null) {
             if(!(pan instanceof HomePanel) && container.getCurrent() instanceof HomePanel) {
                 HomePanel current = (HomePanel) container.getCurrent();
@@ -148,7 +148,7 @@ public class MainMenuPanel extends JPanel {
                 }
             }
         }
-    }
+    }*/
 
     private <T  extends JPanel> JXHyperlink createLink(String text, Class<T>  panelClass) {
         JXHyperlink b = new JXHyperlink();

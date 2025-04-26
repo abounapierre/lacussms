@@ -22,7 +22,6 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -35,7 +34,6 @@ import java.util.Properties;
  * @author abouna
  */
 @Configuration
-@EnableScheduling
 @EnableTransactionManagement
 @EnableEncryptableProperties
 @PropertySources({

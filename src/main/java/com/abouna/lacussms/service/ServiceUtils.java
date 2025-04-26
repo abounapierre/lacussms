@@ -3,22 +3,21 @@ package com.abouna.lacussms.service;
 import com.abouna.lacussms.entities.BkCli;
 import com.abouna.lacussms.views.main.BottomPanel;
 import com.abouna.lacussms.views.tools.Utils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.abouna.lacussms.views.utils.Logger;
 
+import java.awt.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
 public class ServiceUtils {
-    private static final Logger logger = LoggerFactory.getLogger(ServiceUtils.class);
-    public static void mettreAjourNumero(LacusSmsService serviceManager, Connection conn, BkCli bkCli, String cli) throws SQLException {
+    public static void mettreAjourNumero(LacusSmsService serviceManager, Connection conn, BkCli bkCli, String cli) {
         String q = "SELECT b.NUM, b.CLI, b.TYP FROM BKTELCLI b WHERE b.CLI='" + cli + "'";
-        String msg = "Récupération de la liste des numero disponibles .........";
-        logger.info(msg);
+        String msg = "Récupération de la liste des numéros disponibles .........";
+        Logger.info(msg, ServiceUtils.class);
         try (PreparedStatement pss = conn.prepareStatement(q)) {
             ResultSet resultat = pss.executeQuery();
+            Logger.info(String.format("nombre de lignes trouvées: %s", resultat.getFetchSize()), ServiceUtils.class);
             int n = 0;
             while (resultat.next()) {
                 if (bkCli.getPhone() == 0) {
@@ -34,7 +33,7 @@ public class ServiceUtils {
                         bkCli.setPhone(Long.parseLong(numero));
                         if (n == 0) {
                             msg = "Mise à jour numero client.... " + bkCli.getCode();
-                            logger.info(msg);
+                            Logger.info(msg, ServiceUtils.class);
                             BottomPanel.settextLabel(msg, java.awt.Color.BLACK);
                             serviceManager.modifier(bkCli);
                             n++;
@@ -42,6 +41,10 @@ public class ServiceUtils {
                     }
                 }
             }
+        } catch (Exception e) {
+            String errorMessage = "Erreur lors de la mise à jour du numero client";
+            Logger.error(String.format("%s: %s", errorMessage, e.getMessage()), e, ServiceUtils.class);
+            BottomPanel.settextLabel(errorMessage, Color.RED);
         }
     }
 }

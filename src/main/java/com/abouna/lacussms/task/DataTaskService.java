@@ -2,7 +2,6 @@ package com.abouna.lacussms.task;
 
 import com.abouna.lacussms.config.AppRunConfig;
 import com.abouna.lacussms.entities.Config;
-import com.abouna.lacussms.entities.RemoteDB;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.service.ServiceCredit;
 import com.abouna.lacussms.service.ServiceEvenement;
@@ -10,18 +9,15 @@ import com.abouna.lacussms.service.ServiceMandat;
 import com.abouna.lacussms.service.ServiceSalaire;
 import com.abouna.lacussms.service.ServiceSalaireBKMVTI;
 import com.abouna.lacussms.views.main.BottomPanel;
-import com.abouna.lacussms.views.tools.AES;
 import com.abouna.lacussms.views.tools.ConstantUtils;
 import com.abouna.lacussms.views.tools.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.awt.*;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -49,18 +45,17 @@ public class DataTaskService {
 
 
 
-    @Scheduled(cron = "*/60 * * * * *")
+    //@Scheduled(fixedDelay = 60000)
     public void executeTask() {
-        logger.info("Scheduled task executed service data: {}", appRunConfig.getDataServiceEnabled());
+        //logger.info("Démarrage du service de données .....");
         if(appRunConfig.getDataServiceEnabled()) {
             executeDataBash();
         }
     }
 
     private void executeDataBash() {
-        Config config = lacusSmsService.getAllConfig().get(0);
+        Config config = new Config(true, true, true, true);//lacusSmsService.getAllConfig().get(0);
         AtomicReference<String> msg = new AtomicReference<>();
-        logger.info("Démarrage du service de données .....");
         if (config.isEvent()) {
             try {
                 serviceEvenement.serviceEvenement();
@@ -127,28 +122,10 @@ public class DataTaskService {
         serviceEvenement.setConn(connexion);
     }
 
-    public static Connection initConnection(LacusSmsService service, String secret) {
-        try {
-            Utils.initDriver();
-            RemoteDB remoteDB = service.getDefaultRemoteDB(true);
-            if(remoteDB == null) {
-                return null;
-            }
-            logger.info("remote{}", remoteDB);
-            String decryptedString = AES.decrypt(remoteDB.getPassword(), secret);
-            return DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
-        } catch (Exception e) {
-            logger.error("Erreur de connexion à la base de données: {}", e.getMessage());
-            return null;
-        }
-    }
 
     @PostConstruct
     void initConnexion() {
-        final  Connection connexion = initConnection(lacusSmsService, ConstantUtils.SECRET_KEY);
-        if(connexion != null) {
-            setConnexion(connexion);
-        } else {
+        if (Utils.testConnexion(lacusSmsService, ConstantUtils.SECRET_KEY) == null) {
             BottomPanel.settextLabel("Attention la base données du CBS n'est pas connectée veuillez la paramétrer avant de commencer !!!", Color.RED);
         }
     }

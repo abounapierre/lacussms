@@ -1,8 +1,8 @@
 package com.abouna.lacussms.views.main;
 
 
-import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
+import com.abouna.lacussms.task.StartService;
 import com.abouna.lacussms.views.ContactPanel;
 import org.jdesktop.swingx.JXButton;
 
@@ -16,13 +16,13 @@ import java.util.Objects;
 
 /**
  *
- * @author Vincent Douwe <douwevincent@yahoo.fr>
+ * @author ebaouna@gmail.com
  */
 public  class HeaderPanel extends JPanel{
     private JButton runBtn;
     private JButton stopBtn;
     private JButton runParaBtn;
-    
+
     public HeaderPanel(LacusSmsService service) throws IOException{
         setLayout(new FlowLayout(FlowLayout.LEFT,10,10));        
         setBackground(new Color(166, 202, 240));
@@ -70,12 +70,12 @@ public  class HeaderPanel extends JPanel{
              stopBtn.setEnabled(true);
              runBtn.setEnabled(false);
              runParaBtn.setEnabled(false);
-             App.start();
+             startAll();
              JOptionPane.showMessageDialog(HeaderPanel.this.getParent(), "Le service a démarré avec succès");
        });
        
         stopBtn.addActionListener((ActionEvent e) -> {
-            App.stopper();
+            stopAll();
             stopBtn.setEnabled(false);
             runBtn.setEnabled(true);
             runParaBtn.setEnabled(true);
@@ -90,5 +90,14 @@ public  class HeaderPanel extends JPanel{
             contact.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             contact.setVisible(true);
        });
+    }
+
+    private void startAll() {
+        StartService.startSequential();
+    }
+
+    private void stopAll() {
+        StartService.running = false;
+        StartService.stopper();
     }
 }

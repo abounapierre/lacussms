@@ -5,8 +5,7 @@ import com.abouna.lacussms.entities.*;
 import com.abouna.lacussms.views.tools.Sender;
 import com.abouna.lacussms.views.main.BottomPanel;
 import com.abouna.lacussms.views.tools.Utils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.abouna.lacussms.views.utils.Logger;
 import org.springframework.stereotype.Component;
 
 import java.awt.*;
@@ -18,10 +17,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+
+import static com.abouna.lacussms.views.tools.ConstantUtils.GET_CONNECTION_NULL_ERROR;
+import static com.abouna.lacussms.views.tools.ConstantUtils.SECRET_KEY;
 
 @Component
 public class ServiceCredit {
-    private static final Logger logger = LoggerFactory.getLogger(ServiceCredit.class);
     private final LacusSmsService serviceManager;
 
     private Connection conn;
@@ -37,6 +39,13 @@ public class ServiceCredit {
 
     public void setConn(Connection conn) {
         this.conn = conn;
+    }
+
+    public Connection getConn() {
+        if (conn == null) {
+            conn = Objects.requireNonNull(Utils.testConnexion(serviceManager, SECRET_KEY), GET_CONNECTION_NULL_ERROR);
+        }
+        return conn;
     }
 
     private String getQuery() {
@@ -72,18 +81,23 @@ public class ServiceCredit {
 
     public void serviceCredit() throws SQLException, ParseException {
         BottomPanel.settextLabel("Traitement des credits en cours.... ", java.awt.Color.BLACK);
-        try (PreparedStatement ps = conn.prepareStatement(getQuery())) {
+        String query = getQuery();
+        Logger.info(query, ServiceCredit.class);
+        try (PreparedStatement ps = getConn().prepareStatement(query)) {
             ResultSet rs = ps.executeQuery();
+            Logger.info(String.format("nombre de lignes trouvées: %s", rs.getFetchSize()), ServiceCredit.class);
             while (rs.next()) {
-                BottomPanel.settextLabel("Recherche évenements credits.... ", java.awt.Color.BLACK);
-                if (rs.getString(1) != null && rs.getString(2) != null) {
-                    if (rs.getString(1).trim().length() >= 10) {
+                BottomPanel.settextLabel("Recherche évènements credits.... ", java.awt.Color.BLACK);
+                String numeroCompte = rs.getString(1);
+                if (numeroCompte != null && rs.getString(2) != null) {
+                    BottomPanel.settextLabel(String.format("Salaire Récupération client: %s", numeroCompte), java.awt.Color.BLACK);
+                    if (numeroCompte.trim().length() >= 10) {
                         String age;
 
                         String queryAgence = "SELECT AGE FROM BKCOM WHERE NCP = '" + rs.getString(1).trim() + "'";
 
-                        try (PreparedStatement psss = conn.prepareStatement(queryAgence)) {
-                            ResultSet result = psss.executeQuery();
+                        try (PreparedStatement agencePreparedStatement = getConn().prepareStatement(queryAgence)) {
+                            ResultSet result = agencePreparedStatement.executeQuery();
                             age = null;
                             while (result.next()) {
                                 age = result.getString(1).trim();
@@ -142,10 +156,20 @@ public class ServiceCredit {
                     }
                 }
             }
+        }catch (Exception e) {
+            String errorMessage = "Erreur lors du traitement des crédit";
+            Logger.error(String.format("%s: %s", errorMessage, e.getMessage()), e, ServiceCredit.class);
+            BottomPanel.settextLabel(errorMessage, Color.RED);
+        } finally {
+            if (conn != null) {
+                conn.close();
+                conn = null;
+            }
         }
     }
 
     public void envoieSMSCredit() {
+        Logger.info("Debut envoie de message des crédits....", ServiceCredit.class);
         List<BkEve> list = serviceManager.getBkEveBySendParam(false, listString, TypeEvent.credit);
         list.forEach((eve) -> {
             BkCli bkCli = eve.getCli();
@@ -160,7 +184,7 @@ public class ServiceCredit {
                         Sender.send(String.valueOf(bkCli.getPhone()) , text);
                     } else {
                         String msg1 = "Message non envoyé à.... " + eve.getCompte() + " Problème de connexion internet!!";
-                        logger.info(msg1);
+                        Logger.info(msg1, ServiceCredit.class);
                         BottomPanel.settextLabel(msg1, Color.RED);
                     }
                     Message message = new Message();
@@ -174,12 +198,11 @@ public class ServiceCredit {
                         eve.setSent(true);
                         serviceManager.modifier(eve);
                         String msg = "OK Message envoyé ";
-                        logger.info(msg);
+                        Logger.info(msg, ServiceCredit.class);
                         BottomPanel.settextLabel(msg, Color.BLACK);
                     }
                 }
             }
-
         });
     }
 }

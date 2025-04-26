@@ -4,8 +4,7 @@ import com.abouna.lacussms.entities.*;
 import com.abouna.lacussms.views.tools.Sender;
 import com.abouna.lacussms.views.main.BottomPanel;
 import com.abouna.lacussms.views.tools.Utils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.abouna.lacussms.views.utils.Logger;
 import org.springframework.stereotype.Component;
 
 import java.awt.*;
@@ -17,10 +16,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+
+import static com.abouna.lacussms.views.tools.ConstantUtils.GET_CONNECTION_NULL_ERROR;
+import static com.abouna.lacussms.views.tools.ConstantUtils.SECRET_KEY;
 
 @Component
 public class ServiceMandat {
-    private static final Logger logger = LoggerFactory.getLogger(ServiceMandat.class);
     private final LacusSmsService serviceManager;
     private Connection conn;
     private final SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
@@ -35,18 +37,26 @@ public class ServiceMandat {
         this.conn = conn;
     }
 
+    public Connection getConn() {
+        if (conn == null) {
+            conn = Objects.requireNonNull(Utils.testConnexion(serviceManager, SECRET_KEY), GET_CONNECTION_NULL_ERROR);
+        }
+        return conn;
+    }
+
     public void serviceMandat() throws SQLException, ParseException {
         String msg = "Traitement des mandats en cours.... ";
-        BottomPanel.settextLabel(msg, java.awt.Color.BLACK);
-        logger.info(msg);
-
-        try (PreparedStatement ps = conn.prepareStatement(getQuery())) {
+        BottomPanel.settextLabel(msg, Color.BLACK);
+        Logger.info(msg, ServiceMandat.class);
+        String query = getQuery();
+        Logger.info(query, ServiceMandat.class);
+        try (PreparedStatement ps = getConn().prepareStatement(query)) {
             ResultSet rs = ps.executeQuery();
-
+            Logger.info(String.format("nombre de lignes trouvées: %s", rs.getFetchSize()), ServiceMandat.class);
             while (rs.next()) {
-                msg = "Recherche données de manadats.... ";
-                logger.info(msg);
-                BottomPanel.settextLabel(msg, java.awt.Color.BLACK);
+                msg = "Recherche données de mandats.... ";
+                Logger.info(msg, ServiceMandat.class);
+                BottomPanel.settextLabel(msg, Color.BLACK);
                 BkMad bkMad = serviceManager.getBkMadByClesec(rs.getString(1).trim());
                 String result = rs.getString(2).trim();
                 if (bkMad == null) {
@@ -78,8 +88,8 @@ public class ServiceMandat {
                     }
                     eve.setCtr(result);
                     msg = "Chargement données salaires.... " + eve.getAd1p();
-                    logger.info(msg);
-                    BottomPanel.settextLabel(msg, java.awt.Color.BLACK);
+                    Logger.info(msg, ServiceMandat.class);
+                    BottomPanel.settextLabel(msg, Color.BLACK);
                     serviceManager.enregistrer(eve);
                 } else if (!bkMad.getCtr().equals("9")) {
                     if (result.equals("9")) {
@@ -91,6 +101,15 @@ public class ServiceMandat {
                         serviceManager.modifier(bkMad);
                     }
                 }
+            }
+        }catch (Exception e) {
+            String errorMessage = "Erreur lors du traitement des mandats";
+            Logger.error(String.format("%s: %s", errorMessage, e.getMessage()), e, ServiceMandat.class);
+            BottomPanel.settextLabel(errorMessage, Color.RED);
+        }finally {
+            if (conn != null) {
+                conn.close();
+                conn = null;
             }
         }
     }
@@ -112,8 +131,8 @@ public class ServiceMandat {
     public void envoieSMSMandat() {
         boolean bon = false;
         String msg;
-        msg = "Debut envoie de message";
-        logger.info(msg);
+        msg = "Debut envoie de message mandats....";
+        Logger.info(msg, ServiceMandat.class);
         BottomPanel.settextLabel(msg, Color.BLACK);
         List<BkMad> list = serviceManager.getBkMadByTraite();
 
@@ -139,7 +158,7 @@ public class ServiceMandat {
                         }
                     } else {
                         msg = "Message non envoyé problème de connexion internet!!";
-                        logger.info(msg);
+                        Logger.info(msg, ServiceMandat.class);
                         BottomPanel.settextLabel(msg, Color.RED);
                     }
 
@@ -162,7 +181,7 @@ public class ServiceMandat {
 
                         serviceManager.modifier(eve);
                         msg = "OK Message envoyé ";
-                        logger.info(msg);
+                        Logger.info(msg, ServiceMandat.class);
                         BottomPanel.settextLabel(msg, Color.BLACK);
                     }
                 }

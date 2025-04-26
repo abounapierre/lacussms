@@ -63,7 +63,7 @@ public class OrangeSMSPlateforme {
             post.setHeader("Content-Type", "application/json");
             post.setHeader("Accept", "application/json");
             post.setEntity(buildEntity(number, msg));
-            return postRequest(post, Object.class) != null;
+            return postRequest(post, null) == null;
         } catch (Exception e) {
             logger.error("Error sending SMS", e);
             return false;
@@ -77,7 +77,7 @@ public class OrangeSMSPlateforme {
             logger.info("Response status code: {}", statusCode);
             if (statusCode == 201 || statusCode == 200) {
                 logger.info("Request successful: {}", statusCode);
-                return jsonMapper.readValue(response.getEntity().getContent(), t);
+                return Objects.isNull(t) ? null : jsonMapper.readValue(response.getEntity().getContent(), t);
             }
         } catch (IOException e) {
             logger.error("Error executing HTTP request", e);

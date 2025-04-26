@@ -100,7 +100,7 @@ public class HeaderMenu extends JMenuBar {
         solde.setSelected(config != null && config.getSolde().equals("true"));
 
         if(config != null) {
-            System.out.println(config);
+            logger.info("{}" , config);
         }
 
         dateSolde.addActionListener((ActionEvent e) ->{

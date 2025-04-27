@@ -1,6 +1,5 @@
 package com.abouna.lacussms.config;
 
-import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.task.StartService;
 import com.abouna.lacussms.views.tools.Utils;
 import org.jasypt.encryption.StringEncryptor;
@@ -34,13 +33,12 @@ public class LicenceConfig {
     }
 
 
-    //@Scheduled(cron = "*/1 * * * * *")
     public void controlLicence() {
         String message = "La date de validité de la licence est dépassée ou licence non valide. \n" +
                 "Veuillez contacter le support technique pour renouveler votre licence.";
         try {
             logger.info("service licence is running");
-            String original = encryptor.decrypt(getKey());//env.getProperty("application.validDate");
+            String original = encryptor.decrypt(getKey());
             Date date = Utils.getDateSimpleFormat("ddMMyyHHmmss", original);
             if(date != null && date.before(Utils.getTimeFromInternet())) {
                 close(message, null);

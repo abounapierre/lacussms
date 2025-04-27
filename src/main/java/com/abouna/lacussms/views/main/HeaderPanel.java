@@ -1,6 +1,7 @@
 package com.abouna.lacussms.views.main;
 
 
+import com.abouna.lacussms.config.AppRunConfig;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.task.StartService;
 import com.abouna.lacussms.views.ContactPanel;
@@ -58,6 +59,9 @@ public  class HeaderPanel extends JPanel{
         //add(runBtn);
         add(runParaBtn);
         add(stopBtn);
+
+        add(getDataCheckBox());
+        add(getSmsCheckBox());
         //runParaBtn.setEnabled(false);
         
         runBtn.addActionListener((ActionEvent e) -> {
@@ -90,6 +94,32 @@ public  class HeaderPanel extends JPanel{
             contact.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             contact.setVisible(true);
        });
+    }
+
+    private JCheckBox getSmsCheckBox() {
+        JCheckBox serviceSmsCheckBox = new JCheckBox("Service SMS");
+        serviceSmsCheckBox.setSelected(true);
+        serviceSmsCheckBox.setEnabled(true);
+        serviceSmsCheckBox.addActionListener((ActionEvent e) -> getSetSmsServiceEnabled(serviceSmsCheckBox));
+        return serviceSmsCheckBox;
+    }
+
+    private JCheckBox getDataCheckBox() {
+        JCheckBox serviceDataCheckBox = new JCheckBox("Service Data");
+        serviceDataCheckBox.setSelected(true);
+        serviceDataCheckBox.setEnabled(true);
+        serviceDataCheckBox.addActionListener((ActionEvent e) -> getSetDataServiceEnabled(serviceDataCheckBox));
+        return serviceDataCheckBox;
+    }
+
+    private void getSetDataServiceEnabled(JCheckBox serviceDataCheckBox) {
+        AppRunConfig config = AppRunConfig.getInstance();
+        config.setDataServiceEnabled(serviceDataCheckBox.isSelected());
+    }
+
+    private void getSetSmsServiceEnabled(JCheckBox serviceSMSCheckBox) {
+        AppRunConfig config = AppRunConfig.getInstance();
+        config.setMessageServiceEnabled(serviceSMSCheckBox.isSelected());
     }
 
     private void startAll() {

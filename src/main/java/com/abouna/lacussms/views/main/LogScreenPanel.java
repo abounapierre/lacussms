@@ -20,13 +20,4 @@ public class LogScreenPanel extends JPanel{
         textArea.append(log);
         textArea.setCaretPosition(textArea.getDocument().getLength());
     }
-
-    /*
-    if (log.contains("Exception") || log.contains("error") || log.contains("Error")
-                || log.contains("failed") || log.contains("Failed") || log.contains("Erreur") || log.contains("erreur")) {
-            textArea.setForeground(Color.RED);
-        } else {
-            textArea.setForeground(Color.WHITE);
-        }
-     */
 }

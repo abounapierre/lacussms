@@ -31,9 +31,7 @@ public class MessageTaskService {
     }
 
 
-    //@Scheduled(fixedDelay = 1000)
     public void executeTask() {
-        //logger.info("Démarrage du service sms ...");
         if(appRunConfig.getMessageServiceEnabled()) {
             executeMessageBash();
         }

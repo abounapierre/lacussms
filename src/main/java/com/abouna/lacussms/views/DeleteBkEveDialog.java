@@ -79,12 +79,10 @@ public class DeleteBkEveDialog extends JDialog{
                     }
                     dispose();
                     parentPanel.setContent(new BkEvePanel());
-                } catch (IOException ex) {
-                    Logger.getLogger(DeleteBkEveDialog.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (ParseException ex) {
+                } catch (IOException | ParseException ex) {
                     Logger.getLogger(DeleteBkEveDialog.class.getName()).log(Level.SEVERE, null, ex);
                 }
-        });
+            });
 
             annulerBtn.addActionListener((ActionEvent ae) -> {
                 try {

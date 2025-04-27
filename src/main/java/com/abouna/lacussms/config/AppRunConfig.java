@@ -9,6 +9,10 @@ public class AppRunConfig {
         this.messageServiceEnabled = messageServiceEnabled;
     }
 
+    public static AppRunConfig getInstance() {
+        return ApplicationConfig.getApplicationContext().getBean(AppRunConfig.class);
+    }
+
     public Boolean getDataServiceEnabled() {
         return dataServiceEnabled;
     }

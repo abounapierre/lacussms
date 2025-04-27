@@ -45,9 +45,7 @@ public class DataTaskService {
 
 
 
-    //@Scheduled(fixedDelay = 60000)
     public void executeTask() {
-        //logger.info("Démarrage du service de données .....");
         if(appRunConfig.getDataServiceEnabled()) {
             executeDataBash();
         }

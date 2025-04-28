@@ -3,9 +3,8 @@ package com.abouna.lacussms.config;
 import com.abouna.lacussms.task.StartService;
 import com.abouna.lacussms.views.MacKeyPanel;
 import com.abouna.lacussms.views.tools.Utils;
+import com.abouna.lacussms.views.utils.Logger;
 import org.jasypt.encryption.StringEncryptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -29,7 +28,6 @@ import static com.abouna.lacussms.views.tools.ConstantUtils.ROOT_LACUS_PATH;
 
 @Component
 public class LicenceConfig {
-    private static final Logger logger = LoggerFactory.getLogger(LicenceConfig.class);
     private final Environment env;
     private final StringEncryptor encryptor;
     private static final String EMPTY = "";
@@ -45,15 +43,15 @@ public class LicenceConfig {
         String message = "La date de validité de la licence est dépassée ou licence non valide. \n" +
                 "Veuillez contacter le support technique pour renouveler votre licence.";
         try {
-            logger.info("service licence is running");
+            Logger.info("service licence is running", LicenceConfig.class);
             String original = encryptor.decrypt(getKey());
             String[] parts = original.split(":");
             if(parts.length != 2) {
                 showKeyPanel();
             }
             if(!verifyMacAddress(parts[1])) {
-                message = "L'adresse MAC de la machine ne correspond pas à celle de la licence.\n" +
-                        "Veuillez contacter le support technique pour renouveler votre licence.";
+                message = "L'empreinte de cette machine ne correspond pas à celle de la licence.\n" +
+                        "Veuillez contacter le support technique pour vous générer une nouvelle licence.";
                 showKeyPanel();
             }
             Date date = Utils.getDateSimpleFormat("ddMMyyHHmmss", parts[0]);
@@ -72,7 +70,7 @@ public class LicenceConfig {
 
     private static void close(String message, Exception e) {
         StartService.running = false;
-        logger.error(message, e);
+        Logger.error(message, e, LicenceConfig.class);
         JOptionPane.showMessageDialog(null, message);
         System.exit(0);
     }
@@ -117,8 +115,8 @@ public class LicenceConfig {
                 String mac = String.join(EMPTY, hexadecimalFormat);
                 macs.add(mac);
             }
-        } catch (SocketException exception) {
-            logger.error("Erreur lors de la récupération de l'adresse MAC: {}", exception.getMessage());
+        } catch (SocketException e) {
+            Logger.error(String.format("Erreur lors de la récupération de l'empreinte: %s", e.getMessage()), e, LicenceConfig.class);
             return null;
         }
     }

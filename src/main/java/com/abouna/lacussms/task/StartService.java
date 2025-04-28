@@ -12,34 +12,30 @@ import java.util.concurrent.TimeUnit;
 import static com.abouna.lacussms.views.tools.ConstantUtils.DEFAULT_WAIT_NUMBER;
 
 public class StartService {
-    public static Thread dataThread;
-    public static Thread messageThread;
+    public static Thread thread;
     public static boolean running = false;
+    private static DataTaskService dataTaskService;
+    private static MessageTaskService messageTaskService;
+    private static LicenceConfig licenceConfig;
 
     public static void startData() {
-        DataTaskService dataTaskService = ApplicationConfig.getApplicationContext().getBean(DataTaskService.class);
-        dataThread = new Thread(() -> {
-            while (true) {
-                dataTaskService.executeTask();
-                waitThread(5000);
-            }
-        });
-        dataThread.start();
+        if(dataTaskService == null) {
+            dataTaskService = ApplicationConfig.getApplicationContext().getBean(DataTaskService.class);
+        }
+        dataTaskService.executeTask();
     }
 
     public static void startMessage() {
-        MessageTaskService messageTaskService = ApplicationConfig.getApplicationContext().getBean(MessageTaskService.class);
-        messageThread = new Thread(() -> {
-            while (true) {
-                messageTaskService.executeTask();
-                waitThread(5000);
-            }
-        });
-        messageThread.start();
+        if(messageTaskService == null) {
+            messageTaskService = ApplicationConfig.getApplicationContext().getBean(MessageTaskService.class);
+        }
+        messageTaskService.executeTask();
     }
 
     public static void startLicence() {
-        LicenceConfig licenceConfig = ApplicationConfig.getApplicationContext().getBean(LicenceConfig.class);
+        if (licenceConfig == null) {
+            licenceConfig = ApplicationConfig.getApplicationContext().getBean(LicenceConfig.class);
+        }
         licenceConfig.controlLicence();
     }
 
@@ -52,38 +48,48 @@ public class StartService {
     }
 
     public static void start() {
+        startLicence();
         startData();
         startMessage();
-        startLicence();
     }
 
     public static void startSequential() {
-        DataTaskService dataTaskService = ApplicationConfig.getApplicationContext().getBean(DataTaskService.class);
-        MessageTaskService messageTaskService = ApplicationConfig.getApplicationContext().getBean(MessageTaskService.class);
-        LicenceConfig licenceConfig = ApplicationConfig.getApplicationContext().getBean(LicenceConfig.class);
-        AppRunConfig appRunConfig = ApplicationConfig.getApplicationContext().getBean(AppRunConfig.class);
-        appRunConfig.setDataServiceEnabled(Boolean.TRUE);
-        appRunConfig.setMessageServiceEnabled(Boolean.TRUE);
-        running = true;
-        dataThread = new Thread(() -> {
-            while (running) {
-                try {
-                    Logger.info("begin running service task....", StartService.class);
-                    licenceConfig.controlLicence();
-                    dataTaskService.executeTask();
-                    messageTaskService.executeTask();
-                    BottomPanel.settextLabel("");
-                    waitThread(DEFAULT_WAIT_NUMBER);
-                    Logger.info("end running service task....", StartService.class);
-                } catch (Exception e) {
-                    Logger.error("Error in task execution", e, StartService.class);
+        try {
+            DataTaskService dataTaskService = ApplicationConfig.getApplicationContext().getBean(DataTaskService.class);
+            MessageTaskService messageTaskService = ApplicationConfig.getApplicationContext().getBean(MessageTaskService.class);
+            LicenceConfig licenceConfig = ApplicationConfig.getApplicationContext().getBean(LicenceConfig.class);
+            AppRunConfig appRunConfig = ApplicationConfig.getApplicationContext().getBean(AppRunConfig.class);
+            appRunConfig.setDataServiceEnabled(Boolean.TRUE);
+            appRunConfig.setMessageServiceEnabled(Boolean.TRUE);
+            thread = new Thread(() -> {
+                running = true;
+                while (running) {
+                    try {
+                        Logger.info("begin running service licence task....", StartService.class);
+                        licenceConfig.controlLicence();
+                        Logger.info("begin running service data task....", StartService.class);
+                        dataTaskService.executeTask();
+                        Logger.info("begin running service message task....", StartService.class);
+                        messageTaskService.executeTask();
+                        BottomPanel.settextLabel("");
+                        Logger.info("service is running ....", StartService.class);
+                        waitThread(DEFAULT_WAIT_NUMBER);
+                        Logger.info("end running service task....", StartService.class);
+                    } catch (Exception e) {
+                        Logger.error("Error in task execution", e, StartService.class);
+                    }
                 }
-            }
-            Logger.info("stopping service task....", StartService.class);
-            dataThread.interrupt();
-        });
-        Logger.info(String.format("start thread....%s", dataThread.getId()), StartService.class);
-        dataThread.start();
+                Logger.info("start stopping service task....", StartService.class);
+                if (thread != null && thread.isAlive()) {
+                    thread.interrupt();
+                    Logger.info("service is already stopped....", StartService.class);
+                }
+            });
+            Logger.info(String.format("start thread....%s", thread.getId()), StartService.class);
+            thread.start();
+        } catch (Exception e) {
+            Logger.error("Error in task execution", e, StartService.class);
+        }
     }
 
     public static void stopper() {

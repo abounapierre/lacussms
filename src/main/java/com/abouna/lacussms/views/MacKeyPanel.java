@@ -18,7 +18,7 @@ public class MacKeyPanel extends JDialog {
         setLayout(new BorderLayout(10, 10));
         JPanel haut = new JPanel();
         JLabel lbl;
-        haut.add(lbl = new JLabel("<html><font color = #012345 > Veuillez enregistrer la clé d'installation et l'envoyer à votre support technique. </font></html>"));
+        haut.add(lbl = new JLabel("<html><font color = #012345 > Veuillez enregistrer l'empreinte de la machine et l'envoyer à votre support technique. </font></html>"));
         lbl.setFont(new Font("Times New Roman", Font.ITALIC, 18));
         add(BorderLayout.BEFORE_FIRST_LINE, haut);
         DefaultFormBuilder builder = new DefaultFormBuilder(new FormLayout("right:max(40dlu;p), 12dlu, 300dlu:", ""));
@@ -58,7 +58,7 @@ public class MacKeyPanel extends JDialog {
                 FileWriter myWriter = new FileWriter(filename);
                 myWriter.write(keyText.getText());
                 myWriter.close();
-                String msg = "La clé d'installation a été enregistrée avec succès dans le dossier : " + filename;
+                String msg = "L'empreinte de la machine a été enregistrée avec succès dans le dossier : " + filename;
                 JOptionPane.showMessageDialog(this, msg, "Succès", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Erreur lors de l'importation : " + ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);

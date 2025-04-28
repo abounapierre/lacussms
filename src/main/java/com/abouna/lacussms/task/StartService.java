@@ -68,12 +68,13 @@ public class StartService {
         dataThread = new Thread(() -> {
             while (running) {
                 try {
-                    Logger.info("running service task....", StartService.class);
+                    Logger.info("begin running service task....", StartService.class);
                     licenceConfig.controlLicence();
                     dataTaskService.executeTask();
                     messageTaskService.executeTask();
                     BottomPanel.settextLabel("");
                     waitThread(DEFAULT_WAIT_NUMBER);
+                    Logger.info("end running service task....", StartService.class);
                 } catch (Exception e) {
                     Logger.error("Error in task execution", e, StartService.class);
                 }
@@ -81,6 +82,7 @@ public class StartService {
             Logger.info("stopping service task....", StartService.class);
             dataThread.interrupt();
         });
+        Logger.info(String.format("start thread....%s", dataThread.getId()), StartService.class);
         dataThread.start();
     }
 

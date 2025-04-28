@@ -339,37 +339,6 @@ public class Utils {
         }
     }
 
-    public static String getMacAddress() {
-        try {
-            List<String> macs = new ArrayList<>();
-            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
-
-            while(true) {
-                byte[] hardwareAddress;
-                do {
-                    if (!networkInterfaces.hasMoreElements()) {
-                        String[] myArray = new String[macs.size()];
-                        return String.join("-", (CharSequence[])macs.toArray(myArray));
-                    }
-
-                    NetworkInterface ni = (NetworkInterface)networkInterfaces.nextElement();
-                    hardwareAddress = ni.getHardwareAddress();
-                } while(hardwareAddress == null);
-
-                String[] hexadecimalFormat = new String[hardwareAddress.length];
-
-                for(int i = 0; i < hardwareAddress.length; ++i) {
-                    hexadecimalFormat[i] = String.format("%02X", hardwareAddress[i]);
-                }
-
-                String mac = String.join("-", hexadecimalFormat);
-                macs.add(mac);
-            }
-        } catch (SocketException var6) {
-            return null;
-        }
-    }
-
     public static String hacher(String algorithme, String monMessage) {
         byte[] digest = null;
 

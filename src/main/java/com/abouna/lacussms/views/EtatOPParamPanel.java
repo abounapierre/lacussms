@@ -7,7 +7,6 @@ package com.abouna.lacussms.views;
 
 import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.entities.BkEtatOp;
-import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.MainMenuPanel;
 import com.abouna.lacussms.views.tools.ConstantUtils;
@@ -195,7 +194,7 @@ public class EtatOPParamPanel extends JPanel{
             okBtn.addActionListener((ActionEvent ae) -> {
                 BkEtatOp a = new BkEtatOp();
                 
-                if (!valeurText.getText().equals("")) {
+                if (!valeurText.getText().isEmpty()) {
                     a.setValeur(valeurText.getText());
                 } else {
                     JOptionPane.showMessageDialog(EtatOPParamPanel.this.getParent(), "La valeur est obligatoire");

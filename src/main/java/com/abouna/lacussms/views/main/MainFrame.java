@@ -1,8 +1,8 @@
 package com.abouna.lacussms.views.main;
 
 import com.abouna.lacussms.config.ApplicationConfig;
-import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
+import com.abouna.lacussms.task.StartService;
 import com.abouna.lacussms.views.tools.ConstantUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +31,7 @@ public class MainFrame extends JFrame {
     private static final Logger logger = LoggerFactory.getLogger(MainFrame.class);
     private Image img;
     private final BottomPanel bottomPanel;
+    public static boolean appliRun = false;
 
     public static Thread thread;
 
@@ -88,8 +89,17 @@ public class MainFrame extends JFrame {
         try {
             thread = new Thread(SplashScreen::new);
             thread.start();
-            ApplicationConfig.setApplicationContext(new SpringApplicationBuilder(MainFrame.class).headless(false).run(args));
-            App.initApp();
+            SwingUtilities.invokeLater(() -> {
+                try {
+                    ApplicationConfig.setApplicationContext(new SpringApplicationBuilder(MainFrame.class).headless(false).run(args));
+                    UIManager.setLookAndFeel("com.jgoodies.looks.plastic.Plastic3DLookAndFeel");
+                    appliRun = true;
+                    StartService.startLicence();
+                } catch (ClassNotFoundException | UnsupportedLookAndFeelException | InstantiationException |
+                         IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         } catch (Exception e) {
             logError(e);
         }

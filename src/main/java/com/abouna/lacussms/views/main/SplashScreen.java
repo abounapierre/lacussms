@@ -1,7 +1,6 @@
 package com.abouna.lacussms.views.main;
 
 import com.abouna.lacussms.config.ApplicationConfig;
-import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.views.tools.ConstantUtils;
 
 import javax.swing.*;
@@ -40,7 +39,7 @@ public class SplashScreen extends JWindow {
         ActionListener al = evt -> {
             count++;
             progressBar.setValue(count);
-            if (App.appliRun) {
+            if (MainFrame.appliRun) {
                 EventQueue.invokeLater(() -> {
                     MainFrame frame = ApplicationConfig.getApplicationContext().getBean(MainFrame.class);
                     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();

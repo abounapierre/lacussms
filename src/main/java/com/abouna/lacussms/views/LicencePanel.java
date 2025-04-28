@@ -7,9 +7,9 @@ package com.abouna.lacussms.views;
 
 import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.entities.Licence;
-import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.BottomPanel;
+import com.abouna.lacussms.views.main.MainFrame;
 import com.abouna.lacussms.views.tools.Utils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
@@ -101,8 +101,9 @@ public class LicencePanel extends JDialog {
                                 //Utils.updateLic(a.getValeur(), conn);
                                 JOptionPane.showMessageDialog(null, "Success!");
                                 dispose();
-                                if (App.appliRun) {
-                                    App.initApp();
+                                if (MainFrame.appliRun) {
+                                    System.exit(0);
+                                    MainFrame.main(new String[]{});
                                 }
                                 BottomPanel.settextLabel("", java.awt.Color.BLACK);
                             } else {
@@ -115,7 +116,7 @@ public class LicencePanel extends JDialog {
                         }
                     } catch (SQLException | IOException ex) {
                         JOptionPane.showMessageDialog(null, "Problème de connexion à la base de données");
-                    } catch (ClassNotFoundException | HeadlessException ignored) {
+                    } catch (HeadlessException ignored) {
                         
                     }
                 } else {
@@ -127,8 +128,9 @@ public class LicencePanel extends JDialog {
                                 serviceManager.modifier(a);
                                 JOptionPane.showMessageDialog(null, "Licence enregistrée avec success!");
                                 dispose();
-                                if (App.appliRun) {
-                                    App.initApp();
+                                if (MainFrame.appliRun) {
+                                    System.exit(0);
+                                    MainFrame.main(new String[]{});
                                 }
                             } else {
                                 JOptionPane.showMessageDialog(null, "Licence inconnue ou déjà utilisée!");
@@ -138,7 +140,7 @@ public class LicencePanel extends JDialog {
                                     + "est connecté à internet ou verifiez votre parfeu\r\n "
                                     + "s'il ne bloque pas le connexion vers le serveur (alwaysdata.com)!");
                         }
-                    } catch (SQLException | IOException ex) {
+                    } catch (SQLException ex) {
                         JOptionPane.showMessageDialog(null, "Problème de connexion à la base de données");
                     }
                 }
@@ -154,7 +156,7 @@ public class LicencePanel extends JDialog {
                 System.exit(0);
             } else if (serviceManager.getLicences().get(0).getJour() == 0) {
                 System.exit(0);
-            }else if(App.appliRun){
+            }else if(MainFrame.appliRun){
                 System.exit(0);
             }
         });

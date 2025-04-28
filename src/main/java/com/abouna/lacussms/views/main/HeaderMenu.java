@@ -7,7 +7,6 @@ package com.abouna.lacussms.views.main;
 
 
 import com.abouna.lacussms.entities.Config;
-import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.DateSoldeDialog;
 import com.abouna.lacussms.views.tools.CSVFileImport;
@@ -206,7 +205,7 @@ public class HeaderMenu extends JMenuBar {
                      JFrame frame = (JFrame) window;
                      frame.setVisible(false);
                      frame.dispose();
-                     App.appliRun = false;
+                     MainFrame.appliRun = false;
                  }
                  MainFrame.main(new String[]{});
              }

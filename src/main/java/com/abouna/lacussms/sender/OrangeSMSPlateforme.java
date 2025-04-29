@@ -17,7 +17,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -26,6 +29,8 @@ public class OrangeSMSPlateforme {
     private static Properties properties = null;
     private static final JsonMapper jsonMapper = new JsonMapper();
     private static String token = null;
+    private static List<String> codes = null;
+    private static final String EMPTY = "";
 
     public static boolean isTokenExpired(String token) {
         try {
@@ -42,7 +47,7 @@ public class OrangeSMSPlateforme {
     public static void init() {
         try {
             properties = MessageProperties.getProperties();
-            logger.info("Properties initialized: {}", properties);
+            logger.info("Properties initialized: {}", Objects.nonNull(properties));
         } catch (Exception e) {
             logger.error("Error loading SMS properties", e);
         }
@@ -53,18 +58,24 @@ public class OrangeSMSPlateforme {
             if(Objects.isNull(properties)) {
                 init();
             }
+            if(Objects.isNull(codes)) {
+                codes = getCodes();
+            }
             if(isTokenExpired(token)) {
                 token = getToken();
             }
-            logger.info("requesting with : {}, token: {}", buildEntity(number, msg), token);
+            logger.info("#### codes : {} ####", codes);
+            String phone = formatPhone(number);
+            logger.info("requesting with : {}, token: {}", buildEntity(phone, msg), token);
             Assert.notNull(token, "Token can not be null");
             HttpPost post = new HttpPost(properties.getProperty("orange.sms.send.url"));
             post.setHeader("Authorization", "Bearer " + token);
             post.setHeader("Content-Type", "application/json");
             post.setHeader("Accept", "application/json");
-            post.setEntity(buildEntity(formatPhone(number), msg));
-            boolean resp = Objects.isNull(postRequest(post, null));
-            com.abouna.lacussms.views.utils.Logger.info(String.format("%s Message envoyé au numéro: %s", resp, number), OrangeSMSPlateforme.class);
+            post.setEntity(buildEntity(phone, msg));
+            Integer statusCode = postRequest(post, Integer.class);
+            boolean resp = Objects.nonNull(statusCode) && (statusCode == 201 || statusCode == 200);
+            com.abouna.lacussms.views.utils.Logger.info(String.format("Message %s envoyé au numéro: %s", (resp ? EMPTY : "non"), phone), OrangeSMSPlateforme.class);
             return resp;
         } catch (Exception e) {
             logger.error("Error sending SMS", e);
@@ -73,7 +84,21 @@ public class OrangeSMSPlateforme {
     }
 
     private static String formatPhone(String number) {
-        return number;
+        String phone = number;
+        for (String code : codes) {
+            if (number.startsWith(code)) {
+                phone = number.replaceFirst(code, EMPTY);
+                break;
+            } else if (number.startsWith("+" + code)) {
+                phone = number.replaceFirst("+" + code, EMPTY);
+                break;
+            }
+            else if (number.startsWith("00" + code)) {
+                phone = number.replaceFirst("00" + code, EMPTY);
+                break;
+            }
+        }
+        return phone;
     }
 
     private static <T> T postRequest(HttpPost post, Class<T> t) {
@@ -85,16 +110,21 @@ public class OrangeSMSPlateforme {
             logger.info("{}: {}", respMsg, statusCode);
             if (statusCode == 201 || statusCode == 200) {
                 logger.info("Request successful: {}", statusCode);
-                return Objects.isNull(t) ? null : jsonMapper.readValue(response.getEntity().getContent(), t);
+                return t.equals(Integer.class) ? getValue(statusCode, t) : jsonMapper.readValue(response.getEntity().getContent(), t);
             }
+            return getValue(statusCode, t);
         } catch (IOException e) {
             logger.error("Error executing HTTP request", e);
+            return null;
         }
-        return null;
+    }
+
+    private static <T> T getValue(Object o, Class<T> t) {
+        return t.cast(o);
     }
 
     private static HttpEntity buildEntity(String number, String msg) {
-        BodyRequest bodyRequest = new BodyRequest("Notification", msg, "CEPISA", number);
+        BodyRequest bodyRequest = new BodyRequest(getCampaign(), msg, getProjectName(), number);
         String json = toJson(bodyRequest);
         return new StringEntity(json, ContentType.APPLICATION_JSON);
     }
@@ -128,6 +158,38 @@ public class OrangeSMSPlateforme {
             logger.error("Error getting token", e);
         }
         return null;
+    }
+
+    private static List<String> getCodes() {
+        try {
+            String codes = properties.getProperty("orange.sms.country.codes");
+            return Objects.isNull(codes) ? new ArrayList<>() : Arrays.asList(codes.split(","));
+        } catch (Exception e) {
+            logger.error("Error getting codes", e);
+        }
+        return new ArrayList<>();
+    }
+
+    private static String getProjectName() {
+        String defaultName = "CEPISA";
+        try {
+            String projectName = properties.getProperty("orange.sms.account.project");
+            return Objects.isNull(projectName) ? defaultName : projectName;
+        } catch (Exception e) {
+            logger.error("Error getting project name", e);
+        }
+        return defaultName;
+    }
+
+    private static String getCampaign() {
+        String defaultName = "Notification";
+        try {
+            String campaign = properties.getProperty("orange.sms.account.campaign");
+            return Objects.isNull(campaign) ? defaultName : campaign;
+        } catch (Exception e) {
+            logger.error("Error getting campaign name", e);
+        }
+        return defaultName;
     }
 
     private static class BodyRequest {

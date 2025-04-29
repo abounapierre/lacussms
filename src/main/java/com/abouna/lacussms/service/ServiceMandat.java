@@ -56,7 +56,7 @@ public class ServiceMandat {
             while (rs.next()) {
                 runServiceMandat(rs);
             }
-        }catch (Exception e) {
+        }catch (Throwable e) {
             String errorMessage = "Erreur lors du traitement des mandats";
             Logger.error(String.format("%s: %s", errorMessage, e.getMessage()), e, ServiceMandat.class);
             BottomPanel.settextLabel(errorMessage, Color.RED);

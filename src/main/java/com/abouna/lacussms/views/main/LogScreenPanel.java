@@ -20,4 +20,8 @@ public class LogScreenPanel extends JPanel{
         textArea.append(log);
         textArea.setCaretPosition(textArea.getDocument().getLength());
     }
+
+    public static void clear() {
+        textArea.setText("");
+    }
 }

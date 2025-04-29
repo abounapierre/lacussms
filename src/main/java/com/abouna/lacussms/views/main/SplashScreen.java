@@ -39,6 +39,7 @@ public class SplashScreen extends JWindow {
         ActionListener al = evt -> {
             count++;
             progressBar.setValue(count);
+            System.out.println("#### " + MainFrame.appliRun + " ######## ");
             if (MainFrame.appliRun) {
                 EventQueue.invokeLater(() -> {
                     MainFrame frame = ApplicationConfig.getApplicationContext().getBean(MainFrame.class);

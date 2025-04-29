@@ -53,7 +53,7 @@ public class ServiceSalaireBKMVTI {
             while (rs.next()) {
                 runServiceBKMVTI(msg, rs, format2, format1);
             }
-        }catch (Exception e) {
+        }catch (Throwable e) {
             String errorMessage = "Erreur lors du traitement des salaires BKMVTI";
             Logger.error(String.format("%s: %s", errorMessage, e.getMessage()), e, ServiceSalaireBKMVTI.class);
             BottomPanel.settextLabel(errorMessage, Color.RED);

@@ -44,17 +44,18 @@ public class Utils {
     }
 
     public static Date getTimeFromInternet() {
+        String TIME_SERVER = "time-a.nist.gov";
         try {
             Date date;
-            String TIME_SERVER = "time-a.nist.gov";
             NTPUDPClient timeClient = new NTPUDPClient();
+            timeClient.setDefaultTimeout(3000);
             InetAddress inetAddress = InetAddress.getByName(TIME_SERVER);
             TimeInfo timeInfo = timeClient.getTime(inetAddress);
             long returnTime = timeInfo.getMessage().getTransmitTimeStamp().getTime();
             date = new Date(returnTime);
             return date;
-        } catch (IOException var7) {
-            logger.info("probleme de connexion internet");
+        } catch (Throwable t) {
+            com.abouna.lacussms.views.utils.Logger.error(String.format("problème de récuperation de la date de puis %s", TIME_SERVER), t, Utils.class);
             return new Date();
         }
     }

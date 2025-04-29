@@ -60,7 +60,7 @@ public class ServiceSalaire {
             while (rs.next()) {
                 runServiceSalaire(msg, rs);
             }
-        }catch (Exception e) {
+        }catch (Throwable e) {
             String errorMessage = "Erreur lors du traitement des salaires";
             Logger.error(String.format("%s: %s", errorMessage, e.getMessage()), e, ServiceSalaire.class);
             BottomPanel.settextLabel(errorMessage, Color.RED);

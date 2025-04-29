@@ -92,7 +92,7 @@ public class ServiceCredit {
             while (rs.next()) {
                 runServiceCredit(rs);
             }
-        }catch (Exception e) {
+        }catch (Throwable e) {
             String errorMessage = "Erreur lors du traitement des crédit";
             Logger.error(String.format("%s: %s", errorMessage, e.getMessage()), e, ServiceCredit.class);
             BottomPanel.settextLabel(errorMessage, Color.RED);

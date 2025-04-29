@@ -127,7 +127,6 @@ public  class HeaderPanel extends JPanel{
     }
 
     private void stopAll() {
-        StartService.running = false;
         StartService.stopper();
     }
 }

@@ -23,7 +23,7 @@ public class ServiceUtils {
                 n = runTelService(serviceManager, bkCli, resultat, n);
             }
             Logger.info(String.format("Nombre de numéros %s", n), ServiceUtils.class);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             String errorMessage = "Erreur lors de la mise à jour du numero client";
             Logger.error(String.format("%s: %s", errorMessage, e.getMessage()), e, ServiceUtils.class);
             BottomPanel.settextLabel(errorMessage, Color.RED);

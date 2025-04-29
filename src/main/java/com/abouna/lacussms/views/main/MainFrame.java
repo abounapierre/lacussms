@@ -16,23 +16,19 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Objects;
 
 /**
  *
- * @author Vincent Douwe <douwevincent@yahoo.fr>
+ * @author abouna
  */
 @SpringBootApplication
 @EnableScheduling
 @ComponentScan({ "com.abouna.lacussms"})
 public class MainFrame extends JFrame {
     private static final Logger logger = LoggerFactory.getLogger(MainFrame.class);
-    private Image img;
     private final BottomPanel bottomPanel;
     public static boolean appliRun = false;
-
     public static Thread thread;
 
     public MainFrame(MainMenuPanel mainMenuPanel, LacusSmsService service, Environment env) throws IOException {
@@ -42,27 +38,11 @@ public class MainFrame extends JFrame {
         HeaderMenu menu = new HeaderMenu(service);
         this.setJMenuBar(menu);
         this.remove(menu);
-        try {
-            img = ImageIO.read(Objects.requireNonNull(getClass().getResource(ConstantUtils.LOGO_GENU)));
-        } catch (IOException ex) {
-            logger.error("Erreur de chargement de l'image");
-        }
-        setIconImage(img);
+        Image logo = ImageIO.read(Objects.requireNonNull(getClass().getResource(ConstantUtils.LOGO_GENU)));
+        setIconImage(logo);
         getContentPane().setLayout(new BorderLayout(10, 10));
         getContentPane().add(getMainPanel(mainMenuPanel, service), BorderLayout.CENTER);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-    }
-
-    public static boolean checkLicence(Date d) {
-        boolean val = false;
-        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yy");
-        String licence = format.format(d);
-        String s = "24/11/17";
-        int a = licence.compareTo(s);
-        if (a < 0) {
-            val = true;
-        }
-        return val;
     }
 
     public void setContent(JPanel panel) {
@@ -89,17 +69,10 @@ public class MainFrame extends JFrame {
         try {
             thread = new Thread(SplashScreen::new);
             thread.start();
-            SwingUtilities.invokeLater(() -> {
-                try {
-                    ApplicationConfig.setApplicationContext(new SpringApplicationBuilder(MainFrame.class).headless(false).run(args));
-                    UIManager.setLookAndFeel("com.jgoodies.looks.plastic.Plastic3DLookAndFeel");
-                    appliRun = true;
-                    StartService.startLicence();
-                } catch (ClassNotFoundException | UnsupportedLookAndFeelException | InstantiationException |
-                         IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+            ApplicationConfig.setApplicationContext(new SpringApplicationBuilder(MainFrame.class).headless(false).run(args));
+            UIManager.setLookAndFeel("com.jgoodies.looks.plastic.Plastic3DLookAndFeel");
+            appliRun = true;
+            StartService.startLicence();
         } catch (Exception e) {
             logError(e);
         }

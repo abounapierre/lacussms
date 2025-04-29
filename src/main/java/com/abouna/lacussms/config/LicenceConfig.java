@@ -14,7 +14,6 @@ import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
@@ -58,7 +57,8 @@ public class LicenceConfig {
             if(date != null && date.before(Utils.getTimeFromInternet())) {
                 close(message, null);
             }
-        } catch (Exception e) {
+            Logger.info("finished service licence", LicenceConfig.class);
+        } catch (Throwable e) {
             close(message, e);
         }
     }
@@ -68,8 +68,8 @@ public class LicenceConfig {
         System.exit(0);
     }
 
-    private static void close(String message, Exception e) {
-        StartService.running = false;
+    private static void close(String message, Throwable e) {
+        StartService.stopper();
         Logger.error(message, e, LicenceConfig.class);
         JOptionPane.showMessageDialog(null, message);
         System.exit(0);
@@ -86,7 +86,7 @@ public class LicenceConfig {
             int length = temp.length();
             temp = temp.replace(temp.substring(length - 1000, length), EMPTY);
             return temp;
-        } catch (IOException e) {
+        } catch (Throwable e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }

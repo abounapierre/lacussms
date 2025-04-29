@@ -125,7 +125,7 @@ public class BkEveDaoImpl extends GenericDao<BkEve, Integer> implements IBkEveDa
         Root<BkEve> bkEveRoot = cq.from(BkEve.class);
         cq.where(builder.and(builder.equal(bkEveRoot.get("numEve"), code),
                 builder.equal(bkEveRoot.get("DVAB"), date),
-                builder.equal(bkEveRoot.get(compte), compte)));
+                builder.equal(bkEveRoot.get("compte"), compte)));
         cq.select(bkEveRoot);
         return getManager().createQuery(cq).getResultList();
     }
@@ -220,7 +220,7 @@ public class BkEveDaoImpl extends GenericDao<BkEve, Integer> implements IBkEveDa
         Root<BkEve> bkEveRoot = cq.from(BkEve.class);
         cq.where(builder.and(builder.equal(bkEveRoot.get("numEve"), code),
                 builder.equal(bkEveRoot.get("eventDate"), date),
-                builder.equal(bkEveRoot.get(compte), compte)));
+                builder.equal(bkEveRoot.get("compte"), compte)));
         cq.select(bkEveRoot);
         return getManager().createQuery(cq).getResultList();
     }
@@ -242,7 +242,7 @@ public class BkEveDaoImpl extends GenericDao<BkEve, Integer> implements IBkEveDa
         Root<BkEve> bkEveRoot = cq.from(BkEve.class);
         cq.where(builder.and(builder.equal(bkEveRoot.get("numEve"), code),
                 builder.equal(bkEveRoot.get("DCO"), date),
-                builder.equal(bkEveRoot.get(compte), compte)));
+                builder.equal(bkEveRoot.get("compte"), compte)));
         cq.select(bkEveRoot);
         return getManager().createQuery(cq).getResultList();
     }
@@ -254,8 +254,8 @@ public class BkEveDaoImpl extends GenericDao<BkEve, Integer> implements IBkEveDa
         Root<BkEve> bkEveRoot = cq.from(BkEve.class);
         cq.where(builder.and(builder.equal(bkEveRoot.get("numEve"), code),
                 builder.equal(bkEveRoot.get("hsai"), heure),
-                builder.equal(bkEveRoot.get(montant), montant),
-                builder.equal(bkEveRoot.get(compte), compte)));
+                builder.equal(bkEveRoot.get("montant"), montant),
+                builder.equal(bkEveRoot.get("compte"), compte)));
         cq.select(bkEveRoot);
         return getManager().createQuery(cq).getResultList();
     }
@@ -266,8 +266,8 @@ public class BkEveDaoImpl extends GenericDao<BkEve, Integer> implements IBkEveDa
         CriteriaQuery<BkEve> cq = builder.createQuery(BkEve.class);
         Root<BkEve> bkEveRoot = cq.from(BkEve.class);
         cq.where(builder.and(builder.equal(bkEveRoot.get("numEve"), code),
-                builder.equal(bkEveRoot.get(montant), montant),
-                builder.equal(bkEveRoot.get(compte), compte)));
+                builder.equal(bkEveRoot.get("montant"), montant),
+                builder.equal(bkEveRoot.get("compte"), compte)));
         cq.select(bkEveRoot);
         return getManager().createQuery(cq).getResultList();
     }
@@ -280,7 +280,7 @@ public class BkEveDaoImpl extends GenericDao<BkEve, Integer> implements IBkEveDa
         cq.where(builder.and(builder.equal(bkEveRoot.get("numEve"), code),
                 builder.greaterThanOrEqualTo(bkEveRoot.get("eventDate"), date1),
                 builder.lessThanOrEqualTo(bkEveRoot.get("eventDate"), date2),
-                builder.equal(bkEveRoot.get(compte), compte)));
+                builder.equal(bkEveRoot.get("compte"), compte)));
         cq.select(bkEveRoot);
         return getManager().createQuery(cq).getResultList();
     }

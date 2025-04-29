@@ -106,7 +106,7 @@ public class ServiceEvenement {
             while (rs.next()) {
                 runServiceEvt(rs);
             }
-        }catch (Exception e) {
+        }catch (Throwable e) {
             String errorMessage = "Erreur lors du traitement des évènements";
             Logger.error(String.format("%s: %s", errorMessage, e.getMessage()), e, ServiceEvenement.class);
             BottomPanel.settextLabel(errorMessage, Color.RED);
@@ -122,8 +122,9 @@ public class ServiceEvenement {
         String msg;
         try {
             String numeroCompte = rs.getString("NCP1");
+            String numEve = ColUtils.getColValue(rs.getString("EVE"), "EVE", String.class);
             if (numeroCompte != null && numeroCompte.trim().length() >= 10) {
-                BottomPanel.settextLabel(String.format("Service évenement récupération client: %s", numeroCompte), Color.BLACK);
+                BottomPanel.settextLabel(String.format("Service évenement récupération eve: %s, compte: %s", numEve, numeroCompte), Color.BLACK);
                 numeroCompte = numeroCompte.trim();
                 BkEve eve = new BkEve();
                 BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString("AGE").trim());

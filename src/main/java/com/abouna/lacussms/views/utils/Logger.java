@@ -17,6 +17,11 @@ public class Logger {
         LogScreenPanel.append(getCurrentTime() + message + RETURN_LINE);
     }
 
+    public static void error(String message, Throwable e, Class<?> clazz) {
+        LoggerFactory.getLogger(clazz).error(message, e);
+        LogScreenPanel.append(getCurrentTime() + message + RETURN_LINE);
+    }
+
     public static void warning(String message, Class<?> clazz) {
         LoggerFactory.getLogger(clazz).warn(message);
         LogScreenPanel.append(getCurrentTime() + message + RETURN_LINE);

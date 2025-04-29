@@ -81,11 +81,12 @@ public class StartService {
                 }
                 Logger.info("start stopping service task....", StartService.class);
                 if (thread != null && thread.isAlive()) {
-                    thread.interrupt();
                     Logger.info("service is already stopped....", StartService.class);
+                    thread.interrupt();
                 }
             });
             Logger.info(String.format("start thread....%s", thread.getId()), StartService.class);
+            thread.setDaemon(true);
             thread.start();
         } catch (Exception e) {
             Logger.error("Error in task execution", e, StartService.class);

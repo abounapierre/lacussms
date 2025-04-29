@@ -19,7 +19,6 @@ import java.awt.*;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Component
 public class DataTaskService {
@@ -49,18 +48,16 @@ public class DataTaskService {
 
     private void executeDataBash() {
         Config config = new Config(true, true, true, true);
-        AtomicReference<String> msg = new AtomicReference<>();
+        final String errorDbMessage = "Echec de connexion à la base de données";
+        final String errorDateMessage = "Problème de formatage de la date";
+
         if (config.isEvent()) {
             try {
                 serviceEvenement.serviceEvenement();
             } catch (SQLException e) {
-                msg.set("Echec de connexion à la base de données");
-                Logger.info(msg.get(), DataTaskService.class);
-                BottomPanel.settextLabel(msg.get(), Color.RED);
+                error(errorDbMessage, e);
             } catch (ParseException e) {
-                msg.set("Problème de formatage de la date");
-                Logger.error(msg.get(), e, DataTaskService.class);
-                BottomPanel.settextLabel(msg.get(), Color.RED);
+                error( errorDateMessage, e);
             }
         }
 
@@ -69,13 +66,9 @@ public class DataTaskService {
                 serviceSalaire.serviceSalaire();
                 serviceSalaireBKMVTI.serviceSalaireBKMVTI();
             } catch (SQLException e) {
-                msg.set("Echec de connexion à la base de données");
-                Logger.error(msg.get(), e, DataTaskService.class);
-                BottomPanel.settextLabel(msg.get(), Color.RED);
+                error( errorDbMessage, e);
             } catch (ParseException e) {
-                msg.set("Problème de formatage de la date");
-                Logger.error(msg.get(), e, DataTaskService.class);
-                BottomPanel.settextLabel(msg.get(), Color.RED);
+                error( errorDateMessage, e);
             }
         }
 
@@ -83,13 +76,9 @@ public class DataTaskService {
             try {
                 serviceCredit.serviceCredit();
             } catch (SQLException e) {
-                msg.set("Echec de connexion à la base de données");
-                Logger.error(msg.get(), e, DataTaskService.class);
-                BottomPanel.settextLabel(msg.get(), Color.RED);
+                error( errorDbMessage, e);
             } catch (ParseException e) {
-                msg.set("Problème de formatage de la date");
-                Logger.error(msg.get(), e, DataTaskService.class);
-                BottomPanel.settextLabel(msg.get(), Color.RED);
+                error( errorDateMessage, e);
             }
         }
 
@@ -97,15 +86,16 @@ public class DataTaskService {
             try {
                 serviceMandat.serviceMandat();
             } catch (SQLException e) {
-                msg.set("Echec de connexion à la base de données");
-                Logger.error(msg.get(), e, DataTaskService.class);
-                BottomPanel.settextLabel(msg.get(), Color.RED);
+                error( errorDbMessage, e);
             } catch (ParseException e) {
-                msg.set("Problème de formatage de la date");
-                Logger.error(msg.get(), e, DataTaskService.class);
-                BottomPanel.settextLabel(msg.get(), Color.RED);
+                error( errorDateMessage, e);
             }
         }
+    }
+
+    private static void error(String msgException, Exception e) {
+        Logger.error(msgException, e, DataTaskService.class);
+        BottomPanel.settextLabel(msgException, Color.RED);
     }
 
     public void setConnexion(Connection connexion) {

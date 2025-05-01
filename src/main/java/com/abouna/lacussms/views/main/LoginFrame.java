@@ -5,6 +5,7 @@
  */
 package com.abouna.lacussms.views.main;
 
+import com.abouna.lacussms.main.MainFrame;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.LoginPane;
 
@@ -18,7 +19,7 @@ import java.awt.*;
  */
 public class LoginFrame {
 
-    public LoginFrame(LacusSmsService service,MainFrame mainFrame) {
+    public LoginFrame(LacusSmsService service, MainFrame mainFrame) {
         JDialog frame = new JDialog();
         frame.setTitle("Login");
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);

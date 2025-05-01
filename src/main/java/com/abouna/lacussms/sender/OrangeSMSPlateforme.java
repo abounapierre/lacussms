@@ -1,5 +1,6 @@
 package com.abouna.lacussms.sender;
 
+import com.abouna.lacussms.config.AppRunConfig;
 import com.abouna.lacussms.config.MessageProperties;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
@@ -23,6 +24,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
+
+import static org.springframework.util.StringUtils.isEmpty;
 
 public class OrangeSMSPlateforme {
     private static final Logger logger = LoggerFactory.getLogger(OrangeSMSPlateforme.class);
@@ -53,11 +56,8 @@ public class OrangeSMSPlateforme {
         }
     }
 
-    public static boolean send(String number, String msg) {
+    public static boolean sendTo(String number, String msg) {
         try {
-            if(Objects.isNull(properties)) {
-                init();
-            }
             if(Objects.isNull(codes)) {
                 codes = getCodes();
             }
@@ -78,6 +78,24 @@ public class OrangeSMSPlateforme {
             com.abouna.lacussms.views.utils.Logger.info(String.format("Message %s envoyé au numéro: %s", (resp ? EMPTY : "non"), phone), OrangeSMSPlateforme.class);
             return resp;
         } catch (Exception e) {
+            logger.error("Error sending SMS", e);
+            return false;
+        }
+    }
+
+    public static boolean send(String number, String msg) {
+        try {
+            AppRunConfig appRunConfig = AppRunConfig.getInstance();
+            if(Objects.isNull(properties)) {
+                init();
+            }
+            if(appRunConfig.getTestModeEnabled()) {
+                logger.info("Test mode is enabled, not sending SMS");
+                String phone = properties.getProperty("orange.sms.test.number");
+                return !isEmpty(phone) && sendTo(phone, msg);
+            }
+            return sendTo(number, msg);
+        }  catch (Exception e) {
             logger.error("Error sending SMS", e);
             return false;
         }

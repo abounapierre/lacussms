@@ -1,7 +1,6 @@
 package com.abouna.lacussms.views.main;
 
 import com.abouna.lacussms.views.*;
-import com.abouna.lacussms.views.tools.TestSMSPanel;
 import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
@@ -51,11 +50,7 @@ public class MainMenuPanel extends JPanel {
         JXHyperlink paramTblBtn = createLink("Param Table", MessageFormatPanel.class);
         JXHyperlink licenceBtn = createLink("Licence", null);
         JXHyperlink userParamBtn = createLink("Param Utilisateur", MessagePushPanel.class);
-        JXHyperlink testSms = createLink("Test SMS", MessagePushPanel.class);
 
-        testSms.addActionListener(ae -> {
-            TestSMSPanel.init();
-        });
 
         licenceBtn.addActionListener((ActionEvent ae) -> {
             getLicencePanel();
@@ -95,7 +90,6 @@ public class MainMenuPanel extends JPanel {
         //donneesPane.add(programSmsBtn);
         //donneesPane.add(envoieMsgBtn);
         donneesPane.add(remoteBdBtn);
-        donneesPane.add(testSms);
         //donneesPane.add(configReqBtn);
         //donneesPane.add(urlParam);
 

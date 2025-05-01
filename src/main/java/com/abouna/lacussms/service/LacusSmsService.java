@@ -8,7 +8,6 @@ package com.abouna.lacussms.service;
 import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.dto.SmsScheduledDto;
 import com.abouna.lacussms.entities.*;
-import com.abouna.lacussms.views.main.MainFrame;
 
 import java.util.Date;
 import java.util.List;

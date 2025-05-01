@@ -48,17 +48,15 @@ public class ServiceSalaire {
 
 
     public void serviceSalaire() throws SQLException, ParseException {
-        BottomPanel.settextLabel("Traitement des salaires en cours.... ", java.awt.Color.BLACK);
-
+        String msg = "Traitement des salaires en cours.... ";
+        BottomPanel.settextLabel(msg, java.awt.Color.BLACK);
         String query = "SELECT b.NCP AS NCP1,b.AGE,b.DCO AS DSAI,b.OPE,b.EVE,b.MON FROM BKMPAI b  WHERE b.NCP >= '0' ORDER BY DCO ASC";
-
-        String msg = "Recherche données salaires.... ";
         Logger.info(query, ServiceSalaire.class);
         try (PreparedStatement ps = getConn().prepareStatement(query)) {
             ResultSet rs = ps.executeQuery();
             Logger.info(String.format("nombre de lignes trouvées: %s", ColUtils.getSize(rs)), ServiceSalaire.class);
             while (rs.next()) {
-                runServiceSalaire(msg, rs);
+                runServiceSalaire(rs);
             }
         }catch (Throwable e) {
             String errorMessage = "Erreur lors du traitement des salaires";
@@ -72,8 +70,9 @@ public class ServiceSalaire {
         }
     }
 
-    private void runServiceSalaire(String msg, ResultSet rs) {
+    private void runServiceSalaire(ResultSet rs) {
         try {
+            String msg = "Recherche données salaires.... ";
             Logger.info(msg, ServiceSalaire.class);
             BottomPanel.settextLabel(msg, Color.BLACK);
             String numeroCompte = rs.getString(1);
@@ -161,7 +160,6 @@ public class ServiceSalaire {
                     }
                 }
             }
-
         });
     }
 }

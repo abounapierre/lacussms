@@ -5,6 +5,9 @@ import com.abouna.lacussms.config.AppRunConfig;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.task.StartService;
 import com.abouna.lacussms.views.ContactPanel;
+import com.abouna.lacussms.views.compoents.GroupeSMSJDialog;
+import com.abouna.lacussms.views.compoents.LacusIcon;
+import com.abouna.lacussms.views.tools.TestSMSPanel;
 import org.jdesktop.swingx.JXButton;
 
 import javax.imageio.ImageIO;
@@ -15,6 +18,8 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.Objects;
 
+import static com.abouna.lacussms.views.tools.ConstantUtils.ICON_SEND_SMS;
+
 /**
  *
  * @author ebaouna@gmail.com
@@ -23,9 +28,12 @@ public  class HeaderPanel extends JPanel{
     private JButton runBtn;
     private JButton stopBtn;
     private JButton runParaBtn;
+    private JCheckBox serviceDataCheckBox;
+    private JCheckBox serviceSmsCheckBox;
+    private JCheckBox testModeCheckBox;
 
     public HeaderPanel(LacusSmsService service) throws IOException{
-        setLayout(new FlowLayout(FlowLayout.LEFT,10,10));        
+        setLayout(new FlowLayout(FlowLayout.LEFT,10,10));
         setBackground(new Color(166, 202, 240));
         setBorder(BorderFactory.createRaisedSoftBevelBorder());
         JPanel pan = new JPanel(new FlowLayout(FlowLayout.RIGHT,10,10));
@@ -56,35 +64,19 @@ public  class HeaderPanel extends JPanel{
         runParaBtn.setToolTipText("Démarrer le service SMS Parallèle");
         add(adBtn);
         add(cotBtn);
-        //add(runBtn);
         add(runParaBtn);
         add(stopBtn);
 
         add(getDataCheckBox());
         add(getSmsCheckBox());
-        //runParaBtn.setEnabled(false);
-        
-        runBtn.addActionListener((ActionEvent e) -> {
-            stopBtn.setEnabled(true);
-            runBtn.setEnabled(false);
-            runParaBtn.setEnabled(false);
-            JOptionPane.showMessageDialog(HeaderPanel.this.getParent(), "Le service a démarré avec succès");
-       });       
-         runParaBtn.addActionListener((ActionEvent e) -> {
-             stopBtn.setEnabled(true);
-             runBtn.setEnabled(false);
-             runParaBtn.setEnabled(false);
-             startAll();
-             JOptionPane.showMessageDialog(HeaderPanel.this.getParent(), "Le service a démarré avec succès");
-       });
-       
-        stopBtn.addActionListener((ActionEvent e) -> {
-            stopAll();
-            stopBtn.setEnabled(false);
-            runBtn.setEnabled(true);
-            runParaBtn.setEnabled(true);
-            JOptionPane.showMessageDialog(HeaderPanel.this.getParent(), "Le service a été arrêté");
-       });      
+        add(getTestCheckBox());
+        add(getTestSMSButton());
+        add(getGroupeSMSButton());
+
+        runBtn.addActionListener((ActionEvent e) -> startAll());
+        runParaBtn.addActionListener((ActionEvent e) -> startAll());
+        stopBtn.addActionListener((ActionEvent e) -> stopAll());
+
         cotBtn.addActionListener((ActionEvent e) -> {
             JDialog contact = new ContactPanel();
             contact.setSize(400, 200);
@@ -96,8 +88,30 @@ public  class HeaderPanel extends JPanel{
        });
     }
 
+    private JButton getGroupeSMSButton() {
+        JButton groupeSMSButton = new JButton(new LacusIcon(ICON_SEND_SMS));
+        groupeSMSButton.setPreferredSize(new Dimension(100, 30));
+        groupeSMSButton.addActionListener(e -> GroupeSMSJDialog.initDialog());
+        return groupeSMSButton;
+    }
+
+    private JButton getTestSMSButton() {
+        JButton testSMSButton = new JButton("Test SMS");
+        testSMSButton.setPreferredSize(new Dimension(100, 30));
+        testSMSButton.addActionListener(e -> TestSMSPanel.init());
+        return testSMSButton;
+    }
+
+    private JCheckBox getTestCheckBox() {
+        testModeCheckBox = new JCheckBox("Test Mode");
+        testModeCheckBox.setSelected(true);
+        testModeCheckBox.setEnabled(true);
+        testModeCheckBox.addActionListener((ActionEvent e) -> setTestMode(testModeCheckBox));
+        return testModeCheckBox;
+    }
+
     private JCheckBox getSmsCheckBox() {
-        JCheckBox serviceSmsCheckBox = new JCheckBox("Service SMS");
+        serviceSmsCheckBox = new JCheckBox("Service SMS");
         serviceSmsCheckBox.setSelected(true);
         serviceSmsCheckBox.setEnabled(true);
         serviceSmsCheckBox.addActionListener((ActionEvent e) -> getSetSmsServiceEnabled(serviceSmsCheckBox));
@@ -105,7 +119,7 @@ public  class HeaderPanel extends JPanel{
     }
 
     private JCheckBox getDataCheckBox() {
-        JCheckBox serviceDataCheckBox = new JCheckBox("Service Data");
+        serviceDataCheckBox = new JCheckBox("Service Data");
         serviceDataCheckBox.setSelected(true);
         serviceDataCheckBox.setEnabled(true);
         serviceDataCheckBox.addActionListener((ActionEvent e) -> getSetDataServiceEnabled(serviceDataCheckBox));
@@ -122,11 +136,30 @@ public  class HeaderPanel extends JPanel{
         config.setMessageServiceEnabled(serviceSMSCheckBox.isSelected());
     }
 
+    private void setTestMode(JCheckBox testMode) {
+        AppRunConfig config = AppRunConfig.getInstance();
+        config.setTestModeEnabled(testMode.isSelected());
+    }
+
     private void startAll() {
+        stopBtn.setEnabled(true);
+        runBtn.setEnabled(false);
+        runParaBtn.setEnabled(false);
+        testModeCheckBox.setEnabled(false);
+        serviceDataCheckBox.setEnabled(false);
+        serviceSmsCheckBox.setEnabled(false);
+        JOptionPane.showMessageDialog(HeaderPanel.this.getParent(), "Le service a démarré avec succès");
         StartService.startSequential();
     }
 
     private void stopAll() {
+        stopBtn.setEnabled(false);
+        runBtn.setEnabled(true);
+        runParaBtn.setEnabled(true);
+        testModeCheckBox.setEnabled(true);
+        serviceDataCheckBox.setEnabled(true);
+        serviceSmsCheckBox.setEnabled(true);
+        JOptionPane.showMessageDialog(HeaderPanel.this.getParent(), "Le service a été arrêté");
         StartService.stopper();
     }
 }

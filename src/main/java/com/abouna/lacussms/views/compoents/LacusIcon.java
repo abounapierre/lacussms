@@ -12,7 +12,7 @@ public class LacusIcon extends javax.swing.ImageIcon {
             ajouImg = ImageIO.read(Objects.requireNonNull(getClass().getResource(path)));
             setImage(ajouImg);
         } catch (IOException e) {
-            setImage(new javax.swing.ImageIcon().getImage());
+            setImage(null);
         }
     }
 }

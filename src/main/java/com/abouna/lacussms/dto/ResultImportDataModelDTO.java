@@ -6,6 +6,7 @@ import java.util.List;
 public class ResultImportDataModelDTO {
     private List<SuccessImportDataModelDTO> success;
     private List<FailImportDataModelDTO> errors;
+    private Integer totalExisting = 0;
 
     public ResultImportDataModelDTO() {
         success = new ArrayList<>();
@@ -15,6 +16,14 @@ public class ResultImportDataModelDTO {
     public ResultImportDataModelDTO(List<SuccessImportDataModelDTO> success, List<FailImportDataModelDTO> errors) {
         this.success = success;
         this.errors = errors;
+    }
+
+    public Integer getTotalExisting() {
+        return totalExisting;
+    }
+
+    public void setTotalExisting(Integer totalExisting) {
+        this.totalExisting = totalExisting;
     }
 
     public List<SuccessImportDataModelDTO> getSuccess() {

@@ -5,6 +5,7 @@ import com.abouna.lacussms.dao.IBkCompCliDao;
 import com.abouna.lacussms.dto.ClientCSV;
 import com.abouna.lacussms.dto.FailImportDataModelDTO;
 import com.abouna.lacussms.dto.ResultImportDataModelDTO;
+import com.abouna.lacussms.dto.SuccessImportDataModelDTO;
 import com.abouna.lacussms.entities.BkCli;
 import com.abouna.lacussms.entities.BkCompCli;
 import com.abouna.lacussms.service.LacusImportDataService;
@@ -31,6 +32,7 @@ public class LacusImportDataServiceImpl implements LacusImportDataService {
     public ResultImportDataModelDTO importAccountData(List<ClientCSV> models) {
         ResultImportDataModelDTO resultImportDataModelDTO = new ResultImportDataModelDTO();
         int line = 0;
+        int exists = 0;
         try {
             for(ClientCSV model : models) {
                 BkCli bkCli = new BkCli();
@@ -47,6 +49,10 @@ public class LacusImportDataServiceImpl implements LacusImportDataService {
                 bkCli.setLibelle(model.getCivilite());
                 if (bkCliDao.findById(bkCli.getCode()) == null) {
                     bkCliDao.create(bkCli);
+                    resultImportDataModelDTO.getSuccess().add(new SuccessImportDataModelDTO(model));
+                    ++line;
+                } {
+                    ++exists;
                 }
                 bkCompCli.setCli(bkCli);
                 bkCompCli.setNumc(compte.toUpperCase());
@@ -54,11 +60,11 @@ public class LacusImportDataServiceImpl implements LacusImportDataService {
                 if (bkCompCliDao.findById(compte) == null) {
                     bkCompCliDao.create(bkCompCli);
                 }
-                ++line;
             }
         } catch (Exception e) {
             resultImportDataModelDTO.getErrors().add(new FailImportDataModelDTO(e.getMessage(), line));
         }
+        resultImportDataModelDTO.setTotalExisting(exists);
         return resultImportDataModelDTO;
     }
 }

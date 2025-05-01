@@ -9,8 +9,11 @@ package com.abouna.lacussms.views;
 import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.entities.*;
 import com.abouna.lacussms.service.LacusSmsService;
+import com.abouna.lacussms.views.compoents.ContentMessageDialog;
 import com.abouna.lacussms.views.main.MainMenuPanel;
+import com.abouna.lacussms.views.tools.FakeDataService;
 import com.abouna.lacussms.views.tools.PrintReportPDF;
+import com.abouna.lacussms.views.tools.Sender;
 import com.abouna.lacussms.views.utils.CustomTable;
 import com.abouna.lacussms.views.utils.CustomTableCellRenderer;
 import com.abouna.lacussms.views.utils.DialogUtils;
@@ -37,6 +40,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static com.abouna.lacussms.views.tools.ConstantUtils.NO_SELECTED_ITEM;
 
 /**
  *
@@ -74,7 +79,7 @@ public class RapportPanel extends JPanel {
         JButton nouveau = new JButton(new ImageIcon(ajouImg));
         nouveau.setToolTipText("Ajouter un nouveau message");
         JButton supprimer = new JButton(new ImageIcon(supprImg));
-        supprimer.setToolTipText("Suprimer un message");
+        supprimer.setToolTipText("Supprimer un message");
         JButton modifier = new JButton(new ImageIcon(modifImg));
         modifier.setToolTipText("Modifier un message");
         JButton filtre = new JButton("Filtrer");
@@ -152,22 +157,22 @@ public class RapportPanel extends JPanel {
         });
         printBtn.addActionListener((ActionEvent e) -> {
             try {
-                Date d1, d2;
+                Date date1, date2;
                 SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
 
                 if (dateDeb.getDate() == null || dateFin.getDate() == null) {
                     JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "la date de début ou de fin ne doit pas etre vide");
                     return;
                 }
-                d1 = format.parse(format.format(dateDeb.getDate()));
-                d2 = format.parse(format.format(dateFin.getDate()));
-                if (d1 != null & d2 != null) {
+                date1 = format.parse(format.format(dateDeb.getDate()));
+                date2 = format.parse(format.format(dateFin.getDate()));
+                if (date1 != null & date2 != null) {
                     int valRetour = fc.showSaveDialog(RapportPanel.this);
                     if (valRetour == JFileChooser.APPROVE_OPTION) {
                         File fichier = fc.getSelectedFile();
                         String path = fichier.getAbsolutePath() + ".pdf";
                         try {
-                            PrintReportPDF report = new PrintReportPDF(path, d1, d2, serviceManager);
+                            PrintReportPDF report = new PrintReportPDF(path, date1, date2, serviceManager);
                         } catch (FileNotFoundException ex) {
                             Logger.getLogger(RapportPanel.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -220,13 +225,16 @@ public class RapportPanel extends JPanel {
         contenu.add(BorderLayout.BEFORE_FIRST_LINE, filtrePanel);
         tableModel = new DefaultTableModel(new Object[]{"ID", "Titre", "Contenu", "Date", "Numéro", "Client", "Agence"}, 0);
         table = new CustomTable(tableModel, renderer);
-        table.setBackground(Color.WHITE);
-        //table.getColumnModel().getColumn(2).setPreferredWidth(280);
-        //table.removeColumn(table.getColumnModel().getColumn(0));
+        table.setComponentPopupMenu(getPopupMenu());
+        table.getColumnModel().getColumn(0).setPreferredWidth(20);
+        table.getColumnModel().getColumn(2).setPreferredWidth(350);
+        table.setRowSelectionAllowed(true);
+        table.setSelectionMode(ListSelectionModel. SINGLE_SELECTION);
+        table.setSelectionForeground(Color.BLUE);
         contenu.add(BorderLayout.CENTER, new JScrollPane(table));
         add(BorderLayout.CENTER, contenu);
         try {
-            addData(serviceManager.getAllMessages());
+            addData(/*serviceManager.getAllMessages()*/FakeDataService.getFakeMessages());
             numberText.setText(Integer.toString(tableModel.getRowCount()));
         } catch (Exception ex) {
             Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
@@ -244,6 +252,54 @@ public class RapportPanel extends JPanel {
             a.getBkEve() == null ? "" : a.getBkEve().getCli() == null ? "" : a.getBkEve().getCli().getNom() + " " + a.getBkEve().getCli().getPrenom(),
             a.getBkEve() == null ? "" : a.getBkEve().getBkAgence() == null ? "" : a.getBkEve().getBkAgence().getNoma()
         }));
+    }
+
+    private JPopupMenu getPopupMenu() {
+        JPopupMenu popup = new JPopupMenu();
+        JMenuItem detailsItem = new JMenuItem("Détails");
+        detailsItem.addActionListener((ActionEvent e) -> getDetailsEvent());
+        JMenuItem resendEventItem = new JMenuItem("Renvoyer SMS");
+        resendEventItem.addActionListener((ActionEvent e) -> getResendSmsEvent());
+        popup.add(detailsItem);
+        popup.add(resendEventItem);
+        return popup;
+    }
+
+    private void getResendSmsEvent() {
+        int selected = table.getSelectedRow();
+        if (selected >= 0) {
+            Integer id = (Integer) tableModel.getValueAt(selected, 0);
+            try {
+                resendMessage(serviceManager.getMessageById(id));
+            } catch (Exception ex) {
+                Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            JOptionPane.showMessageDialog(RapportPanel.this.getParent(), NO_SELECTED_ITEM);
+        }
+    }
+
+    private void resendMessage(Message messageById) {
+        boolean res  = Sender.send(messageById.getNumero(), messageById.getContent());
+        if (res) {
+            JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "Message renvoyé avec succès");
+        } else {
+            JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "Erreur d'envoi du message");
+        }
+    }
+
+    private void getDetailsEvent() {
+        int selected = table.getSelectedRow();
+        if (selected >= 0) {
+            Integer id = (Integer) tableModel.getValueAt(selected, 0);
+            try {
+                ContentMessageDialog.initDialog(serviceManager.getMessageById(id));
+            } catch (Exception ex) {
+                Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            JOptionPane.showMessageDialog(RapportPanel.this.getParent(), NO_SELECTED_ITEM);
+        }
     }
 
     private JButton getPurgeButton() {

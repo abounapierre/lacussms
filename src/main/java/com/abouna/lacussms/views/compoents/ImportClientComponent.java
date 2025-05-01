@@ -5,7 +5,7 @@ import com.abouna.lacussms.dto.ClientCSV;
 import com.abouna.lacussms.dto.ResultImportDataModelDTO;
 import com.abouna.lacussms.service.LacusImportDataService;
 import com.abouna.lacussms.service.LacusSmsService;
-import com.abouna.lacussms.views.main.MainFrame;
+import com.abouna.lacussms.main.MainFrame;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;

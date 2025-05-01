@@ -133,6 +133,6 @@ public class SpringMainConfig {
 
     @Bean
     public AppRunConfig getAppRunConfig() {
-        return new AppRunConfig(Boolean.FALSE, Boolean.FALSE);
+        return new AppRunConfig(Boolean.TRUE, Boolean.TRUE, Boolean.TRUE);
     }
 }

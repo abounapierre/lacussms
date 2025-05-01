@@ -71,10 +71,11 @@ public class ServiceMandat {
     private void runServiceMandat(ResultSet rs) {
         String msg;
         try {
-            msg = "Recherche données de mandats.... ";
+            String num = rs.getString(1).trim();
+            msg = String.format("Récuperation données de mandats.... %s", num);
             Logger.info(msg, ServiceMandat.class);
             BottomPanel.settextLabel(msg, Color.BLACK);
-            BkMad bkMad = serviceManager.getBkMadByClesec(rs.getString(1).trim());
+            BkMad bkMad = serviceManager.getBkMadByClesec(num);
             String result = rs.getString(2).trim();
             if (bkMad == null) {
                 BkMad eve = new BkMad();
@@ -93,7 +94,7 @@ public class ServiceMandat {
                 }
                 eve.setSent(false);
                 eve.setEve(rs.getString(6).trim());
-                eve.setClesec(rs.getString(1).trim());
+                eve.setClesec(num);
                 eve.setId(serviceManager.getMaxBkMad() + 1);
                 switch (result) {
                     case "9":

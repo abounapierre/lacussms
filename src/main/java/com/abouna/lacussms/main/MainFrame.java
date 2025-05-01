@@ -1,8 +1,14 @@
-package com.abouna.lacussms.views.main;
+package com.abouna.lacussms.main;
 
 import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.task.StartService;
+import com.abouna.lacussms.views.main.BottomPanel;
+import com.abouna.lacussms.views.main.HeaderMenu;
+import com.abouna.lacussms.views.main.HeaderPanel;
+import com.abouna.lacussms.views.main.HomePanel;
+import com.abouna.lacussms.views.main.MainMenuPanel;
+import com.abouna.lacussms.views.main.SplashScreen;
 import com.abouna.lacussms.views.tools.ConstantUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +49,10 @@ public class MainFrame extends JFrame {
         getContentPane().setLayout(new BorderLayout(10, 10));
         getContentPane().add(getMainPanel(mainMenuPanel, service), BorderLayout.CENTER);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+    }
+
+    public static MainFrame getInstance() {
+        return ApplicationConfig.getApplicationContext().getBean(MainFrame.class);
     }
 
     public void setContent(JPanel panel) {

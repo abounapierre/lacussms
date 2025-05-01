@@ -124,7 +124,9 @@ public class ServiceEvenement {
             String numeroCompte = rs.getString("NCP1");
             String numEve = ColUtils.getColValue(rs.getString("EVE"), "EVE", String.class);
             if (numeroCompte != null && numeroCompte.trim().length() >= 10) {
-                BottomPanel.settextLabel(String.format("Service évenement récupération eve: %s, compte: %s", numEve, numeroCompte), Color.BLACK);
+                String print = String.format("Service évenement récupération eve: %s, compte: %s", numEve, numeroCompte);
+                Logger.info(print, ServiceEvenement.class);
+                BottomPanel.settextLabel(print, Color.BLACK);
                 numeroCompte = numeroCompte.trim();
                 BkEve eve = new BkEve();
                 BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString("AGE").trim());
@@ -178,6 +180,10 @@ public class ServiceEvenement {
                     BottomPanel.settextLabel(msg, Color.BLACK);
                     serviceManager.enregistrer(eve);
                     ServiceUtils.mettreAjourNumero(serviceManager, conn, bkCli, cli);
+                }else {
+                    msg = "Evènement déjà traité.... " + eve.getNumEve();
+                    Logger.info(msg, ServiceEvenement.class);
+                    BottomPanel.settextLabel(msg, Color.RED);
                 }
             }
         } catch (Exception e) {

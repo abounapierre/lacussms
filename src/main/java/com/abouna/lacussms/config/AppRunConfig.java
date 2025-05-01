@@ -3,10 +3,17 @@ package com.abouna.lacussms.config;
 public class AppRunConfig {
     private Boolean dataServiceEnabled;
     private Boolean messageServiceEnabled;
+    private Boolean testModeEnabled;
 
     public AppRunConfig(Boolean dataServiceEnabled, Boolean messageServiceEnabled) {
         this.dataServiceEnabled = dataServiceEnabled;
         this.messageServiceEnabled = messageServiceEnabled;
+    }
+
+    public AppRunConfig(Boolean dataServiceEnabled, Boolean messageServiceEnabled, Boolean testModeEnabled) {
+        this.dataServiceEnabled = dataServiceEnabled;
+        this.messageServiceEnabled = messageServiceEnabled;
+        this.testModeEnabled = testModeEnabled;
     }
 
     public static AppRunConfig getInstance() {
@@ -27,5 +34,11 @@ public class AppRunConfig {
 
     public void setMessageServiceEnabled(Boolean messageServiceEnabled) {
         this.messageServiceEnabled = messageServiceEnabled;
+    }
+    public Boolean getTestModeEnabled() {
+        return testModeEnabled;
+    }
+    public void setTestModeEnabled(Boolean testModeEnabled) {
+        this.testModeEnabled = testModeEnabled;
     }
 }

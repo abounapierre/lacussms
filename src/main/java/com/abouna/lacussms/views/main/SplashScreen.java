@@ -1,6 +1,7 @@
 package com.abouna.lacussms.views.main;
 
 import com.abouna.lacussms.config.ApplicationConfig;
+import com.abouna.lacussms.main.MainFrame;
 import com.abouna.lacussms.views.tools.ConstantUtils;
 
 import javax.swing.*;
@@ -39,7 +40,6 @@ public class SplashScreen extends JWindow {
         ActionListener al = evt -> {
             count++;
             progressBar.setValue(count);
-            System.out.println("#### " + MainFrame.appliRun + " ######## ");
             if (MainFrame.appliRun) {
                 EventQueue.invokeLater(() -> {
                     MainFrame frame = ApplicationConfig.getApplicationContext().getBean(MainFrame.class);

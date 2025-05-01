@@ -52,8 +52,6 @@ public class TestSMSPanel extends JDialog {
         });
 
         annulerBtn.addActionListener(ae -> {
-            MainMenuPanel parentPanel = ApplicationConfig.getApplicationContext().getBean(MainMenuPanel.class);
-            parentPanel.setContent(new HomePanel());
             TestSMSPanel.this.dispose();
         });
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);

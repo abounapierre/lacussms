@@ -30,10 +30,12 @@ public class ConstantUtils {
     public static final String ICON_ADD = "/images/Ajouter.png";
     public static final String ICON_UPDATE = "/images/OK.png";
     public static final String ICON_DELETE = "/images/Cancel2.png";
+    public static final String ICON_SEND_SMS = "/images/send.png";
     public static final String [] HEADER = {"code","civilite", "nom", "prenom", "telephone","compte", "langue"};
     public static final String ROOT_LACUS_PATH = Paths.get(".").toAbsolutePath().getParent().getParent().toString();
     public static final String GET_CONNECTION_NULL_ERROR = "Connexion cannot be null";
     public static final String DEFAULT_AGENCE_CODE = "00200";
     public static final int DEFAULT_ACCOUNT_LENGTH = 10;
     public static final long DEFAULT_WAIT_NUMBER = 5000;
+    public static final String NO_SELECTED_ITEM = "Aucun élément sélectionné";
 }

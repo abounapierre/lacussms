@@ -12,6 +12,7 @@ import com.abouna.lacussms.entities.BkCli;
 import com.abouna.lacussms.entities.BkEve;
 import com.abouna.lacussms.entities.BkOpe;
 import com.abouna.lacussms.service.LacusSmsService;
+import com.abouna.lacussms.views.compoents.ContentEveDialog;
 import com.abouna.lacussms.views.main.MainMenuPanel;
 import com.abouna.lacussms.views.utils.CustomTable;
 import com.abouna.lacussms.views.utils.CustomTableCellRenderer;
@@ -36,6 +37,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static com.abouna.lacussms.views.tools.ConstantUtils.NO_SELECTED_ITEM;
 
 /**
  *
@@ -104,7 +107,7 @@ public class BkEvePanel extends JPanel{
                     tableModel.removeRow(selected);
                 }
             } else {
-                JOptionPane.showMessageDialog(BkEvePanel.this.getParent(), "Aucun élément selectionné");
+                JOptionPane.showMessageDialog(BkEvePanel.this.getParent(), NO_SELECTED_ITEM);
             }
         });
         JButton purgerBtn = new JButton("Purger");
@@ -151,9 +154,11 @@ public class BkEvePanel extends JPanel{
         });
         contenu.add(BorderLayout.AFTER_LAST_LINE, bas);
         contenu.add(BorderLayout.BEFORE_FIRST_LINE, filtrePanel);
-        tableModel = new DefaultTableModel(new Object[]{"Id","Code","Client", "Opération","Compte","Montant","Etat","Agence","Date","Heure","Traité?"}, 0);
+        tableModel = new DefaultTableModel(new Object[]{"Id","Code","Client","Compte","Date","Heure","Traité?"}, 0);
         table = new CustomTable(tableModel, renderer);
         table.setBackground(Color.WHITE);
+        table.setComponentPopupMenu(getPopupMenu());
+        table.setSelectionForeground(Color.BLUE);
         contenu.add(BorderLayout.CENTER, new JScrollPane(table));
         add(BorderLayout.CENTER, contenu);
         try {
@@ -163,20 +168,36 @@ public class BkEvePanel extends JPanel{
         }
     }
 
+    private JPopupMenu getPopupMenu() {
+        JPopupMenu popup = new JPopupMenu();
+        JMenuItem menuItem = new JMenuItem("Détails");
+        menuItem.addActionListener((ActionEvent e) -> {
+            int selected = table.getSelectedRow();
+            if (selected >= 0) {
+                Integer id = (Integer) tableModel.getValueAt(selected, 0);
+                try {
+                    ContentEveDialog.initDialog(serviceManager.getBkEveById(id));
+                } catch (Exception ex) {
+                    Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                JOptionPane.showMessageDialog(BkEvePanel.this.getParent(), "Aucun élément n'est selectionné");
+            }
+        });
+        popup.add(menuItem);
+        return popup;
+    }
+
     private void addData(List<BkEve> bkeveList) {
         renderer.setSelectedRows(IntStream.range(0, bkeveList.size()).filter(i -> !bkeveList.get(i).isSent()).boxed().collect(Collectors.toList()));
         bkeveList.forEach((a) -> tableModel.addRow(new Object[]{
             a.getId(),
             a.getNumEve(),
             a.getCli() == null ? "" : a.getCli().getNom() + " " + a.getCli().getPrenom(),
-            a.getOpe() == null ? "" : a.getOpe().getLib(),
             a.getCompte(),
-            a.getMontant(),
-            a.getEtat(),
-            a.getBkAgence() == null ? "" : a.getBkAgence().getNoma(),
             a.getDVAB() == null ? "" : a.getDVAB(),
             a.getHsai(),
-            a.isSent()
+            a.isSent() ? "Oui" : "Non"
         }));
     }
 

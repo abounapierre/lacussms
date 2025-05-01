@@ -100,14 +100,14 @@ public class BkCliPanel extends JPanel{
         bas.add(nouveau);
         bas.add(modifier);
         bas.add(supprimer);
-        bas.add(new LacusButton(new LacusIcon(ICON_EXCEL), "Importer les clients depuis un csv", a -> new ImportClientComponent(this)));
+        bas.add(getImportClientButton());
         JPanel filtrePanel = new JPanel();
         filtrePanel.setLayout(new FlowLayout());
         final JXSearchField searchField = new JXSearchField("Rechercher");
         searchField.setPreferredSize(new Dimension(500, 50));
         filtrePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createRaisedBevelBorder(), "Zone de recherche"));
         filtrePanel.add(searchField);
-         filtrePanel.setBackground(new Color(166, 202, 240));
+        filtrePanel.setBackground(new Color(166, 202, 240));
         searchField.addActionListener(e -> {
             String val;
             if (searchField.getText() != null) {
@@ -161,9 +161,11 @@ public class BkCliPanel extends JPanel{
         }
     }
 
+    private JButton getImportClientButton() {
+        return new LacusButton(new LacusIcon(ICON_EXCEL), "Importer les clients et comptes depuis un csv", a -> new ImportClientComponent(this));
+    }
 
     private class Nouveau extends JDialog {
-
         private final JTextField codeText;
         private final JTextField nameText;
         private final JTextField prenomText;

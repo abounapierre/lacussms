@@ -7,6 +7,7 @@ package com.abouna.lacussms.views.main;
 
 
 import com.abouna.lacussms.entities.Config;
+import com.abouna.lacussms.main.MainFrame;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.DateSoldeDialog;
 import com.abouna.lacussms.views.tools.CSVFileImport;
@@ -25,7 +26,7 @@ import java.text.ParseException;
  * @author Administrateur
  */
 public class HeaderMenu extends JMenuBar {
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MainFrame.class);
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(HeaderMenu.class);
     private JMenu employe;
     private JMenuItem langue;
     private final LacusSmsService serviceManager;

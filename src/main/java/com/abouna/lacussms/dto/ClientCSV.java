@@ -1,5 +1,7 @@
 package com.abouna.lacussms.dto;
 
+import static org.codehaus.plexus.util.StringUtils.isNumeric;
+
 public class ClientCSV {
     private final Integer ligne;
     private final String code;
@@ -51,5 +53,19 @@ public class ClientCSV {
 
     public Integer getLigne() {
         return ligne;
+    }
+
+    public boolean isInvalid() {
+        return code == null || code.isEmpty() ||
+                civilite == null || civilite.isEmpty() ||
+                ((nom == null || nom.isEmpty()) &&
+                (prenom == null || prenom.isEmpty())) ||
+                telephone == null || telephone.isEmpty() || !isNumeric(telephone) ||
+                compte == null || compte.isEmpty() ||
+                langue == null || langue.isEmpty();
+    }
+
+    public Integer getIndex() {
+        return ligne - 1;
     }
 }

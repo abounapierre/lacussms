@@ -9,7 +9,7 @@ import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.entities.Licence;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.BottomPanel;
-import com.abouna.lacussms.views.main.MainFrame;
+import com.abouna.lacussms.main.MainFrame;
 import com.abouna.lacussms.views.tools.Utils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;

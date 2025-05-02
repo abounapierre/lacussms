@@ -106,7 +106,6 @@ public class ServiceCredit {
 
     private void runServiceCredit(ResultSet rs) {
         try {
-            BottomPanel.settextLabel("Recherche évènements credits.... ", Color.BLACK);
             String numeroCompte = getColValue(rs.getString(1), "NCP", String.class);
             String ope = getColValue(rs.getString(3), "OPE", String.class);
             BottomPanel.settextLabel(String.format("Salaire Récupération client: %s", numeroCompte), Color.BLACK);
@@ -120,6 +119,7 @@ public class ServiceCredit {
                     age = null;
                     while (result.next()) {
                         age = result.getString(1).trim();
+                        Logger.info("Recuperation de l'agence: " + age, ServiceCredit.class);
                     }
                 }
                 BkEve eve = new BkEve();

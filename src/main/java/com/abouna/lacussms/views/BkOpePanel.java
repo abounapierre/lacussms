@@ -190,12 +190,12 @@ public class BkOpePanel extends JPanel{
 
             okBtn.addActionListener(ae -> {
                 BkOpe a = new BkOpe();
-                 if (!codeText.getText().equals("")) {
+                 if (!codeText.getText().isEmpty()) {
                     a.setOpe(codeText.getText());
                 } else {
                     JOptionPane.showMessageDialog(null, "Le nom est obligatoire");
                 }
-                if (!nameText.getText().equals("")) {
+                if (!nameText.getText().isEmpty()) {
                     a.setLib(nameText.getText());
                 } else {
                     JOptionPane.showMessageDialog(null, "Le libellé est obligatoire");
@@ -230,7 +230,6 @@ public class BkOpePanel extends JPanel{
                 } catch (IOException ex) {
                     Logger.getLogger(BkOpePanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
-
             });
         }
     }   

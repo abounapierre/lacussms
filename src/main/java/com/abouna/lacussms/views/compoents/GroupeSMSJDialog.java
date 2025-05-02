@@ -10,11 +10,13 @@ public class GroupeSMSJDialog extends JDialog {
 
     public GroupeSMSJDialog(JFrame parent) {
         super(parent, true);
-        setTitle("Groupe SMS");
-        setSize(700, 400);
+        setLayout(new BorderLayout(10, 10));
+        setTitle("Envoyer des SMS groupés");
+        setSize(new Dimension(parent.getWidth() - 200, parent.getHeight() - 200));
         setLocationRelativeTo(parent);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
+        add(GroupeSMSPanel.init(this), BorderLayout.CENTER);
     }
 
     public static void initDialog() {

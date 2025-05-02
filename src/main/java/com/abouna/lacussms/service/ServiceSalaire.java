@@ -72,12 +72,12 @@ public class ServiceSalaire {
 
     private void runServiceSalaire(ResultSet rs) {
         try {
-            String msg = "Recherche données salaires.... ";
-            Logger.info(msg, ServiceSalaire.class);
-            BottomPanel.settextLabel(msg, Color.BLACK);
             String numeroCompte = rs.getString(1);
             if (numeroCompte != null) {
                 numeroCompte = numeroCompte.trim();
+                String msg = "Traitement salaire.... " + numeroCompte;
+                Logger.info(msg, ServiceSalaire.class);
+                BottomPanel.settextLabel(msg, Color.BLACK);
                 if (numeroCompte.length() >= 10) {
                     BkEve eve = new BkEve();
                     BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString(2).trim());

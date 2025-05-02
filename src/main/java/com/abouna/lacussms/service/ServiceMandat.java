@@ -72,7 +72,7 @@ public class ServiceMandat {
         String msg;
         try {
             String num = rs.getString(1).trim();
-            msg = String.format("Récuperation données de mandats.... %s", num);
+            msg = String.format("Récuperation du mandats.... %s", num);
             Logger.info(msg, ServiceMandat.class);
             BottomPanel.settextLabel(msg, Color.BLACK);
             BkMad bkMad = serviceManager.getBkMadByClesec(num);

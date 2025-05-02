@@ -84,7 +84,7 @@ public class ServiceEvenement {
                         serviceManager.enregistrer(message);
                         eve.setSent(true);
                         serviceManager.modifier(eve);
-                        msg = "OK Message envoyé ";
+                        msg = "[EVENEMENT] OK Message envoyé ";
                         Logger.info(msg, ServiceEvenement.class);
                         BottomPanel.settextLabel(msg, Color.BLACK);
                     }

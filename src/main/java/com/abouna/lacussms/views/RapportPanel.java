@@ -11,7 +11,6 @@ import com.abouna.lacussms.entities.*;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.compoents.ContentMessageDialog;
 import com.abouna.lacussms.views.main.MainMenuPanel;
-import com.abouna.lacussms.views.tools.FakeDataService;
 import com.abouna.lacussms.views.tools.PrintReportPDF;
 import com.abouna.lacussms.views.tools.Sender;
 import com.abouna.lacussms.views.utils.CustomTable;
@@ -234,7 +233,7 @@ public class RapportPanel extends JPanel {
         contenu.add(BorderLayout.CENTER, new JScrollPane(table));
         add(BorderLayout.CENTER, contenu);
         try {
-            addData(/*serviceManager.getAllMessages()*/FakeDataService.getFakeMessages());
+            addData(serviceManager.getAllMessages());
             numberText.setText(Integer.toString(tableModel.getRowCount()));
         } catch (Exception ex) {
             Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
@@ -279,13 +278,30 @@ public class RapportPanel extends JPanel {
         }
     }
 
-    private void resendMessage(Message messageById) {
-        boolean res  = Sender.send(messageById.getNumero(), messageById.getContent());
-        if (res) {
-            JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "Message renvoyé avec succès");
-        } else {
-            JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "Erreur d'envoi du message");
+    private void resendMessage(Message message) {
+        try {
+            boolean res  = Sender.send(message.getNumero(), message.getContent());
+            if (res) {
+                 updateBkEve(message);
+                JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "Message renvoyé avec succès");
+            } else {
+                JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "Erreur d'envoi du message");
+            }
+        } catch (Exception e) {
+            com.abouna.lacussms.views.utils.Logger.error("Erreur d'envoi du message", e, RapportPanel.class);
         }
+    }
+
+    private void updateBkEve(Message message) {
+        if(message.getBkEve() == null) {
+            return;
+        }
+        BkEve bkEve = serviceManager.getBkEveById(message.getBkEve().getId());
+        if (bkEve == null) {
+            return;
+        }
+        bkEve.setSent(true);
+        serviceManager.modifier(bkEve);
     }
 
     private void getDetailsEvent() {

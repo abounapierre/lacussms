@@ -47,11 +47,11 @@ public class ServiceSalaireBKMVTI {
         Logger.info(query, ServiceSalaireBKMVTI.class);
         try (PreparedStatement ps = getConn().prepareStatement(query)) {
             ResultSet rs = ps.executeQuery();
-            Logger.info(String.format("nombre de lignes trouvées: %s", ColUtils.getSize(rs)), ServiceSalaireBKMVTI.class);
+            Logger.info(String.format("[BKMVTI] nombre de lignes trouvées: %s", ColUtils.getSize(rs)), ServiceSalaireBKMVTI.class);
             String msg = "Recherche données salaires BKMVTI.... ";
             BottomPanel.settextLabel(msg, java.awt.Color.BLACK);
             while (rs.next()) {
-                runServiceBKMVTI(msg, rs, format2, format1);
+                runServiceBKMVTI(rs, format2, format1);
             }
         }catch (Throwable e) {
             String errorMessage = "Erreur lors du traitement des salaires BKMVTI";
@@ -65,11 +65,12 @@ public class ServiceSalaireBKMVTI {
         }
     }
 
-    private void runServiceBKMVTI(String msg, ResultSet rs, SimpleDateFormat format2, SimpleDateFormat format1) {
+    private void runServiceBKMVTI(ResultSet rs, SimpleDateFormat format2, SimpleDateFormat format1) {
         try {
-            Logger.info(msg, ServiceSalaireBKMVTI.class);
             String compte = rs.getString(2);
             if (compte != null) {
+                String msg = "Traitement du salaire BKMVTI .... " + compte.trim();
+                Logger.info(msg, ServiceSalaireBKMVTI.class);
                 if (compte.trim().length() >= 10) {
                     BkEve eve = new BkEve();
                     BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString(1).trim());
@@ -97,7 +98,7 @@ public class ServiceSalaireBKMVTI {
 
                     if (bkCli != null) {
                         if (serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getEventDate(), eve.getCompte()).isEmpty()) {
-                            msg = "Chargement données salaires BKMVTI.... " + eve.getCompte();
+                            msg = "Chargement donnée salaire BKMVTI.... " + eve.getCompte();
                             BottomPanel.settextLabel(msg, Color.BLACK);
                             Logger.info(msg, ServiceSalaireBKMVTI.class);
                             serviceManager.enregistrer(eve);

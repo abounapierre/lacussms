@@ -12,7 +12,7 @@ import com.abouna.lacussms.entities.BkCli;
 import com.abouna.lacussms.entities.BkEve;
 import com.abouna.lacussms.entities.BkOpe;
 import com.abouna.lacussms.service.LacusSmsService;
-import com.abouna.lacussms.views.compoents.ContentEveDialog;
+import com.abouna.lacussms.views.components.ContentEveDialog;
 import com.abouna.lacussms.views.main.MainMenuPanel;
 import com.abouna.lacussms.views.utils.CustomTable;
 import com.abouna.lacussms.views.utils.CustomTableCellRenderer;

@@ -119,7 +119,7 @@ public class ServiceCredit {
                     age = null;
                     while (result.next()) {
                         age = result.getString(1).trim();
-                        Logger.info("Recuperation de l'agence: " + age, ServiceCredit.class);
+                        Logger.info("Récuperation de l'agence: " + age, ServiceCredit.class);
                     }
                 }
                 BkEve eve = new BkEve();

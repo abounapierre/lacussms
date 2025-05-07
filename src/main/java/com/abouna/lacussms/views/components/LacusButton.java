@@ -1,4 +1,4 @@
-package com.abouna.lacussms.views.compoents;
+package com.abouna.lacussms.views.components;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

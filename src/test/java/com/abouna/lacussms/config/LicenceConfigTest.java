@@ -1,6 +1,9 @@
 package com.abouna.lacussms.config;
 
+import com.abouna.lacussms.views.tools.Utils;
 import org.junit.Test;
+
+import java.util.Date;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -15,6 +18,12 @@ public class LicenceConfigTest {
         assertNotNull(macAddress);
         System.out.println("MAC Address: " + macAddress);
         System.out.println("Address mac transform: " + macAddress.replace("-", ""));
+    }
+
+    @Test
+    public void testGetKey() {
+        Date date = Utils.getTimeFromInternet("google.fr");
+        System.out.println(date);
     }
 
 }

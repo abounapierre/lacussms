@@ -1,4 +1,4 @@
-package com.abouna.lacussms.views.compoents;
+package com.abouna.lacussms.views.components;
 
 import com.abouna.lacussms.entities.BkEve;
 import com.abouna.lacussms.main.MainFrame;

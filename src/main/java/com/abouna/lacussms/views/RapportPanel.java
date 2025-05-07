@@ -9,7 +9,7 @@ package com.abouna.lacussms.views;
 import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.entities.*;
 import com.abouna.lacussms.service.LacusSmsService;
-import com.abouna.lacussms.views.compoents.ContentMessageDialog;
+import com.abouna.lacussms.views.components.ContentMessageDialog;
 import com.abouna.lacussms.views.main.MainMenuPanel;
 import com.abouna.lacussms.views.tools.PrintReportPDF;
 import com.abouna.lacussms.views.tools.Sender;

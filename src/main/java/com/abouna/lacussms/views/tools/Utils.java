@@ -43,21 +43,24 @@ public class Utils {
     public Utils() {
     }
 
-    public static Date getTimeFromInternet() {
-        String TIME_SERVER = "time-a.nist.gov";
+    public static Date getTimeFromInternet(String timeServer) {
         try {
             Date date;
             NTPUDPClient timeClient = new NTPUDPClient();
             timeClient.setDefaultTimeout(3000);
-            InetAddress inetAddress = InetAddress.getByName(TIME_SERVER);
+            InetAddress inetAddress = InetAddress.getByName(timeServer);
             TimeInfo timeInfo = timeClient.getTime(inetAddress);
             long returnTime = timeInfo.getMessage().getTransmitTimeStamp().getTime();
             date = new Date(returnTime);
             return date;
         } catch (Throwable t) {
-            com.abouna.lacussms.views.utils.Logger.error(String.format("problème de récuperation de la date de puis %s", TIME_SERVER), t, Utils.class);
+            com.abouna.lacussms.views.utils.Logger.error(String.format("problème de récuperation de la date de puis %s", timeServer), t, Utils.class);
             return new Date();
         }
+    }
+
+    public static Date getTimeFromInternet() {
+       return getTimeFromInternet("time-a.nist.gov");
     }
 
 

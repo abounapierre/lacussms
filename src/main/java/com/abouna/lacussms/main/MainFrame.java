@@ -22,6 +22,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -77,6 +78,7 @@ public class MainFrame extends JFrame {
 
     public static void main(String[] args) {
         try {
+            logger.info("##### input args: {} ######", Arrays.toString(args));
             thread = new Thread(SplashScreen::new);
             thread.start();
             ApplicationConfig.setApplicationContext(new SpringApplicationBuilder(MainFrame.class).headless(false).run(args));

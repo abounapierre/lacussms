@@ -1,4 +1,4 @@
-package com.abouna.lacussms.views.compoents;
+package com.abouna.lacussms.views.components;
 
 import com.abouna.lacussms.main.MainFrame;
 
@@ -12,7 +12,7 @@ public class GroupeSMSJDialog extends JDialog {
         super(parent, true);
         setLayout(new BorderLayout(10, 10));
         setTitle("Envoyer des SMS groupés");
-        setSize(new Dimension(parent.getWidth() - 200, parent.getHeight() - 200));
+        setSize(new Dimension(parent.getWidth() - 450, parent.getHeight() - 350));
         setLocationRelativeTo(parent);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());

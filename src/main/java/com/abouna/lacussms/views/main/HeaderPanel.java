@@ -5,8 +5,8 @@ import com.abouna.lacussms.config.AppRunConfig;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.task.StartService;
 import com.abouna.lacussms.views.ContactPanel;
-import com.abouna.lacussms.views.compoents.GroupeSMSJDialog;
-import com.abouna.lacussms.views.compoents.LacusIcon;
+import com.abouna.lacussms.views.components.GroupeSMSJDialog;
+import com.abouna.lacussms.views.components.LacusIcon;
 import com.abouna.lacussms.views.tools.TestSMSPanel;
 import org.jdesktop.swingx.JXButton;
 

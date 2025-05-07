@@ -10,6 +10,5 @@ public interface LacusImportDataService {
     static LacusImportDataService getInstance() {
         return ApplicationConfig.getApplicationContext().getBean(LacusImportDataService.class);
     }
-
     ResultImportDataModelDTO importAccountData(List<ClientCSV> models);
 }

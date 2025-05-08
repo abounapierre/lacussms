@@ -51,9 +51,9 @@ public class SpringMainConfig {
     }
     
     @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory(Environment env) {
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(PathConfigBean pathConfigBean, Environment env) {
         final LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-        em.setDataSource(dataSource(env));
+        em.setDataSource(dataSource(pathConfigBean, env));
         em.setPackagesToScan("com.abouna.lacussms.entities");
         final HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         vendorAdapter.setShowSql(true);
@@ -63,13 +63,19 @@ public class SpringMainConfig {
     }
 
     @Bean
-    public DataSource dataSource(Environment env) {
+    public DataSource dataSource(PathConfigBean pathConfigBean, Environment env) {
         final DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName(Preconditions.checkNotNull(env.getProperty("jdbc.driverClassName")));
-        dataSource.setUrl(Preconditions.checkNotNull(env.getProperty("jdbc.url")));
+        dataSource.setUrl(Preconditions.checkNotNull(getUrl(pathConfigBean)));
         dataSource.setUsername(Preconditions.checkNotNull(env.getProperty("jdbc.user")));
         dataSource.setPassword(Preconditions.checkNotNull(env.getProperty("jdbc.pass")));
         return dataSource;
+    }
+
+    private String getUrl(PathConfigBean pathConfigBean) {
+        String url = "jdbc:h2:file:" + pathConfigBean.getRootPath() + "/data/lacus" + ";AUTO_SERVER=TRUE;DB_CLOSE_ON_EXIT=FALSE";
+        log.info("Database URL: {}", url);
+        return url;
     }
 
     @Bean

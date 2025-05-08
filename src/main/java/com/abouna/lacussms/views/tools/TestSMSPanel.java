@@ -1,8 +1,7 @@
 package com.abouna.lacussms.views.tools;
 
-import com.abouna.lacussms.config.ApplicationConfig;
-import com.abouna.lacussms.views.main.HomePanel;
-import com.abouna.lacussms.views.main.MainMenuPanel;
+import com.abouna.lacussms.dto.SendResponseDTO;
+import com.abouna.lacussms.sender.context.SenderContext;
 import com.abouna.lacussms.views.utils.DialogUtils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
@@ -43,12 +42,8 @@ public class TestSMSPanel extends JDialog {
                 JOptionPane.showMessageDialog(TestSMSPanel.this.getParent(), "Le message est obligatoire");
                 return;
             }
-
-            if(Sender.send(phoneText.getText(), messageText.getText())) {
-                JOptionPane.showMessageDialog(TestSMSPanel.this, "Message envoyé avec succès");
-            } else {
-                JOptionPane.showMessageDialog(TestSMSPanel.this, "Erreur d'envoi du message");
-            }
+            SendResponseDTO sendResponseDTO = SenderContext.getInstance().send(phoneText.getText(), messageText.getText());
+            JOptionPane.showMessageDialog(TestSMSPanel.this, sendResponseDTO.getMessage());
         });
 
         annulerBtn.addActionListener(ae -> {

@@ -7,12 +7,13 @@
 package com.abouna.lacussms.views;
 
 import com.abouna.lacussms.config.ApplicationConfig;
+import com.abouna.lacussms.dto.SendResponseDTO;
 import com.abouna.lacussms.entities.*;
+import com.abouna.lacussms.sender.context.SenderContext;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.components.ContentMessageDialog;
 import com.abouna.lacussms.views.main.MainMenuPanel;
 import com.abouna.lacussms.views.tools.PrintReportPDF;
-import com.abouna.lacussms.views.tools.Sender;
 import com.abouna.lacussms.views.utils.CustomTable;
 import com.abouna.lacussms.views.utils.CustomTableCellRenderer;
 import com.abouna.lacussms.views.utils.DialogUtils;
@@ -280,13 +281,11 @@ public class RapportPanel extends JPanel {
 
     private void resendMessage(Message message) {
         try {
-            boolean res  = Sender.send(message.getNumero(), message.getContent());
-            if (res) {
+            SendResponseDTO sendResponseDTO = SenderContext.getInstance().send(message.getNumero(), message.getContent());
+            if (sendResponseDTO.isSent()) {
                  updateBkEve(message);
-                JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "Message renvoyé avec succès");
-            } else {
-                JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "Erreur d'envoi du message");
             }
+            JOptionPane.showMessageDialog(RapportPanel.this.getParent(), sendResponseDTO.getMessage());
         } catch (Exception e) {
             com.abouna.lacussms.views.utils.Logger.error("Erreur d'envoi du message", e, RapportPanel.class);
         }
@@ -302,6 +301,9 @@ public class RapportPanel extends JPanel {
         }
         bkEve.setSent(true);
         serviceManager.modifier(bkEve);
+        message.setSent(true);
+        message.setSendDate(new Date());
+        serviceManager.modifier(message);
     }
 
     private void getDetailsEvent() {

@@ -1,7 +1,8 @@
-package com.abouna.lacussms.sender;
+package com.abouna.lacussms.sender.impl.orange;
 
 import com.abouna.lacussms.config.AppRunConfig;
-import com.abouna.lacussms.config.MessageProperties;
+import com.abouna.lacussms.config.ApplicationConfig;
+import com.abouna.lacussms.dto.SendResponseDTO;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -15,6 +16,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
 
 import java.io.IOException;
@@ -34,6 +36,7 @@ public class OrangeSMSPlateforme {
     private static String token = null;
     private static List<String> codes = null;
     private static final String EMPTY = "";
+    private static SendResponseDTO sendResponseDTO = null;
 
     public static boolean isTokenExpired(String token) {
         try {
@@ -49,14 +52,14 @@ public class OrangeSMSPlateforme {
 
     public static void init() {
         try {
-            properties = MessageProperties.getProperties();
-            logger.info("Properties initialized: {}", Objects.nonNull(properties));
+            properties = ApplicationConfig.getApplicationContext().getBean("external-configs", Properties.class);
+            logger.info("Properties initialized: {}", properties.getProperty("orange.sms.token.url"));
         } catch (Exception e) {
             logger.error("Error loading SMS properties", e);
         }
     }
 
-    public static boolean sendTo(String number, String msg) {
+    public static SendResponseDTO sendTo(String number, String msg) {
         try {
             if(Objects.isNull(codes)) {
                 codes = getCodes();
@@ -75,29 +78,40 @@ public class OrangeSMSPlateforme {
             post.setEntity(buildEntity(phone, msg));
             Integer statusCode = postRequest(post, Integer.class);
             boolean resp = Objects.nonNull(statusCode) && (statusCode == 201 || statusCode == 200);
-            com.abouna.lacussms.views.utils.Logger.info(String.format("Message %s envoyé au numéro: %s", (resp ? EMPTY : "non"), phone), OrangeSMSPlateforme.class);
-            return resp;
+            String respMsg = String.format("Message %s envoyé au numéro: %s", (resp ? EMPTY : "non"), phone);
+            com.abouna.lacussms.views.utils.Logger.info(respMsg, OrangeSMSPlateforme.class);
+            sendResponseDTO.setMessage(respMsg);
+            sendResponseDTO.setSent(resp);
+            return sendResponseDTO;
         } catch (Exception e) {
             logger.error("Error sending SMS", e);
-            return false;
+            sendResponseDTO.setSent(false);
+            sendResponseDTO.setMessage("Error sending SMS " + e.getMessage());
+            return sendResponseDTO;
         }
     }
 
-    public static boolean send(String number, String msg) {
+    public static SendResponseDTO send(String number, String msg) {
         try {
+            sendResponseDTO = new SendResponseDTO();
             AppRunConfig appRunConfig = AppRunConfig.getInstance();
             if(Objects.isNull(properties)) {
                 init();
             }
             if(appRunConfig.getTestModeEnabled()) {
-                logger.info("Test mode is enabled, not sending SMS");
+                String msgRes = "Test mode is enabled, not sending SMS";
+                com.abouna.lacussms.views.utils.Logger.info(msgRes, OrangeSMSPlateforme.class);
                 String phone = properties.getProperty("orange.sms.test.number");
-                return !isEmpty(phone) && sendTo(phone, msg);
+                sendResponseDTO.setSent(!isEmpty(phone) && sendTo(phone, msg).isSent());
+                sendResponseDTO.setMessage(msgRes);
+                return sendResponseDTO;
             }
             return sendTo(number, msg);
         }  catch (Exception e) {
             logger.error("Error sending SMS", e);
-            return false;
+            sendResponseDTO.setSent(false);
+            sendResponseDTO.setMessage(e.getMessage());
+            return sendResponseDTO;
         }
     }
 
@@ -132,8 +146,7 @@ public class OrangeSMSPlateforme {
             }
             return getValue(statusCode, t);
         } catch (IOException e) {
-            logger.error("Error executing HTTP request", e);
-            return null;
+            throw new RuntimeException("Error when posting request: " + e.getMessage(), e);
         }
     }
 
@@ -173,9 +186,8 @@ public class OrangeSMSPlateforme {
             post.setEntity(new StringEntity(toJson(username, password), ContentType.APPLICATION_JSON));
             return Objects.requireNonNull(postRequest(post, TokenResponse.class)).getToken();
         } catch (Exception e) {
-            logger.error("Error getting token", e);
+            throw new RuntimeException("Error getting token: " + e.getMessage(), e);
         }
-        return null;
     }
 
     private static List<String> getCodes() {

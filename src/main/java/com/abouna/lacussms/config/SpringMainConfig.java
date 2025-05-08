@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package com.abouna.lacussms.config;
 
 import com.abouna.lacussms.views.main.LogFile;
@@ -13,10 +7,11 @@ import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties
 import org.jasypt.encryption.StringEncryptor;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -24,10 +19,17 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.util.Assert;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Stream;
 
 /**
  *
@@ -41,28 +43,27 @@ import java.util.Properties;
         @PropertySource("classpath:application.properties")
 })
 public class SpringMainConfig {
-    
-    @Autowired
-    private Environment env;
+
+    private static final Logger log = LoggerFactory.getLogger(SpringMainConfig.class);
     
     public SpringMainConfig(){
         super();
     }
     
     @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(Environment env) {
         final LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-        em.setDataSource(dataSource());
+        em.setDataSource(dataSource(env));
         em.setPackagesToScan("com.abouna.lacussms.entities");
         final HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         vendorAdapter.setShowSql(true);
         em.setJpaVendorAdapter(vendorAdapter);
-        em.setJpaProperties(additionalProperties());
+        em.setJpaProperties(additionalProperties(env));
         return em;
     }
 
     @Bean
-    public DataSource dataSource() {
+    public DataSource dataSource(Environment env) {
         final DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName(Preconditions.checkNotNull(env.getProperty("jdbc.driverClassName")));
         dataSource.setUrl(Preconditions.checkNotNull(env.getProperty("jdbc.url")));
@@ -83,22 +84,12 @@ public class SpringMainConfig {
         return new PersistenceExceptionTranslationPostProcessor();
     }
 
-    final Properties additionalProperties() {
+    final Properties additionalProperties(Environment env) {
         final Properties hibernateProperties = new Properties();
         hibernateProperties.setProperty("hibernate.hbm2ddl.auto", env.getProperty("hibernate.hbm2ddl.auto"));
         hibernateProperties.setProperty("hibernate.dialect", env.getProperty("hibernate.dialect"));
         // hibernateProperties.setProperty("hibernate.globally_quoted_identifiers", "true");
         return hibernateProperties;
-    }
-    
-    @Bean
-    public Tache execute(){
-        return new Tache();
-    }
-
-    @Bean("logPath")
-    public String logPath(@Value("${application.log.path}") String logPath) {
-        return logPath;
     }
 
     @Bean
@@ -122,17 +113,58 @@ public class SpringMainConfig {
     }
 
     @Bean("logo")
-    public String logoApp() {
+    public String logoApp(Environment env) {
         return env.getProperty("application.logo");
     }
 
     @Bean("messageConfigPath")
-    public String messageConfigPath() {
+    public String messageConfigPath(Environment env) {
         return env.getProperty("application.message.config.path");
     }
 
     @Bean
     public AppRunConfig getAppRunConfig() {
         return new AppRunConfig(Boolean.TRUE, Boolean.TRUE, Boolean.TRUE);
+    }
+
+    @Bean
+    public SmsProvider getSmsProvider() {
+        return new SmsProvider("1s2u");
+    }
+
+    @Bean
+    public PathConfigBean getPathConfigBean(Environment env) {
+        String[] profiles = env.getActiveProfiles();
+        log.info("Active profiles: {}", (Object) profiles);
+        Path path = Paths.get("").toAbsolutePath();
+        Optional<String> profile = Stream.of(profiles).filter(prof -> prof.equals("dev") || prof.equals("prod")).findFirst();
+        return new PathConfigBean(profile.map(pro -> {
+            if (pro.equals("dev")) {
+                return path.toString();
+            } else {
+                return path.getParent().toString();
+            }
+        }).orElse(path.toString()));
+    }
+
+    @Bean("external-configs")
+    public Properties getProperties(PathConfigBean pathConfigBean) {
+        try {
+            String root = pathConfigBean.getRootPath() + "/configs";
+            File folder = new File(root);
+            File[] files = folder.listFiles(File::isFile);
+            Assert.notNull(files, "Files cannot be null");
+            FileSystemResource[] fileSystemResources = Arrays.stream(files).map(
+                    file -> new FileSystemResource(root + "/" + file.getName())
+            ).toArray(FileSystemResource[]::new);
+            Properties properties = new Properties();
+            for (FileSystemResource fileSystemResource : fileSystemResources) {
+                properties.load(fileSystemResource.getInputStream());
+            }
+            return properties;
+        } catch (Exception e) {
+            log.error("Error loading properties files", e);
+            throw new RuntimeException("Error loading properties files", e);
+        }
     }
 }

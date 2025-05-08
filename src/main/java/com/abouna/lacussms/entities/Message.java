@@ -31,6 +31,8 @@ public class Message implements Serializable {
     @OneToOne
     private BkMad bkMad;
     private String numero;
+    @Column(name = "is_sent")
+    private Boolean isSent = false;
 
     public Message() {
     }
@@ -105,6 +107,14 @@ public class Message implements Serializable {
         this.bkEve = bkEve;
     }
 
+    public Boolean getSent() {
+        return isSent;
+    }
+
+    public void setSent(Boolean sent) {
+        isSent = sent;
+    }
+
     @Override
     public int hashCode() {
         int hash = 0;
@@ -114,15 +124,11 @@ public class Message implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
         if (!(object instanceof Message)) {
             return false;
         }
         Message other = (Message) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
+        return (this.id != null || other.id == null) && (this.id == null || this.id.equals(other.id));
     }
 
     @Override

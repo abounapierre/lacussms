@@ -9,6 +9,7 @@ package com.abouna.lacussms.entities;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  *
@@ -27,6 +28,8 @@ public class MessageMandat implements Serializable{
     @OneToOne
     private BkMad bkMad;
     private String numero;
+    @Column(name = "is_sent")
+    private Boolean isSent = false;
 
     public MessageMandat() {
     }
@@ -84,7 +87,15 @@ public class MessageMandat implements Serializable{
     public void setSendDate(Date sendDate) {
         this.sendDate = sendDate;
     }
-   
+
+    public Boolean getSent() {
+        return isSent;
+    }
+
+    public void setSent(Boolean sent) {
+        isSent = sent;
+    }
+
     @Override
     public int hashCode() {
         int hash = 0;
@@ -101,10 +112,7 @@ public class MessageMandat implements Serializable{
             return false;
         }
         final MessageMandat other = (MessageMandat) obj;
-        if (this.id != other.id && (this.id == null || !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.id, other.id);
     }
 
 }

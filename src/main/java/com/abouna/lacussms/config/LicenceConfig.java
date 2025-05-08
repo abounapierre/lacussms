@@ -23,8 +23,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.abouna.lacussms.views.tools.ConstantUtils.ROOT_LACUS_PATH;
-
 @Component
 public class LicenceConfig {
     private final Environment env;
@@ -78,7 +76,8 @@ public class LicenceConfig {
     private String getKey() {
         String keyPath = env.getProperty("application.key.path");
         try {
-            String filePath = ROOT_LACUS_PATH + File.separator + keyPath;
+            System.out.println(PathConfigBean.getInstance().getRootPath());
+            String filePath = PathConfigBean.getInstance().getRootPath() + File.separator + keyPath;
             BufferedReader reader = new BufferedReader(new FileReader(filePath));
             String key = reader.lines().collect(Collectors.joining("\n"));
             String temp = new String(Base64.getDecoder().decode(key));

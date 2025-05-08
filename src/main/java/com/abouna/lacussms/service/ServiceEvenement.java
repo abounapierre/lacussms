@@ -1,8 +1,9 @@
 package com.abouna.lacussms.service;
 
 import com.abouna.lacussms.dto.BkEtatOpConfigBean;
+import com.abouna.lacussms.dto.SendResponseDTO;
 import com.abouna.lacussms.entities.*;
-import com.abouna.lacussms.views.tools.Sender;
+import com.abouna.lacussms.sender.context.SenderContext;
 import com.abouna.lacussms.views.main.BottomPanel;
 import com.abouna.lacussms.views.tools.Utils;
 import com.abouna.lacussms.views.utils.Logger;
@@ -28,15 +29,17 @@ public class ServiceEvenement {
     private Connection conn;
     private final String condition;
     private final List<String> listString;
+    private final SenderContext senderContext;
 
     SimpleDateFormat format1 = new SimpleDateFormat("dd-MM-yyyy");
     SimpleDateFormat format2 = new SimpleDateFormat("yyyy-MM-dd");
     SimpleDateFormat format3 = new SimpleDateFormat("dd/MM/yyyy");
 
-    public ServiceEvenement(LacusSmsService serviceManager, BkEtatOpConfigBean bkEtatOpConfigBean) {
+    public ServiceEvenement(LacusSmsService serviceManager, BkEtatOpConfigBean bkEtatOpConfigBean, SenderContext senderContext) {
         this.serviceManager = serviceManager;
         this.condition = bkEtatOpConfigBean.getCondition();
         this.listString = bkEtatOpConfigBean.getListString();
+        this.senderContext = senderContext;
     }
 
     public void setConn(Connection conn) {
@@ -51,7 +54,7 @@ public class ServiceEvenement {
     }
 
     public void envoieSMSEvenement() {
-        Logger.info("Debut envoie de message des évènements....", ServiceEvenement.class);
+        Logger.info("Début envoie de message des évènements....", ServiceEvenement.class);
         List<BkEve> list = serviceManager.getBkEveBySendParam(false, listString, TypeEvent.ordinaire);
         list.forEach((eve) -> {
             BkCli bkCli = eve.getCli();
@@ -59,35 +62,23 @@ public class ServiceEvenement {
                 MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), bkCli.getLangue());
                 if (mf != null) {
                     String text = Utils.remplacerVariable(bkCli, eve.getOpe(), eve, mf);
-                    String res = Utils.testConnexionInternet();
-                    String msg = "Test connexion ...." + res;
+                    String msg = "Envoie du Message à.... " + eve.getCli().getPhone();
                     Logger.info(msg, ServiceEvenement.class);
                     BottomPanel.settextLabel(msg, Color.BLACK);
-                    if (res.equals("OK")) {
-                        msg = "Envoie du Message à.... " + eve.getCompte();
-                        Logger.info(msg, ServiceEvenement.class);
-                        BottomPanel.settextLabel(msg, Color.BLACK);
-                        Sender.send(String.valueOf(bkCli.getPhone()), text);
-                    } else {
-                        msg = "Message non envoyé à.... " + eve.getCompte() + " Problème de connexion internet!!";
-                        Logger.info(msg, ServiceEvenement.class);
-                        BottomPanel.settextLabel(msg, Color.RED);
-                    }
-
+                    SendResponseDTO sendResponseDTO = senderContext.send(String.valueOf(bkCli.getPhone()), text);
                     Message message = new Message();
                     message.setTitle(eve.getOpe().getLib());
                     message.setContent(text);
                     message.setBkEve(eve);
                     message.setSendDate(new Date());
                     message.setNumero(Long.toString(bkCli.getPhone()));
-                    if (res.equals("OK")) {
-                        serviceManager.enregistrer(message);
-                        eve.setSent(true);
-                        serviceManager.modifier(eve);
-                        msg = "[EVENEMENT] OK Message envoyé ";
-                        Logger.info(msg, ServiceEvenement.class);
-                        BottomPanel.settextLabel(msg, Color.BLACK);
-                    }
+                    message.setSent(sendResponseDTO.isSent());
+                    serviceManager.enregistrer(message);
+                    eve.setSent(sendResponseDTO.isSent());
+                    serviceManager.modifier(eve);
+                    msg = sendResponseDTO.getMessage();
+                    Logger.info(msg, ServiceEvenement.class);
+                    BottomPanel.settextLabel(msg, Color.BLACK);
                 }
             }
 

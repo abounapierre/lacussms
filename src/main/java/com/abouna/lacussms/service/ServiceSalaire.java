@@ -1,9 +1,10 @@
 package com.abouna.lacussms.service;
 
 import com.abouna.lacussms.dto.BkEtatOpConfigBean;
+import com.abouna.lacussms.dto.SendResponseDTO;
 import com.abouna.lacussms.entities.*;
+import com.abouna.lacussms.sender.context.SenderContext;
 import com.abouna.lacussms.views.main.BottomPanel;
-import com.abouna.lacussms.views.tools.Sender;
 import com.abouna.lacussms.views.tools.Utils;
 import com.abouna.lacussms.views.utils.Logger;
 import org.springframework.stereotype.Component;
@@ -25,13 +26,15 @@ import static com.abouna.lacussms.views.tools.ConstantUtils.SECRET_KEY;
 @Component
 public class ServiceSalaire {
     private final LacusSmsService serviceManager;
+    private final SenderContext senderContext;
     private Connection conn;
     private final List<String> listString;
     private final SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
     private final SimpleDateFormat format2 = new SimpleDateFormat("dd/MM/yyyy");
 
-    public ServiceSalaire(LacusSmsService serviceManager, BkEtatOpConfigBean etatOpConfigBean) {
+    public ServiceSalaire(LacusSmsService serviceManager, SenderContext senderContext, BkEtatOpConfigBean etatOpConfigBean) {
         this.serviceManager = serviceManager;
+        this.senderContext = senderContext;
         this.listString = etatOpConfigBean.getListString();
     }
 
@@ -121,6 +124,16 @@ public class ServiceSalaire {
     }
 
     public void envoieSMSSalaire() {
+        try {
+            sendSms();
+        } catch (Exception e) {
+            String errorMessage = "Erreur lors de l'envoi des SMS de salaire";
+            Logger.error(String.format("%s: %s", errorMessage, e.getMessage()), e, ServiceSalaire.class);
+            BottomPanel.settextLabel(errorMessage, Color.RED);
+        }
+    }
+
+    private void sendSms() {
         List<BkEve> list = serviceManager.getBkEveBySendParam(false, listString, TypeEvent.salaire);
         Logger.info("Debut envoie de message des salaires....", ServiceSalaire.class);
         list.forEach((eve) -> {
@@ -129,35 +142,23 @@ public class ServiceSalaire {
                 MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), bkCli.getLangue());
                 if (mf != null) {
                     String text = Utils.remplacerVariable(bkCli, eve.getOpe(), eve, mf);
-                    String res = Utils.testConnexionInternet();
-                    String msg = "Test connexion ...." + res;
+                    String msg = "Envoie du Message à.... " + eve.getCompte();
                     Logger.info(msg, ServiceSalaire.class);
                     BottomPanel.settextLabel(msg, Color.BLACK);
-                    if (res.equals("OK")) {
-                        msg = "Envoie du Message à.... " + eve.getCompte();
-                        Logger.info(msg, ServiceSalaire.class);
-                        BottomPanel.settextLabel(msg, Color.BLACK);
-                        Sender.send(String.valueOf(bkCli.getPhone()), text);
-                    } else {
-                        msg = "Message non envoyé à.... " + eve.getCompte() + " Problème de connexion internet!!";
-                        Logger.info(msg, ServiceSalaire.class);
-                        BottomPanel.settextLabel(msg, Color.RED);
-                    }
-
+                    SendResponseDTO sendResponseDTO = senderContext.send(String.valueOf(bkCli.getPhone()), text);
                     Message message = new Message();
                     message.setTitle(eve.getOpe().getLib());
                     message.setContent(text);
                     message.setBkEve(eve);
                     message.setSendDate(new Date());
                     message.setNumero(Long.toString(bkCli.getPhone()));
-                    if (res.equals("OK")) {
-                        serviceManager.enregistrer(message);
-                        eve.setSent(true);
-                        serviceManager.modifier(eve);
-                        msg = "OK Message envoyé ";
-                        Logger.info(msg, ServiceSalaire.class);
-                        BottomPanel.settextLabel("OK Message envoyé ", Color.BLACK);
-                    }
+                    message.setSent(sendResponseDTO.isSent());
+                    serviceManager.enregistrer(message);
+                    eve.setSent(sendResponseDTO.isSent());
+                    serviceManager.modifier(eve);
+                    msg = sendResponseDTO.getMessage();
+                    Logger.info(msg, ServiceSalaire.class);
+                    BottomPanel.settextLabel(msg, Color.BLACK);
                 }
             }
         });

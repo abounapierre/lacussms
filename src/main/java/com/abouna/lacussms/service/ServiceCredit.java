@@ -1,8 +1,9 @@
 package com.abouna.lacussms.service;
 
 import com.abouna.lacussms.dto.BkEtatOpConfigBean;
+import com.abouna.lacussms.dto.SendResponseDTO;
 import com.abouna.lacussms.entities.*;
-import com.abouna.lacussms.views.tools.Sender;
+import com.abouna.lacussms.sender.context.SenderContext;
 import com.abouna.lacussms.views.main.BottomPanel;
 import com.abouna.lacussms.views.tools.Utils;
 import com.abouna.lacussms.views.utils.Logger;
@@ -35,9 +36,12 @@ public class ServiceCredit {
 
     private final List<String> listString;
 
-    public ServiceCredit(LacusSmsService serviceManager, BkEtatOpConfigBean etatOpConfigBean) {
+    private final SenderContext senderContext;
+
+    public ServiceCredit(LacusSmsService serviceManager, BkEtatOpConfigBean etatOpConfigBean, SenderContext senderContext) {
         this.serviceManager = serviceManager;
         this.listString = etatOpConfigBean.getListString();
+        this.senderContext = senderContext;
     }
 
     public void setConn(Connection conn) {
@@ -188,30 +192,23 @@ public class ServiceCredit {
                 MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), bkCli.getLangue());
                 if (mf != null) {
                     String text = Utils.remplacerVariable(bkCli, eve.getOpe(), eve, mf);
-                    String res = Utils.testConnexionInternet();
-                    BottomPanel.settextLabel("Test connexion ...." + res, Color.BLACK);
-                    if (res.equals("OK")) {
-                        BottomPanel.settextLabel("Envoie du Message à.... " + eve.getCompte(), Color.BLACK);
-                        Sender.send(String.valueOf(bkCli.getPhone()) , text);
-                    } else {
-                        String msg1 = "Message non envoyé à.... " + eve.getCompte() + " Problème de connexion internet!!";
-                        Logger.info(msg1, ServiceCredit.class);
-                        BottomPanel.settextLabel(msg1, Color.RED);
-                    }
+                    String msg = String.format("Envoie du message de crédit au client %s %s", bkCli.getNom(), bkCli.getPrenom());
+                    Logger.info(msg, ServiceCredit.class);
+                    BottomPanel.settextLabel("Envoie du Message à.... " + eve.getCompte(), Color.BLACK);
+                    SendResponseDTO sendResponseDTO = senderContext.send(String.valueOf(bkCli.getPhone()) , text);
                     Message message = new Message();
                     message.setTitle(eve.getOpe().getLib());
                     message.setContent(text);
                     message.setBkEve(eve);
                     message.setSendDate(new Date());
                     message.setNumero(Long.toString(bkCli.getPhone()));
-                    if (res.equals("OK")) {
-                        serviceManager.enregistrer(message);
-                        eve.setSent(true);
-                        serviceManager.modifier(eve);
-                        String msg = "OK Message envoyé ";
-                        Logger.info(msg, ServiceCredit.class);
-                        BottomPanel.settextLabel(msg, Color.BLACK);
-                    }
+                    message.setSent(sendResponseDTO.isSent());
+                    serviceManager.enregistrer(message);
+                    eve.setSent(sendResponseDTO.isSent());
+                    serviceManager.modifier(eve);
+                    msg = sendResponseDTO.getMessage();
+                    Logger.info(msg, ServiceCredit.class);
+                    BottomPanel.settextLabel(msg, Color.BLACK);
                 }
             }
         });

@@ -1,8 +1,8 @@
 package com.abouna.lacussms.service;
 
 import com.abouna.lacussms.entities.*;
+import com.abouna.lacussms.sender.context.SenderContext;
 import com.abouna.lacussms.views.tools.ConstantUtils;
-import com.abouna.lacussms.views.tools.Sender;
 import com.abouna.lacussms.views.main.BottomPanel;
 import com.abouna.lacussms.views.tools.AES;
 import com.abouna.lacussms.views.tools.Utils;
@@ -21,11 +21,13 @@ import java.util.List;
 @Component
 public class ServiceRequete {
 private final LacusSmsService serviceManager;
+private final SenderContext senderContext;
 
 private static final Logger logger = LoggerFactory.getLogger(ServiceRequete.class);
 
-    public ServiceRequete(LacusSmsService serviceManager) {
+    public ServiceRequete(LacusSmsService serviceManager, SenderContext senderContext) {
         this.serviceManager = serviceManager;
+        this.senderContext = senderContext;
     }
 
     public void serviceRequete() throws SQLException, ParseException {
@@ -125,7 +127,7 @@ private static final Logger logger = LoggerFactory.getLogger(ServiceRequete.clas
             BottomPanel.settextLabel("Test connexion ...." + res, Color.BLACK);
             if (res.equals("OK")) {
                 BottomPanel.settextLabel("Envoie du Message à.... " + command.getCompte(), Color.BLACK);
-                Sender.send(command.getPhone(), command.getMessage());
+                senderContext.send(command.getPhone(), command.getMessage());
             } else {
                 msg = "Message non envoyé à.... " + command.getCompte() + " Problème de connexion internet!!";
                 logger.info(msg);

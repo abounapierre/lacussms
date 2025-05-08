@@ -6,6 +6,7 @@
 package com.abouna.lacussms.views.main;
 
 
+import com.abouna.lacussms.config.SmsProvider;
 import com.abouna.lacussms.entities.Config;
 import com.abouna.lacussms.main.MainFrame;
 import com.abouna.lacussms.service.LacusSmsService;
@@ -51,6 +52,7 @@ public class HeaderMenu extends JMenuBar {
         JMenu service = new JMenu("Services");
         JMenu rapports = new JMenu("Rapports");
         JMenu contact = new JMenu("Contacts");
+        JMenu provider = new JMenu("Fournisseur SMS");
         JMenuItem copier = new JMenuItem("Copier");
         JMenuItem couper = new JMenuItem("Couper");
         JMenuItem coller = new JMenuItem("Coller");
@@ -177,7 +179,7 @@ public class HeaderMenu extends JMenuBar {
         profil.add(user);
         rapports.add(rapport);
         contact.add(voirContact);
-        
+        addItems(provider);
         
         
         initialiser.addActionListener((ActionEvent e) -> {
@@ -296,6 +298,27 @@ public class HeaderMenu extends JMenuBar {
         add(profil);
         add(rapports);
         add(contact);
+        add(provider);
+    }
+
+    private void addItems(JMenu provider) {
+        JCheckBoxMenuItem orange = new JCheckBoxMenuItem("Orange");
+        JCheckBoxMenuItem f1s2u = new JCheckBoxMenuItem("1s2u");
+        f1s2u.setSelected(true);
+        orange.addActionListener((ActionEvent e) -> {
+            if(orange.isSelected()){
+                f1s2u.setSelected(false);
+                SmsProvider.getInstance().setName("orange");
+            }
+        });
+        f1s2u.addActionListener((ActionEvent e) -> {
+            if(f1s2u.isSelected()){
+                orange.setSelected(false);
+                SmsProvider.getInstance().setName("1s2u");
+            }
+        });
+        provider.add(f1s2u);
+        provider.add(orange);
     }
 
 }

@@ -1,7 +1,8 @@
 package com.abouna.lacussms.service;
 
+import com.abouna.lacussms.dto.SendResponseDTO;
 import com.abouna.lacussms.entities.*;
-import com.abouna.lacussms.views.tools.Sender;
+import com.abouna.lacussms.sender.context.SenderContext;
 import com.abouna.lacussms.views.main.BottomPanel;
 import com.abouna.lacussms.views.tools.Utils;
 import com.abouna.lacussms.views.utils.Logger;
@@ -24,13 +25,15 @@ import static com.abouna.lacussms.views.tools.ConstantUtils.SECRET_KEY;
 @Component
 public class ServiceMandat {
     private final LacusSmsService serviceManager;
+    private final SenderContext senderContext;
     private Connection conn;
     private final SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
     private final SimpleDateFormat format2 = new SimpleDateFormat("dd/MM/yyyy");
 
 
-    public ServiceMandat(LacusSmsService serviceManager) {
+    public ServiceMandat(LacusSmsService serviceManager, SenderContext senderContext) {
         this.serviceManager = serviceManager;
+        this.senderContext = senderContext;
     }
 
     public void setConn(Connection conn) {
@@ -150,50 +153,45 @@ public class ServiceMandat {
             if (Utils.testPhone(eve.getAd1p()) != null && Utils.testPhone(eve.getAd2p()) != null && eve.getOpe() != null) {
                 MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), "FR");
                 if (mf != null) {
+                    SendResponseDTO sendResponseDTO = null;
                     String text = Utils.remplacerVariable(eve, mf);
-                    String res = Utils.testConnexionInternet();
-                    BottomPanel.settextLabel("Test connexion ...." + res, Color.BLACK);
-                    if (res.equals("OK")) {
-                        if (eve.getTraite() == 0) {
-                            BottomPanel.settextLabel("Envoie du Message à.... " + eve.getAd2p(), Color.BLACK);
-                            Sender.send(eve.getAd2p(), text);
-                        } else if (eve.getTraite() == 1) {
-                            mf = serviceManager.getFormatByBkOpe(serviceManager.getBkOpeById("100"), "FR");
-                            if (mf != null) {
-                                text = Utils.remplacerVariable(eve, mf);
-                                bon = true;
-                                BottomPanel.settextLabel("Envoie du Message à.... " + eve.getAd1p(), Color.BLACK);
-                                Sender.send(eve.getAd1p(), text);
-                            }
+                    if (eve.getTraite() == 0) {
+                        BottomPanel.settextLabel("Envoie du Message à.... " + eve.getAd2p(), Color.BLACK);
+                        sendResponseDTO = senderContext.send(eve.getAd2p(), text);
+                    } else if (eve.getTraite() == 1) {
+                        mf = serviceManager.getFormatByBkOpe(serviceManager.getBkOpeById("100"), "FR");
+                        if (mf != null) {
+                            text = Utils.remplacerVariable(eve, mf);
+                            bon = true;
+                            BottomPanel.settextLabel("Envoie du Message à.... " + eve.getAd1p(), Color.BLACK);
+                            sendResponseDTO = senderContext.send(eve.getAd1p(), text);
                         }
-                    } else {
-                        msg = "Message non envoyé problème de connexion internet!!";
-                        Logger.info(msg, ServiceMandat.class);
-                        BottomPanel.settextLabel(msg, Color.RED);
                     }
-
+                    if(sendResponseDTO == null) {
+                        Logger.info("Erreur d'envoie de message", ServiceMandat.class);
+                        continue;
+                    }
                     MessageMandat message = new MessageMandat();
                     message.setTitle(eve.getOpe().getLib());
                     message.setContent(text);
                     message.setBkMad(eve);
                     message.setSendDate(new Date());
-                    if (res.equals("OK")) {
-                        if (eve.getTraite() == 0) {
-                            eve.setTraite(1);
-                            message.setNumero(eve.getAd2p());
-                            serviceManager.enregistrer(message);
-                        } else if (eve.getTraite() == 1 && bon) {
-                            eve.setTraite(2);
-                            eve.setSent(true);
-                            message.setNumero(eve.getAd1p());
-                            serviceManager.enregistrer(message);
-                        }
-
-                        serviceManager.modifier(eve);
-                        msg = "OK Message envoyé ";
-                        Logger.info(msg, ServiceMandat.class);
-                        BottomPanel.settextLabel(msg, Color.BLACK);
+                    message.setSent(sendResponseDTO.isSent());
+                    if (eve.getTraite() == 0) {
+                        eve.setTraite(1);
+                        eve.setSent(sendResponseDTO.isSent());
+                        message.setNumero(eve.getAd2p());
+                        serviceManager.enregistrer(message);
+                    } else if (eve.getTraite() == 1 && bon) {
+                        eve.setTraite(2);
+                        eve.setSent(sendResponseDTO.isSent());
+                        message.setNumero(eve.getAd1p());
+                        serviceManager.enregistrer(message);
                     }
+                    serviceManager.modifier(eve);
+                    msg = sendResponseDTO.getMessage();
+                    Logger.info(msg, ServiceMandat.class);
+                    BottomPanel.settextLabel(msg, Color.BLACK);
                 }
             }
         }

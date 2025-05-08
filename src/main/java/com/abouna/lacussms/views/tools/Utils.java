@@ -470,7 +470,7 @@ public class Utils {
 
     public static String send(String urlText, String number, String msg) {
         String res = "";
-        String rCode = "KO";
+        String rCode;
 
         try {
             String link = urlText.replace("<num>", URLEncoder.encode(number, "UTF-8")).replace("<msg>", URLEncoder.encode(msg, "UTF-8"));

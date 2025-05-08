@@ -55,7 +55,7 @@ public class ServiceEvenementTest {
         remoteDB.setParDefault(true);
         remoteDB.setUrl("jdbc:h2:mem:testDb;DB_CLOSE_DELAY=-1");
         remoteDB.setPassword("");
-        serviceEvenement = new ServiceEvenement(serviceManager, new BkEtatOpConfigBean(Arrays.asList("OA", "OP"), ""));
+        serviceEvenement = new ServiceEvenement(serviceManager, new BkEtatOpConfigBean(Arrays.asList("OA", "OP"), ""), null);
         serviceEvenement.setConn(conn);
     }
 

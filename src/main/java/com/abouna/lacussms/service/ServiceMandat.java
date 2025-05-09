@@ -145,8 +145,8 @@ public class ServiceMandat {
         try {
             runSms();
         } catch (Exception e) {
-            String msg = "Erreur lors de l'envoie de message";
-            Logger.error(msg, e, ServiceMandat.class);
+            String msg = "Erreur lors de l'envoie de message: %s";
+            Logger.error(String.format(msg, e.getMessage()), e, ServiceMandat.class);
         }
     }
 

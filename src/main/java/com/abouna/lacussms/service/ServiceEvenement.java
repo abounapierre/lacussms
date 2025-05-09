@@ -54,6 +54,15 @@ public class ServiceEvenement {
     }
 
     public void envoieSMSEvenement() {
+        try {
+            runSms();
+        } catch (Exception e) {
+            String errorMessage = "Erreur lors de l'envoie de message des évènements";
+            Logger.error(String.format("%s: %s", errorMessage, e.getMessage()), e, ServiceEvenement.class);
+        }
+    }
+
+    private void runSms() {
         Logger.info("Début envoie de message des évènements....", ServiceEvenement.class);
         List<BkEve> list = serviceManager.getBkEveBySendParam(false, listString, TypeEvent.ordinaire);
         list.forEach((eve) -> {
@@ -81,7 +90,6 @@ public class ServiceEvenement {
                     BottomPanel.settextLabel(msg, Color.BLACK);
                 }
             }
-
         });
     }
 

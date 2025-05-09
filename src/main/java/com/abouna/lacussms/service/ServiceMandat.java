@@ -26,9 +26,9 @@ import static com.abouna.lacussms.views.tools.ConstantUtils.SECRET_KEY;
 public class ServiceMandat {
     private final LacusSmsService serviceManager;
     private final SenderContext senderContext;
-    private Connection conn;
     private final SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
     private final SimpleDateFormat format2 = new SimpleDateFormat("dd/MM/yyyy");
+    private Connection conn;
 
 
     public ServiceMandat(LacusSmsService serviceManager, SenderContext senderContext) {
@@ -142,6 +142,15 @@ public class ServiceMandat {
     }
 
     public void envoieSMSMandat() {
+        try {
+            runSms();
+        } catch (Exception e) {
+            String msg = "Erreur lors de l'envoie de message";
+            Logger.error(msg, e, ServiceMandat.class);
+        }
+    }
+
+    private void runSms() {
         boolean bon = false;
         String msg;
         msg = "Debut envoie de message mandats....";

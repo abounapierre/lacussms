@@ -29,14 +29,10 @@ import static com.abouna.lacussms.views.tools.ConstantUtils.SECRET_KEY;
 @Component
 public class ServiceCredit {
     private final LacusSmsService serviceManager;
-
-    private Connection conn;
-
     private final SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-
     private final List<String> listString;
-
     private final SenderContext senderContext;
+    private Connection conn;
 
     public ServiceCredit(LacusSmsService serviceManager, BkEtatOpConfigBean etatOpConfigBean, SenderContext senderContext) {
         this.serviceManager = serviceManager;
@@ -184,6 +180,15 @@ public class ServiceCredit {
     }
 
     public void envoieSMSCredit() {
+        try {
+            runSms();
+        } catch (Exception e) {
+            String errorMessage = "Erreur lors de l'envoie des crédits";
+            Logger.error(String.format("%s: %s", errorMessage, e.getMessage()), e, ServiceCredit.class);
+        }
+    }
+
+    private void runSms() {
         Logger.info("Debut envoie de message des crédits....", ServiceCredit.class);
         List<BkEve> list = serviceManager.getBkEveBySendParam(false, listString, TypeEvent.credit);
         list.forEach((eve) -> {

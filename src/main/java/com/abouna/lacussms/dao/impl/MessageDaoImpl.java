@@ -40,9 +40,7 @@ public class MessageDaoImpl extends GenericDao<Message, Integer> implements IMes
     public int supprimerTout() {
         CriteriaBuilder builder = getManager().getCriteriaBuilder();
         CriteriaDelete<Message> cq = builder.createCriteriaDelete(Message.class);
-        Root<Message> root = cq.from(Message.class);
-        int result = em.createQuery(cq).executeUpdate();
-        return result;
+        return getManager().createQuery(cq).executeUpdate();
     }
     
 }

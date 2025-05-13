@@ -22,4 +22,12 @@ public class SendResponseDTO {
     public void setMessage(String message) {
         this.message = message;
     }
+
+    @Override
+    public String toString() {
+        return "SendResponseDTO{" +
+                "isSent=" + isSent +
+                ", message='" + message + '\'' +
+                '}';
+    }
 }

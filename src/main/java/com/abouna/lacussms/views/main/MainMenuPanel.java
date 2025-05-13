@@ -1,6 +1,8 @@
 package com.abouna.lacussms.views.main;
 
+import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.views.*;
+import com.abouna.lacussms.views.groupe.GroupeClientPanel;
 import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
@@ -26,46 +28,24 @@ public class MainMenuPanel extends JPanel {
     public MainMenuPanel() throws IOException {
         setLayout(new BorderLayout());
 
-        JXHyperlink  typeMsgBtn = createLink("Types SMS",MessageFormatPanel.class);
         JXHyperlink formatMsgBtn = createLink("Formats SMS", MessageFormatPanel.class);
         JXHyperlink cliBtn = createLink("Clients", BkCliPanel.class);
+        JXHyperlink grpCliBtn = createLink("Groupes clients", GroupeClientPanel.class);
         JXHyperlink opeBtn = createLink("Opérations", BkOpePanel.class);
-        JXHyperlink eveBtn = createLink("Evènements", BkEvePanel.class);
+        JXHyperlink eveBtn = createLink("Évènements", BkEvePanel.class);
         JXHyperlink remoteBdBtn = createLink("BD CBS", RemoteDBPanel.class);
-        JXHyperlink employeeBtn = createLink("Employés", MessageFormatPanel.class);
         JXHyperlink userBtn = createLink("Utilisateur", MessageFormatPanel.class);
-        JXHyperlink rapportTypeBtn = createLink("Types Rapports", MessageFormatPanel.class);
         JXHyperlink rapportBtn = createLink("Messages", RapportPanel.class);
         JXHyperlink agenceBtn = createLink("Agences", BkAgencePanel.class);
-        JXHyperlink urlParam = createLink("Param Url", UrlParamPanel.class);
         JXHyperlink etatParam = createLink("Etat OP", EtatOPParamPanel.class);
         JXHyperlink gescom = createLink("Comptes clients", BkCompCliPanel.class);
-        JXHyperlink mandat = createLink("Mandats", BkMadPanel.class);
-        JXHyperlink rapportMandatBtn = createLink("Rapports Mandats", MessageMandatPanel.class);
-        JXHyperlink commandBtn = createLink("Requêtes", CommandPanel.class);
-        JXHyperlink serviceBtn = createLink("Services", ServiceOffertPanel.class);
-        JXHyperlink programSmsBtn = createLink("Prog. SMS", SmsProgrammingPanel.class);
-        JXHyperlink configReqBtn = createLink("Conf. req.", ParametreRequetePanel.class);
         JXHyperlink accueilBtn = createLink("Accueil", HomePanel.class);
-        JXHyperlink paramTblBtn = createLink("Param Table", MessageFormatPanel.class);
         JXHyperlink licenceBtn = createLink("Licence", null);
-        JXHyperlink userParamBtn = createLink("Param Utilisateur", MessagePushPanel.class);
 
 
         licenceBtn.addActionListener((ActionEvent ae) -> {
             getLicencePanel();
         });
-
-        JXHyperlink envoieMsgBtn = createLink("SMS PUSH", MessagePushPanel.class);
-        /*envoieMsgBtn.addActionListener((ActionEvent ae) -> {
-            EnvoieSMSDialog nouveau1 = new EnvoieSMSDialog();
-            nouveau1.setSize(500, 300);
-            nouveau1.setLocationRelativeTo(null);
-            nouveau1.setModal(true);
-            nouveau1.setResizable(false);
-            nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            nouveau1.setVisible(true);
-        });*/
 
         JXHyperlink holidayBtn = createLink("Jour ferié", null);
         holidayBtn.addActionListener((ActionEvent ae) -> {
@@ -83,25 +63,18 @@ public class MainMenuPanel extends JPanel {
         donneesPane.add(agenceBtn);
         donneesPane.add(cliBtn);
         donneesPane.add(gescom);
+        donneesPane.add(grpCliBtn);
         donneesPane.add(etatParam);
         donneesPane.add(opeBtn);
-        //donneesPane.add(serviceBtn);
         donneesPane.add(formatMsgBtn);
-        //donneesPane.add(programSmsBtn);
-        //donneesPane.add(envoieMsgBtn);
         donneesPane.add(remoteBdBtn);
-        //donneesPane.add(configReqBtn);
-        //donneesPane.add(urlParam);
-
         JXTaskPane comptePane = createTaskPane("Profil");
         comptePane.setTitle("Profil");
-        //comptePane.add(licenceBtn);
         comptePane.add(userBtn);
 
         JXTaskPane rapportPane = createTaskPane("Gestion");
         rapportPane.add(eveBtn);
         rapportPane.add(rapportBtn);
-        //rapportPane.add(commandBtn);
 
         /* creation du menu */
         JXTaskPaneContainer menu = new JXTaskPaneContainer();
@@ -126,23 +99,16 @@ public class MainMenuPanel extends JPanel {
         add(jSplitPane, BorderLayout.CENTER);
     }
 
+    public static MainMenuPanel getInstance() {
+        return ApplicationConfig.getApplicationContext().getBean(MainMenuPanel.class);
+    }
+
     public void setContent(JPanel pan) {
         //stopTimer(pan);
         container.removeAll();
         container.add(pan);
         container.validate();
     }
-
-    /*private void stopTimer(JPanel pan) {
-        if(container.getCurrent() != null) {
-            if(!(pan instanceof HomePanel) && container.getCurrent() instanceof HomePanel) {
-                HomePanel current = (HomePanel) container.getCurrent();
-                if(current.getLoggingPanel().getTimer().isRunning()) {
-                    current.getLoggingPanel().getTimer().stop();
-                }
-            }
-        }
-    }*/
 
     private <T  extends JPanel> JXHyperlink createLink(String text, Class<T>  panelClass) {
         JXHyperlink b = new JXHyperlink();

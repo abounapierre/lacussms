@@ -11,6 +11,7 @@ import com.abouna.lacussms.entities.BkAgence;
 import com.abouna.lacussms.entities.BkCli;
 import com.abouna.lacussms.entities.BkEve;
 import com.abouna.lacussms.entities.BkOpe;
+import com.abouna.lacussms.service.LacusDataService;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.components.ContentEveDialog;
 import com.abouna.lacussms.views.main.MainMenuPanel;
@@ -162,7 +163,7 @@ public class BkEvePanel extends JPanel{
         contenu.add(BorderLayout.CENTER, new JScrollPane(table));
         add(BorderLayout.CENTER, contenu);
         try {
-            addData(serviceManager.getBkEveByLimit(100));
+            addData(LacusDataService.getInstance().getAllBkEves());
         } catch (Exception ex) {
             Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
         }

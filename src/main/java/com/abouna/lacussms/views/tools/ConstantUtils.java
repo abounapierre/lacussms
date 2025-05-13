@@ -38,4 +38,5 @@ public class ConstantUtils {
     public static final int DEFAULT_ACCOUNT_LENGTH = 10;
     public static final long DEFAULT_WAIT_NUMBER = 5000;
     public static final String NO_SELECTED_ITEM = "Aucun élément sélectionné";
+    public static final String COMA = ",";
 }

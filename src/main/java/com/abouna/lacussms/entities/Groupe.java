@@ -18,6 +18,10 @@ public class Groupe implements Serializable {
     public Groupe() {
     }
 
+    public Groupe(String libelle) {
+        this.libelle = libelle;
+    }
+
     public Integer getId() {
         return id;
     }
@@ -32,5 +36,10 @@ public class Groupe implements Serializable {
 
     public void setLibelle(String libelle) {
         this.libelle = libelle;
+    }
+
+    @Override
+    public String toString() {
+        return libelle;
     }
 }

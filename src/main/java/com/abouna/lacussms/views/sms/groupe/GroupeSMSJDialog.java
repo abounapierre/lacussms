@@ -1,4 +1,4 @@
-package com.abouna.lacussms.views.components;
+package com.abouna.lacussms.views.sms.groupe;
 
 import com.abouna.lacussms.main.MainFrame;
 

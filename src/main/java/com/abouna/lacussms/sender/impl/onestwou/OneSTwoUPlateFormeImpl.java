@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.Properties;
 
 @Service
@@ -44,6 +45,12 @@ public class OneSTwoUPlateFormeImpl implements LacusSenderService {
         return config.getTestModeEnabled() ? sentTo(testNumber, msg) : sentTo(number, msg);
     }
 
+    @Override
+    public SendResponseDTO send(List<String> numbers, String msg) {
+        AppRunConfig config = AppRunConfig.getInstance();
+        return config.getTestModeEnabled() ? sentTo(testNumber, msg) : sentTo(numbers, msg);
+    }
+
     @PostConstruct
     void register() {
         SenderContext.senders.put("1s2u", this);
@@ -53,6 +60,18 @@ public class OneSTwoUPlateFormeImpl implements LacusSenderService {
         try {
             Logger.info("Sending message to " + number + ": " + msg, this.getClass());
             String postBody = "username=" + URLEncoder.encode(username, "ISO-8859-1") + "&password=" + URLEncoder.encode(pass, "ISO-8859-1") + "&mno=" + URLEncoder.encode(number, "ISO-8859-1") + "&msg=" + URLEncoder.encode(msg, "ISO-8859-1") + "&Sid=" + URLEncoder.encode(sid, "ISO-8859-1") + "&mt=" + URLEncoder.encode(mt, "ISO-8859-1");
+            String link = url + "?" + postBody;
+            return postRequest(link);
+        } catch (Exception e) {
+            return new SendResponseDTO(false, "Failed to send message: " + e.getMessage());
+        }
+    }
+
+    private SendResponseDTO sentTo(List<String> numbers, String msg) {
+        try {
+            Logger.info("Sending message to " + numbers + ": " + msg, this.getClass());
+            String numbersStr = String.join(",", numbers);
+            String postBody = "username=" + URLEncoder.encode(username, "ISO-8859-1") + "&password=" + URLEncoder.encode(pass, "ISO-8859-1") + "&mno=" + URLEncoder.encode(numbersStr, "ISO-8859-1") + "&msg=" + URLEncoder.encode(msg, "ISO-8859-1") + "&Sid=" + URLEncoder.encode(sid, "ISO-8859-1") + "&mt=" + URLEncoder.encode(mt, "ISO-8859-1");
             String link = url + "?" + postBody;
             return postRequest(link);
         } catch (Exception e) {

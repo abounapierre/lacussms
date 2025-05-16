@@ -22,6 +22,13 @@ public class SenderContextImpl implements SenderContext {
 
     @Override
     public SendResponseDTO send(List<String> numbers, String message) {
-        return new SendResponseDTO(false, "Not implemented yet");
+        try {
+            return senders.get(SmsProvider.getInstance().getName()).send(numbers, message);
+        } catch (Exception e) {
+            SendResponseDTO sendResponseDTO = new SendResponseDTO();
+            sendResponseDTO.setSent(false);
+            sendResponseDTO.setMessage("Error: " + e.getMessage());
+            return sendResponseDTO;
+        }
     }
 }

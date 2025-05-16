@@ -91,7 +91,7 @@ public class GroupeSMSPanel extends JPanel {
     }
 
     private JTextArea createTextArea() {
-        JTextArea textArea = new JTextArea(/*"689552222, 689552223, 689552224, 689552225, 689552226, 689552227, 689552228, 689552229, 689552220"*/);
+        JTextArea textArea = new JTextArea();
         textArea.setEditable(true);
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
@@ -197,23 +197,8 @@ public class GroupeSMSPanel extends JPanel {
         return groupeTextArea;
     }
 
-    public void setGroupeTextArea(JTextArea groupeTextArea) {
-        this.groupeTextArea = groupeTextArea;
-    }
-
     public JTextArea getClientTextArea() {
         return clientTextArea;
     }
 
-    public void setClientTextArea(JTextArea clientTextArea) {
-        this.clientTextArea = clientTextArea;
-    }
-
-    public JTextArea getMessageTextArea() {
-        return messageTextArea;
-    }
-
-    public void setMessageTextArea(JTextArea messageTextArea) {
-        this.messageTextArea = messageTextArea;
-    }
 }

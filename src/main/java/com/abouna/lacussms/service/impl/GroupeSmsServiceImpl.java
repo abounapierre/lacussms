@@ -15,7 +15,6 @@ import com.abouna.lacussms.entities.GroupeClientPK;
 import com.abouna.lacussms.sender.context.SenderContext;
 import com.abouna.lacussms.service.GroupeSmsService;
 import com.abouna.lacussms.service.LacusSmsService;
-import com.abouna.lacussms.service.impl.util.GroupeSmsUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +24,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.abouna.lacussms.service.impl.util.GroupeSmsUtil.VALID_REQUEST_SUCCESSFULLY;
+import static com.abouna.lacussms.service.impl.util.GroupeSmsUtil.sendWithClientIds;
+import static com.abouna.lacussms.service.impl.util.GroupeSmsUtil.sendWithGroupIds;
+import static com.abouna.lacussms.service.impl.util.GroupeSmsUtil.sendWithPhoneNumbers;
+import static com.abouna.lacussms.service.impl.util.GroupeSmsUtil.validateGroupeSmsRequest;
 import static com.abouna.lacussms.views.tools.ConstantUtils.COMA;
 
 @Service
@@ -251,17 +255,21 @@ public class GroupeSmsServiceImpl implements GroupeSmsService {
     @Override
     public GroupeSmsResponseDTO sendSmsGroupe(GroupeSmsRequestDTO requestDTO) {
        try {
-           GroupeSmsUtil.validateGroupeSmsRequest(requestDTO);
+           GroupeSmsResponseDTO response = new GroupeSmsResponseDTO();
+           response.setMessage(validateGroupeSmsRequest(requestDTO));
+           if(!VALID_REQUEST_SUCCESSFULLY.equals(response.getMessage())) {
+               throw new RuntimeException("Error while validating request: " + response.getMessage());
+           }
            if(requestDTO.getPhoneNumbers() != null && !requestDTO.getPhoneNumbers().isEmpty()) {
-               GroupeSmsUtil.sendWithPhoneNumbers(senderContext, requestDTO.getMessage(), requestDTO.getPhoneNumbers());
+               sendWithPhoneNumbers(senderContext, requestDTO.getMessage(), requestDTO.getPhoneNumbers());
            }
            if(requestDTO.getGroupes() != null && !requestDTO.getGroupes().isEmpty()) {
-               GroupeSmsUtil.sendWithGroupIds(senderContext, requestDTO.getMessage(), mapGroupeIdsToBkClis(requestDTO.getGroupes()), requestDTO.isPersonalized());
+               sendWithGroupIds(senderContext, requestDTO.getMessage(), mapGroupeIdsToBkClis(requestDTO.getGroupes()), requestDTO.isPersonalized());
            }
            if(requestDTO.getClients() != null && !requestDTO.getClients().isEmpty()) {
-            GroupeSmsUtil.sendWithClientIds(senderContext, requestDTO.getMessage(), mapClientIdsToBkClis(requestDTO.getClients()), requestDTO.isPersonalized());
+            sendWithClientIds(senderContext, requestDTO.getMessage(), mapClientIdsToBkClis(requestDTO.getClients()), requestDTO.isPersonalized());
            }
-           return new GroupeSmsResponseDTO();
+           return response;
        } catch (RuntimeException e) {
            throw new RuntimeException("Error while saving group: " + e.getMessage(), e);
        }

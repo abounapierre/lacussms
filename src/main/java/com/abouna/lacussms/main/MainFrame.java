@@ -31,20 +31,21 @@ import java.util.Objects;
  */
 @SpringBootApplication
 @EnableScheduling
-@ComponentScan({ "com.abouna.lacussms"})
+@ComponentScan({"com.abouna.lacussms"})
 public class MainFrame extends JFrame {
     private static final Logger logger = LoggerFactory.getLogger(MainFrame.class);
     private final BottomPanel bottomPanel;
     public static boolean appliRun = false;
     public static Thread thread;
+    private final HeaderMenu headerMenu;
 
     public MainFrame(MainMenuPanel mainMenuPanel, LacusSmsService service, Environment env) throws IOException {
         this.bottomPanel = new BottomPanel(env.getProperty("application.signature.text"));
         mainMenuPanel.setContent(new HomePanel());
         this.setTitle("LACUS SMS " + env.getProperty("application.version"));
-        HeaderMenu menu = new HeaderMenu(service);
-        this.setJMenuBar(menu);
-        this.remove(menu);
+        headerMenu = new HeaderMenu(service);
+        this.setJMenuBar(headerMenu);
+        this.remove(headerMenu);
         Image logo = ImageIO.read(Objects.requireNonNull(getClass().getResource(ConstantUtils.LOGO_GENU)));
         setIconImage(logo);
         getContentPane().setLayout(new BorderLayout(10, 10));
@@ -75,6 +76,9 @@ public class MainFrame extends JFrame {
         return mainPanel;
     }
 
+    public HeaderMenu getHeaderMenu() {
+        return headerMenu;
+    }
 
     public static void main(String[] args) {
         try {

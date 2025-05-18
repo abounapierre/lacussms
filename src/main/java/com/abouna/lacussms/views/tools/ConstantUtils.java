@@ -19,7 +19,7 @@ public class ConstantUtils {
     public static final String SECRET_KEY = "!LACUS@2017!";
     public static final String DATE_SOLDE = "DATE_ENVOIE_SOLDE";
     public static String LOGO_GENU = "/images/genu-logo.png";
-    public static String LOGO = "/images/logo-app.PNG";
+    public static String LOGO = "/images/logo-absoft.jpg";
     public static String LOGO_1 = "/images/LACUS.PNG";
     public static final String ORACLE_DRIVER_CLASS = "oracle.jdbc.OracleDriver";
     public static final String POSTGRESQL_DRIVER_CLASS = "org.postgresql.Driver";

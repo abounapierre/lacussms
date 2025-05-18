@@ -11,7 +11,6 @@ import com.abouna.lacussms.entities.BkAgence;
 import com.abouna.lacussms.entities.BkCli;
 import com.abouna.lacussms.entities.BkEve;
 import com.abouna.lacussms.entities.BkOpe;
-import com.abouna.lacussms.service.LacusDataService;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.components.ContentEveDialog;
 import com.abouna.lacussms.views.main.MainMenuPanel;
@@ -67,14 +66,14 @@ public class BkEvePanel extends JPanel{
         contenu.setLayout(new BorderLayout());
         JPanel bas = new JPanel();
         bas.setLayout(new FlowLayout());
-        Image ajouImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Ajouter.png")));
-        Image supprImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Cancel2.png")));
-        Image modifImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/OK.png")));
-        JButton nouveau = new JButton(new ImageIcon(ajouImg));
+        Image addImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Ajouter.png")));
+        Image deleteImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Cancel2.png")));
+        Image updateImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/OK.png")));
+        JButton nouveau = new JButton(new ImageIcon(addImg));
         nouveau.setToolTipText("Ajouter un nouvel évenement");
-        JButton supprimer = new JButton(new ImageIcon(supprImg));
-        supprimer.setToolTipText("Suprimer un evenement");
-        JButton modifier = new JButton(new ImageIcon(modifImg));
+        JButton supprimer = new JButton(new ImageIcon(deleteImg));
+        supprimer.setToolTipText("Supprimer un evenement");
+        JButton modifier = new JButton(new ImageIcon(updateImg));
         modifier.setToolTipText("Modifier un evenement");
         JButton filtre = new JButton("Filtrer");
         nouveau.addActionListener((ActionEvent ae) -> {
@@ -120,7 +119,6 @@ public class BkEvePanel extends JPanel{
         bas.add(supprimer);
         bas.add(purgerBtn);
         JPanel filtrePanel = new JPanel();
-        //filtrePanel.setPreferredSize(new Dimension(500, 20));
         JPanel searchPanel = new JPanel(new FlowLayout());
         filtrePanel.setLayout(new FlowLayout());
         final JXSearchField searchField = new JXSearchField("Rechercher");
@@ -139,8 +137,7 @@ public class BkEvePanel extends JPanel{
         searchPanel.add(printBtn);
         filtrePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createRaisedBevelBorder(), "Zone de recherche"));
         filtrePanel.add(searchField);
-        //filtrePanel.add(searchPanel,BorderLayout.SOUTH);
-         filtrePanel.setBackground(new Color(166, 202, 240));
+        filtrePanel.setBackground(new Color(166, 202, 240));
         searchField.addActionListener((ActionEvent e) -> {
             String val;
             if (searchField.getText() != null) {
@@ -163,7 +160,7 @@ public class BkEvePanel extends JPanel{
         contenu.add(BorderLayout.CENTER, new JScrollPane(table));
         add(BorderLayout.CENTER, contenu);
         try {
-            addData(LacusDataService.getInstance().getAllBkEves());
+            addData(serviceManager.getBkEveByLimit(100));
         } catch (Exception ex) {
             Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
         }

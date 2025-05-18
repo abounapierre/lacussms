@@ -1,7 +1,5 @@
 package com.abouna.lacussms.views.main;
 
-import com.abouna.lacussms.config.ApplicationConfig;
-import com.abouna.lacussms.views.tools.ConstantUtils;
 import org.jdesktop.swingx.JXLabel;
 
 import javax.imageio.ImageIO;
@@ -10,27 +8,23 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
- * @author ${user}
+ * @author Abouna Pierre
  */
 public class EmptyPanel extends JPanel{
-    private BufferedImage m_image;
+    private final BufferedImage bgImage;
     
     public EmptyPanel(String logo){
         try {
-            this.m_image = ImageIO.read(Objects.requireNonNull(getClass().getResource(logo)));
-        
-            JXLabel label = new JXLabel("");
+            this.bgImage = ImageIO.read(Objects.requireNonNull(getClass().getResource(logo)));
+            JXLabel label = new JXLabel("LACUS SMS");
             label.setFont(new Font("Bernard MT Condensed",Font.BOLD,65));
-             label.setForeground(Color.WHITE);
+            label.setForeground(Color.BLACK);
             add(label);
-            
         } catch (IOException ex) {
-            Logger.getLogger(EmptyPanel.class.getName()).log(Level.SEVERE, null, ex);
+            throw  new RuntimeException("Error when building " + ex.getMessage(), ex);
         }
     }
     
@@ -38,9 +32,8 @@ public class EmptyPanel extends JPanel{
     public void paintComponent(Graphics g)
     {
         Graphics2D g2d = (Graphics2D)g;
-		g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, 
-                          RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         super.paintComponent(g);
-        g.drawImage(m_image, 0, 0,getWidth(),getHeight(),null);
+        g.drawImage(bgImage, 0, 0,getWidth(),getHeight(),null);
     }
 }

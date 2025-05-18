@@ -9,10 +9,14 @@ import com.jgoodies.forms.layout.FormLayout;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class TestSMSPanel extends JDialog {
     private final JTextField phoneText;
     private final JTextField messageText;
+    private final JCheckBox checkBox;
+
     public TestSMSPanel() {
         setTitle("TEST ENVOIE MESSAGE");
         setModal(true);
@@ -26,6 +30,7 @@ public class TestSMSPanel extends JDialog {
         builder.setDefaultDialogBorder();
         builder.append("Téléphone", phoneText = new JTextField(50));
         builder.append("Message", messageText = new JTextField(50));
+        builder.append("Envoie Groupé ?", checkBox = new JCheckBox());
 
         JButton annulerBtn;
         JButton okBtn;
@@ -42,7 +47,7 @@ public class TestSMSPanel extends JDialog {
                 JOptionPane.showMessageDialog(TestSMSPanel.this.getParent(), "Le message est obligatoire");
                 return;
             }
-            SendResponseDTO sendResponseDTO = SenderContext.getInstance().send(phoneText.getText(), messageText.getText());
+            SendResponseDTO sendResponseDTO = sendMessage(checkBox.isSelected());
             JOptionPane.showMessageDialog(TestSMSPanel.this, sendResponseDTO.getMessage());
         });
 
@@ -52,7 +57,18 @@ public class TestSMSPanel extends JDialog {
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     }
 
+    private SendResponseDTO sendMessage(boolean isGroup) {
+        if (isGroup) {
+            return SenderContext.getInstance().send(
+                    Arrays.stream(phoneText.getText().split(",")).map(String::trim).collect(Collectors.toList()),
+                    messageText.getText()
+            );
+        } else {
+            return SenderContext.getInstance().send(phoneText.getText(), messageText.getText());
+        }
+    }
+
     public static void init() {;
-        DialogUtils.initDialog(new TestSMSPanel(), null, 400, 200);
+        DialogUtils.initDialog(new TestSMSPanel(), null, 400, 210);
     }
 }

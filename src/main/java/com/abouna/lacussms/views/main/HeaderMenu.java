@@ -6,7 +6,6 @@
 package com.abouna.lacussms.views.main;
 
 
-import com.abouna.lacussms.config.SmsProvider;
 import com.abouna.lacussms.entities.Config;
 import com.abouna.lacussms.main.MainFrame;
 import com.abouna.lacussms.service.LacusSmsService;
@@ -28,7 +27,7 @@ import java.text.ParseException;
  */
 public class HeaderMenu extends JMenuBar {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(HeaderMenu.class);
-    private JMenu employe;
+    private JMenu employee;
     private JMenuItem langue;
     private final LacusSmsService serviceManager;
     private JCheckBoxMenuItem bkmac;
@@ -37,8 +36,9 @@ public class HeaderMenu extends JMenuBar {
     private JCheckBoxMenuItem event;
     private JCheckBoxMenuItem hbd;
     private JCheckBoxMenuItem solde;
-    private final JFileChooser fc = new JFileChooser();
+    private final JFileChooser fileChooser = new JFileChooser();
     private Config config ;
+    private JMenu smsProviderMenu;
              
     public HeaderMenu(LacusSmsService service) {
        this.serviceManager = service;
@@ -52,7 +52,7 @@ public class HeaderMenu extends JMenuBar {
         JMenu service = new JMenu("Services");
         JMenu rapports = new JMenu("Rapports");
         JMenu contact = new JMenu("Contacts");
-        JMenu provider = new JMenu("Fournisseur SMS");
+        smsProviderMenu = new JMenu("Fournisseur SMS");
         JMenuItem copier = new JMenuItem("Copier");
         JMenuItem couper = new JMenuItem("Couper");
         JMenuItem coller = new JMenuItem("Coller");
@@ -63,7 +63,7 @@ public class HeaderMenu extends JMenuBar {
         JMenuItem paramBD = new JMenuItem("BD Distante");
         JMenuItem paramTbl = new JMenuItem("Tables Distance");
         JMenuItem dateSolde = new JMenuItem("Date d'envoie de solde");
-        employe = new JMenu("Clients");
+        employee = new JMenu("Clients");
         JMenuItem licence = new JMenuItem("Licence");
         JMenuItem user = new JMenuItem("utilisateur");
         JMenuItem typeRapport = new JMenuItem("Type de Rapports");
@@ -170,21 +170,16 @@ public class HeaderMenu extends JMenuBar {
         service.add(hbd);
         service.add(solde);
 
-        employe.add(importFichierClient);
-        employe.add(exportFichierClient);
-        configuration.add(employe);
+        employee.add(importFichierClient);
+        employee.add(exportFichierClient);
+        configuration.add(employee);
         configuration.add(dateSolde);
-
         profil.add(licence);
         profil.add(user);
         rapports.add(rapport);
         contact.add(voirContact);
-        addItems(provider);
-        
-        
         initialiser.addActionListener((ActionEvent e) -> {
         });
-        
         quitter.addActionListener((ActionEvent e) -> {
             int response = JOptionPane.showConfirmDialog(HeaderMenu.this.getParent(), "Voulez-vous vraiment quitter cette application?", "Confirmation",
                     JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
@@ -251,9 +246,9 @@ public class HeaderMenu extends JMenuBar {
         
         
         exportFichierClient.addActionListener((ActionEvent e) -> {
-            int val_retour = fc.showSaveDialog(employe);
+            int val_retour = fileChooser.showSaveDialog(employee);
             if (val_retour == JFileChooser.APPROVE_OPTION) {
-                File fichier = fc.getSelectedFile();
+                File fichier = fileChooser.getSelectedFile();
                 final String path = fichier.getAbsolutePath() + ".csv";
                 int response = JOptionPane.showConfirmDialog(null, "<html>Rapport généré avec success!!<br>Voulez vous l'ouvrir?", "Confirmation",
                         JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
@@ -298,27 +293,10 @@ public class HeaderMenu extends JMenuBar {
         add(profil);
         add(rapports);
         add(contact);
-        add(provider);
+        add(smsProviderMenu);
     }
 
-    private void addItems(JMenu provider) {
-        JCheckBoxMenuItem orange = new JCheckBoxMenuItem("Orange");
-        JCheckBoxMenuItem f1s2u = new JCheckBoxMenuItem("1s2u");
-        f1s2u.setSelected(true);
-        orange.addActionListener((ActionEvent e) -> {
-            if(orange.isSelected()){
-                f1s2u.setSelected(false);
-                SmsProvider.getInstance().setName("orange");
-            }
-        });
-        f1s2u.addActionListener((ActionEvent e) -> {
-            if(f1s2u.isSelected()){
-                orange.setSelected(false);
-                SmsProvider.getInstance().setName("1s2u");
-            }
-        });
-        provider.add(f1s2u);
-        provider.add(orange);
+    public JMenu getSmsProviderMenu() {
+        return smsProviderMenu;
     }
-
 }

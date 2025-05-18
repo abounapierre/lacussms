@@ -1,5 +1,7 @@
 package com.abouna.lacussms.config;
 
+import com.abouna.lacussms.main.MainFrame;
+import com.abouna.lacussms.service.PdfReportService;
 import com.abouna.lacussms.views.main.LogFile;
 import com.abouna.lacussms.views.tools.ConstantUtils;
 import com.google.common.base.Preconditions;
@@ -17,12 +19,16 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.util.Assert;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,6 +48,7 @@ import java.util.stream.Stream;
         @PropertySource("classpath:bd.properties"),
         @PropertySource("classpath:application.properties")
 })
+@EnableScheduling
 public class SpringMainConfig {
 
     private static final Logger log = LoggerFactory.getLogger(SpringMainConfig.class);
@@ -133,10 +140,6 @@ public class SpringMainConfig {
         return new AppRunConfig(Boolean.TRUE, Boolean.TRUE, Boolean.TRUE);
     }
 
-    @Bean
-    public SmsProvider getSmsProvider() {
-        return new SmsProvider("1s2u");
-    }
 
     @Bean
     public PathConfigBean getPathConfigBean(Environment env) {
@@ -167,10 +170,44 @@ public class SpringMainConfig {
             for (FileSystemResource fileSystemResource : fileSystemResources) {
                 properties.load(fileSystemResource.getInputStream());
             }
+            log.info("Properties loaded from files: {}", properties);
             return properties;
         } catch (Exception e) {
             log.error("Error loading properties files {}", e.getMessage(), e);
             throw new RuntimeException("Error loading properties files", e);
+        }
+    }
+
+    @Bean(name = "smsProvider")
+    public SmsProvider configSmsProviderMenuHeader(MainFrame mainFrame) {
+        JMenu smsProviderMenu = mainFrame.getHeaderMenu().getSmsProviderMenu();
+        JCheckBoxMenuItem orange = new JCheckBoxMenuItem("Orange");
+        JCheckBoxMenuItem f1s2u = new JCheckBoxMenuItem("1s2u");
+        f1s2u.setSelected(true);
+        orange.addActionListener((ActionEvent e) -> {
+            if(orange.isSelected()){
+                f1s2u.setSelected(false);
+                SmsProvider.getInstance().setName("orange");
+            }
+        });
+        f1s2u.addActionListener((ActionEvent e) -> {
+            if(f1s2u.isSelected()){
+                orange.setSelected(false);
+                SmsProvider.getInstance().setName("1s2u");
+            }
+        });
+        smsProviderMenu.add(f1s2u);
+        smsProviderMenu.add(orange);
+        return new SmsProvider("1s2u");
+    }
+
+    @Scheduled(cron = "* * * * *") //0 8,10,12 1 * *
+    void buildMonthReport() {
+        try {
+            com.abouna.lacussms.views.utils.Logger.info("Building month report", getClass());
+            PdfReportService.getInstance().buildPdfReport();
+        } catch (Exception e) {
+            com.abouna.lacussms.views.utils.Logger.error("Error when building month report" + e.getMessage(), e, getClass());
         }
     }
 }

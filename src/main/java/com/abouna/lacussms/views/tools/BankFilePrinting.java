@@ -26,9 +26,7 @@ public class BankFilePrinting {
         try (FileWriter fileWriter = new FileWriter(path); 
                 PrintWriter printWriter = new PrintWriter(fileWriter)) {
             commands.stream().map((command) -> agence + "|" + command.getOpe()
-                    + "|" + command.getCompte() + "|" + command.getMontant() + "|" + "D").forEach((s) -> {
-                            printWriter.println(s);
-            });
+                    + "|" + command.getCompte() + "|" + command.getMontant() + "|" + "D").forEach(printWriter::println);
         } catch (IOException ex) {
             Logger.getLogger(BankFilePrinting.class.getName()).log(Level.SEVERE, null, ex);
         }

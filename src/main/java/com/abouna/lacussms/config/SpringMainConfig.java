@@ -169,7 +169,7 @@ public class SpringMainConfig {
             }
             return properties;
         } catch (Exception e) {
-            log.error("Error loading properties files", e);
+            log.error("Error loading properties files {}", e.getMessage(), e);
             throw new RuntimeException("Error loading properties files", e);
         }
     }

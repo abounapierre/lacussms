@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.abouna.lacussms.config.service;
+package com.abouna.lacussms.config;
 
 import com.abouna.lacussms.entities.*;
 

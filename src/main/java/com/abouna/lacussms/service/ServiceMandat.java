@@ -18,7 +18,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
+import static com.abouna.lacussms.service.ServiceUtils.isStopped;
 import static com.abouna.lacussms.views.tools.ConstantUtils.GET_CONNECTION_NULL_ERROR;
 import static com.abouna.lacussms.views.tools.ConstantUtils.SECRET_KEY;
 
@@ -55,8 +57,9 @@ public class ServiceMandat {
         Logger.info(query, ServiceMandat.class);
         try (PreparedStatement ps = getConn().prepareStatement(query)) {
             ResultSet rs = ps.executeQuery();
-            Logger.info(String.format("nombre de lignes trouvées: %s", ColUtils.getSize(rs)), ServiceMandat.class);
+            Logger.info(String.format("Le nombre de mandats trouvés est de: %s", ColUtils.getSize(rs)), ServiceMandat.class);
             while (rs.next()) {
+                if (isStopped()) return;
                 runServiceMandat(rs);
             }
         }catch (Throwable e) {
@@ -108,6 +111,7 @@ public class ServiceMandat {
                         break;
                 }
                 eve.setCtr(result);
+                eve.setCreationDate(new Date());
                 msg = "Chargement données salaires.... " + eve.getAd1p();
                 Logger.info(msg, ServiceMandat.class);
                 BottomPanel.settextLabel(msg, Color.BLACK);
@@ -159,49 +163,62 @@ public class ServiceMandat {
         List<BkMad> list = serviceManager.getBkMadByTraite();
 
         for (BkMad eve : list) {
+            if (isStopped()) return;
+            if (serviceManager.getMessageMandatByNumEve(eve.getEve()).isPresent()){
+                msg = "Un message existe déjà pour le mandat: " + eve.getEve();
+                Logger.info(msg, false, ServiceEvenement.class);
+                BottomPanel.settextLabel(msg, Color.BLACK);
+                continue;
+            }
+            BottomPanel.settextLabel(String.format("Vérification téléphone: getAd1p %s, getAd2p %s", eve.getAd1p(), eve.getAd2p()), Color.BLACK);
             if (Utils.testPhone(eve.getAd1p()) != null && Utils.testPhone(eve.getAd2p()) != null && eve.getOpe() != null) {
                 MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), "FR");
-                if (mf != null) {
-                    SendResponseDTO sendResponseDTO = null;
-                    String text = Utils.remplacerVariable(eve, mf);
-                    if (eve.getTraite() == 0) {
-                        BottomPanel.settextLabel("Envoie du Message à.... " + eve.getAd2p(), Color.BLACK);
-                        sendResponseDTO = senderContext.send(eve.getAd2p(), text);
-                    } else if (eve.getTraite() == 1) {
-                        mf = serviceManager.getFormatByBkOpe(serviceManager.getBkOpeById("100"), "FR");
-                        if (mf != null) {
-                            text = Utils.remplacerVariable(eve, mf);
-                            bon = true;
-                            BottomPanel.settextLabel("Envoie du Message à.... " + eve.getAd1p(), Color.BLACK);
-                            sendResponseDTO = senderContext.send(eve.getAd1p(), text);
-                        }
-                    }
-                    if(sendResponseDTO == null) {
-                        Logger.info("Erreur d'envoie de message", ServiceMandat.class);
-                        continue;
-                    }
-                    MessageMandat message = new MessageMandat();
-                    message.setTitle(eve.getOpe().getLib());
-                    message.setContent(text);
-                    message.setBkMad(eve);
-                    message.setSendDate(new Date());
-                    message.setSent(sendResponseDTO.isSent());
-                    if (eve.getTraite() == 0) {
-                        eve.setTraite(1);
-                        eve.setSent(sendResponseDTO.isSent());
-                        message.setNumero(eve.getAd2p());
-                        serviceManager.enregistrer(message);
-                    } else if (eve.getTraite() == 1 && bon) {
-                        eve.setTraite(2);
-                        eve.setSent(sendResponseDTO.isSent());
-                        message.setNumero(eve.getAd1p());
-                        serviceManager.enregistrer(message);
-                    }
-                    serviceManager.modifier(eve);
-                    msg = sendResponseDTO.getMessage();
-                    Logger.info(msg, ServiceMandat.class);
-                    BottomPanel.settextLabel(msg, Color.BLACK);
+                if (mf == null) {
+                    String errorMsg = "Format de message non trouvé pour l'opération: " + eve.getOpe().getLib();
+                    Logger.info(errorMsg, ServiceMandat.class);
+                    continue;
                 }
+                SendResponseDTO sendResponseDTO = null;
+                String text = Utils.remplacerVariable(eve, mf);
+                if (eve.getTraite() == 0) {
+                    BottomPanel.settextLabel("Envoie du Message à.... " + eve.getAd2p(), Color.BLACK);
+                    sendResponseDTO = senderContext.send(eve.getAd2p(), text);
+                } else if (eve.getTraite() == 1) {
+                    BkOpe bkOpe = Optional.ofNullable(eve.getOpe()).orElseThrow(() -> new RuntimeException("Opération de mandat est obligatoire"));
+                    mf = serviceManager.getFormatByBkOpe(bkOpe, "FR");
+                    text = Utils.remplacerVariable(eve, mf);
+                    bon = true;
+                    BottomPanel.settextLabel("Envoie du Message à.... " + eve.getAd1p(), Color.BLACK);
+                    sendResponseDTO = senderContext.send(eve.getAd1p(), text);
+                }
+                if(sendResponseDTO == null) {
+                    Logger.info("Erreur d'envoie de message", ServiceMandat.class);
+                    continue;
+                }
+                MessageMandat message = new MessageMandat();
+                message.setTitle(eve.getOpe().getLib());
+                message.setContent(text);
+                message.setBkMad(eve.getId());
+                message.setBkMadEve(eve.getEve());
+                message.setSendDate(new Date());
+                message.setNumEve(eve.getEve());
+                message.setSent(sendResponseDTO.isSent());
+                if (eve.getTraite() == 0) {
+                    eve.setTraite(1);
+                    eve.setSent(sendResponseDTO.isSent());
+                    message.setNumero(eve.getAd2p());
+                    message.setSendTime(new Date());
+                    serviceManager.enregistrer(message);
+                } else if (eve.getTraite() == 1 && bon) {
+                    eve.setTraite(2);
+                    eve.setSent(sendResponseDTO.isSent());
+                    message.setNumero(eve.getAd1p());
+                    serviceManager.enregistrer(message);
+                }
+                serviceManager.modifier(eve);
+                msg = sendResponseDTO.getMessage();
+                Logger.info(msg, ServiceMandat.class);
+                BottomPanel.settextLabel(msg, Color.BLACK);
             }
         }
     }

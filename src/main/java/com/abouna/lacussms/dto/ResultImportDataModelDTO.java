@@ -7,6 +7,7 @@ public class ResultImportDataModelDTO {
     private List<SuccessImportDataModelDTO> success;
     private List<FailImportDataModelDTO> errors;
     private Integer totalExisting = 0;
+    private Integer totalUpdated = 0;
 
     public ResultImportDataModelDTO() {
         success = new ArrayList<>();
@@ -16,6 +17,14 @@ public class ResultImportDataModelDTO {
     public ResultImportDataModelDTO(List<SuccessImportDataModelDTO> success, List<FailImportDataModelDTO> errors) {
         this.success = success;
         this.errors = errors;
+    }
+
+    public Integer getTotalUpdated() {
+        return totalUpdated;
+    }
+
+    public void setTotalUpdated(Integer totalUpdated) {
+        this.totalUpdated = totalUpdated;
     }
 
     public Integer getTotalExisting() {

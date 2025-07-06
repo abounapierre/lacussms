@@ -16,6 +16,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  *
@@ -39,5 +40,15 @@ public class MessageMandatDaoImpl extends GenericDao<MessageMandat, Integer> imp
     public int supprimerTout() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
+    @Override
+    public Optional<MessageMandat> getMessageMandatByNumEve(String eve) {
+        CriteriaBuilder builder =  getManager().getCriteriaBuilder();
+        CriteriaQuery<MessageMandat> cq = builder.createQuery(MessageMandat.class);
+        Root<MessageMandat> msgRoot = cq.from(MessageMandat.class);
+        cq.where(builder.equal(msgRoot.get("numEve"), eve));
+        cq.select(msgRoot);
+        return getManager().createQuery(cq).getResultList().stream().findFirst();
+    }
+
 }

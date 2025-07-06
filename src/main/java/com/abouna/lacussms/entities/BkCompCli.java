@@ -25,6 +25,15 @@ public class BkCompCli implements Serializable{
     private BkCli cli;
     private boolean enabled;
 
+    public BkCompCli() {
+    }
+
+    public BkCompCli(String numc, BkCli cli, boolean enabled) {
+        this.numc = numc;
+        this.cli = cli;
+        this.enabled = enabled;
+    }
+
     public String getNumc() {
         return numc;
     }

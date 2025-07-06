@@ -27,4 +27,5 @@ public interface IBkMadDao extends IDao<BkMad, Integer>{
     List<BkMad> getBkMadByTraite(int traite);
     List<BkMad> getBkMadByTraite();
     List<BkMad> getBkMadByLimit(int limit);
+    List<BkMad> getBkMadByDate(Date date);
 }

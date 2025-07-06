@@ -8,11 +8,9 @@ package com.abouna.lacussms.dao.impl;
 
 import com.abouna.generic.dao.DataAccessException;
 import com.abouna.generic.dao.impl.GenericDao;
-import com.abouna.lacussms.dao.IBkEtatOpDao;
 import com.abouna.lacussms.dao.IBkEveDao;
 import com.abouna.lacussms.entities.BkEve;
 import com.abouna.lacussms.entities.TypeEvent;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
@@ -28,16 +26,6 @@ import java.util.logging.Logger;
  */
 @Repository
 public class BkEveDaoImpl extends GenericDao<BkEve, Integer> implements IBkEveDao{
-    @Autowired
-    private IBkEtatOpDao bkEtatOpDao;
-
-    public IBkEtatOpDao getBkEtatOpDao() {
-        return bkEtatOpDao;
-    }
-
-    public void setBkEtatOpDao(IBkEtatOpDao bkEtatOpDao) {
-        this.bkEtatOpDao = bkEtatOpDao;
-    }
     
     @Override
     public List<BkEve> getBkEvesByEtat(String etat,Date date) {
@@ -51,35 +39,41 @@ public class BkEveDaoImpl extends GenericDao<BkEve, Integer> implements IBkEveDa
     }
 
     @Override
-    public List<BkEve> getBkEveMaxDate() {
+    public List<BkEve> getBkEveMaxDate(List<String> states) {
         CriteriaBuilder builder =  getManager().getCriteriaBuilder();
         CriteriaQuery<BkEve> cq = builder.createQuery(BkEve.class);
         Root<BkEve> bkEveRoot = cq.from(BkEve.class);
-        cq.where(builder.or(builder.equal(bkEveRoot.get("etat"), "VA"),
-                builder.equal(bkEveRoot.get("etat"), "VF")));
+        Predicate inPredicate = bkEveRoot.get("etat").in(states);
+        cq.where(inPredicate);
         cq.select(bkEveRoot).orderBy(builder.desc(bkEveRoot.get("eventDate")));
         return getManager().createQuery(cq).setMaxResults(1).getResultList();
     }
 
     @Override
-    public List<BkEve> getBkEveByDate(Date date) {
+    public List<BkEve> getBkEveByDate(Date date, List<String> states) {
        CriteriaBuilder builder =  getManager().getCriteriaBuilder();
         CriteriaQuery<BkEve> cq = builder.createQuery(BkEve.class);
         Root<BkEve> bkEveRoot = cq.from(BkEve.class);
-        cq.where(builder.and(builder.or(builder.equal(bkEveRoot.get("etat"), "VA"),
-                builder.equal(bkEveRoot.get("etat"), "VF")),
+        Predicate inPredicate = bkEveRoot.get("etat").in(states);
+        if(date == null) {
+            date = new Date();
+        }
+        if(states == null || states.isEmpty()) {
+            inPredicate = builder.conjunction(); // No specific state filter
+        }
+        cq.where(builder.and(inPredicate,
                 builder.greaterThanOrEqualTo(bkEveRoot.get("eventDate"),date)));
         cq.select(bkEveRoot);
         return getManager().createQuery(cq).getResultList();
     }
 
     @Override
-    public List<BkEve> getBkEveBySendParam(boolean send) {
+    public List<BkEve> getBkEveBySendParam(boolean send, List<String> states) {
          CriteriaBuilder builder =  getManager().getCriteriaBuilder();
         CriteriaQuery<BkEve> cq = builder.createQuery(BkEve.class);
         Root<BkEve> bkEveRoot = cq.from(BkEve.class);
-        cq.where(builder.and(builder.or(builder.equal(bkEveRoot.get("etat"), "VA"),
-                builder.equal(bkEveRoot.get("etat"), "VF")),
+        Predicate inPredicate = bkEveRoot.get("etat").in(states);
+        cq.where(builder.and(inPredicate,
                 builder.equal(bkEveRoot.get("sent"),send)));
         cq.select(bkEveRoot);
         return getManager().createQuery(cq).getResultList();
@@ -102,19 +96,6 @@ public class BkEveDaoImpl extends GenericDao<BkEve, Integer> implements IBkEveDa
         cq.where(builder.and(builder.greaterThanOrEqualTo(bkEveRoot.get("eventDate"), d1),
                 builder.lessThanOrEqualTo(bkEveRoot.get("eventDate"), d2)));
         cq.select(bkEveRoot);
-        return getManager().createQuery(cq).getResultList();
-    }
-
-    @Override
-    public List<BkEve> getBkEveBySendParam(boolean send, List<String> list) {
-       CriteriaBuilder builder =  getManager().getCriteriaBuilder();
-        CriteriaQuery<BkEve> cq = builder.createQuery(BkEve.class);
-        Root<BkEve> bkEveRoot = cq.from(BkEve.class);
-        Expression<String> exp = bkEveRoot.get("etat");
-        Predicate predicate = exp.in(list);
-        cq.where(builder.and(builder.or(predicate),
-                builder.equal(bkEveRoot.get("sent"),send)));
-        cq.select(bkEveRoot).orderBy();
         return getManager().createQuery(cq).getResultList();
     }
 
@@ -284,5 +265,14 @@ public class BkEveDaoImpl extends GenericDao<BkEve, Integer> implements IBkEveDa
         cq.select(bkEveRoot);
         return getManager().createQuery(cq).getResultList();
     }
-        
+
+    @Override
+    public Long countEve() {
+        CriteriaBuilder builder =  getManager().getCriteriaBuilder();
+        CriteriaQuery<Long> cq = builder.createQuery(Long.class);
+        Root<BkEve> bkEveRoot = cq.from(BkEve.class);
+        cq.select(builder.count(bkEveRoot));
+        return getManager().createQuery(cq).getSingleResult();
+    }
+
 }

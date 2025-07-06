@@ -81,7 +81,7 @@ public class GroupeSMSPanel extends JPanel {
     }
 
     private DefaultFormBuilder getFrom() {
-        DefaultFormBuilder builder = new DefaultFormBuilder(new FormLayout("right:max(40dlu;p), 12dlu, 700dlu:", ""));
+        DefaultFormBuilder builder = new DefaultFormBuilder(new FormLayout("right:max(40dlu;p), 12dlu, 400dlu:", ""));
         builder.append("Téléphones: ", new JScrollPane(createPhoneTextArea()));
         builder.append("Groupes: ", new JScrollPane(createGroupeTextArea()));
         builder.append("Clients: ", new JScrollPane(createClientTextArea()));

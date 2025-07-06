@@ -71,19 +71,8 @@ public class ServiceEvenementTest {
         bkCli.setPhone(0);
         BkAgence bkAgence = new BkAgence("020", "AG TEST","TEST ADR");
         BkOpe bkOpe = new BkOpe("001", "SOLDE");
-        
-        Map<String,String> map = new HashMap<>();
-        map.put(RequeteEvenement.CODE_AGENCE.name(), "AGE");
-        map.put(RequeteEvenement.CODE_CLIENT.name(), "CLI1");
-        map.put(RequeteEvenement.CODE_ETAT.name(), "ETA");
-        map.put(RequeteEvenement.CODE_EVENEMENT.name(), "EVE");
-        map.put(RequeteEvenement.CODE_OPERATION.name(), "OPE");
-        map.put(RequeteEvenement.DATE_EVENEMENT.name(), "DSAI");
-        map.put(RequeteEvenement.DATE_VALEUR.name(), "DVAB");
-        map.put(RequeteEvenement.HEURE_EVENEMENT.name(), "HSAI");
-        map.put(RequeteEvenement.MONTANT_OPERATION.name(), "MON1");
-        map.put(RequeteEvenement.NOM_TABLE.name(), "BKEVE");
-        map.put(RequeteEvenement.NUMERO_COMPTE.name(), "NCP");
+
+        Map<String, String> map = getStringStringMap();
         Map<String,String> mapClient = new HashMap<>();
         mapClient.put(RequeteClient.CODE_CLIENT.name(), "CLI");
         mapClient.put(RequeteClient.NOM_TABLE.name(), "BKTELCLI");
@@ -123,18 +112,7 @@ public class ServiceEvenementTest {
         BkAgence bkAgence = new BkAgence("020", "AG TEST","TEST ADR");
         BkOpe bkOpe = new BkOpe("001", "SOLDE");
 
-        Map<String,String> map = new HashMap<>();
-        map.put(RequeteEvenement.CODE_AGENCE.name(), "AGE");
-        map.put(RequeteEvenement.CODE_CLIENT.name(), "CLI1");
-        map.put(RequeteEvenement.CODE_ETAT.name(), "ETA");
-        map.put(RequeteEvenement.CODE_EVENEMENT.name(), "EVE");
-        map.put(RequeteEvenement.CODE_OPERATION.name(), "OPE");
-        map.put(RequeteEvenement.DATE_EVENEMENT.name(), "DSAI");
-        map.put(RequeteEvenement.DATE_VALEUR.name(), "DVAB");
-        map.put(RequeteEvenement.HEURE_EVENEMENT.name(), "HSAI");
-        map.put(RequeteEvenement.MONTANT_OPERATION.name(), "MON1");
-        map.put(RequeteEvenement.NOM_TABLE.name(), "BKEVE");
-        map.put(RequeteEvenement.NUMERO_COMPTE.name(), "NCP");
+        Map<String, String> map = getStringStringMap();
         Map<String,String> mapClient = new HashMap<>();
         mapClient.put(RequeteClient.CODE_CLIENT.name(), "CLI");
         mapClient.put(RequeteClient.NOM_TABLE.name(), "BKTELCLI");
@@ -158,6 +136,22 @@ public class ServiceEvenementTest {
         EasyMock.expect(serviceManager.modifier(EasyMock.isA(BkCli.class))).andReturn(bkCli);
         EasyMock.replay(serviceManager);
         serviceEvenement.serviceEvenement();
+    }
+
+    private static Map<String, String> getStringStringMap() {
+        Map<String,String> map = new HashMap<>();
+        map.put(RequeteEvenement.CODE_AGENCE.name(), "AGE");
+        map.put(RequeteEvenement.CODE_CLIENT.name(), "CLI1");
+        map.put(RequeteEvenement.CODE_ETAT.name(), "ETA");
+        map.put(RequeteEvenement.CODE_EVENEMENT.name(), "EVE");
+        map.put(RequeteEvenement.CODE_OPERATION.name(), "OPE");
+        map.put(RequeteEvenement.DATE_EVENEMENT.name(), "DSAI");
+        map.put(RequeteEvenement.DATE_VALEUR.name(), "DVAB");
+        map.put(RequeteEvenement.HEURE_EVENEMENT.name(), "HSAI");
+        map.put(RequeteEvenement.MONTANT_OPERATION.name(), "MON1");
+        map.put(RequeteEvenement.NOM_TABLE.name(), "BKEVE");
+        map.put(RequeteEvenement.NUMERO_COMPTE.name(), "NCP");
+        return map;
     }
 
     @Test

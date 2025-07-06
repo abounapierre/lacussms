@@ -13,8 +13,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Objects;
 
+import static com.abouna.lacussms.service.ServiceUtils.isStopped;
 import static com.abouna.lacussms.views.tools.ConstantUtils.GET_CONNECTION_NULL_ERROR;
 import static com.abouna.lacussms.views.tools.ConstantUtils.SECRET_KEY;
 
@@ -51,6 +53,7 @@ public class ServiceSalaireBKMVTI {
             String msg = "Recherche données salaires BKMVTI.... ";
             BottomPanel.settextLabel(msg, java.awt.Color.BLACK);
             while (rs.next()) {
+                if (isStopped()) return;
                 runServiceBKMVTI(rs, format2, format1);
             }
         }catch (Throwable e) {
@@ -95,6 +98,7 @@ public class ServiceSalaireBKMVTI {
                     eve.setNumEve(rs.getString(4).trim());
                     eve.setId(serviceManager.getMaxIndexBkEve() + 1);
                     eve.setType(TypeEvent.salaire);
+                    eve.setCreationDate(new Date());
 
                     if (bkCli != null) {
                         if (serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getEventDate(), eve.getCompte()).isEmpty()) {

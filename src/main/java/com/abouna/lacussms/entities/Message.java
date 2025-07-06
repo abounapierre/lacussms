@@ -25,14 +25,16 @@ public class Message implements Serializable {
     private String content;
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date sendDate;
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date sendTime;
     @JoinColumn(name = "bkeve")
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     private BkEve bkEve;
-    @OneToOne
-    private BkMad bkMad;
     private String numero;
     @Column(name = "is_sent")
     private Boolean isSent = false;
+    @Column(name = "num_eve")
+    private String numEve;
 
     public Message() {
     }
@@ -57,14 +59,6 @@ public class Message implements Serializable {
 
     public void setNumero(String numero) {
         this.numero = numero;
-    }
-
-    public BkMad getBkMad() {
-        return bkMad;
-    }
-
-    public void setBkMad(BkMad bkMad) {
-        this.bkMad = bkMad;
     }
 
     public Integer getId() {
@@ -113,6 +107,22 @@ public class Message implements Serializable {
 
     public void setSent(Boolean sent) {
         isSent = sent;
+    }
+
+    public Date getSendTime() {
+        return sendTime;
+    }
+
+    public void setSendTime(Date sendTime) {
+        this.sendTime = sendTime;
+    }
+
+    public String getNumEve() {
+        return numEve;
+    }
+
+    public void setNumEve(String numEve) {
+        this.numEve = numEve;
     }
 
     @Override

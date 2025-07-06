@@ -14,7 +14,7 @@ import java.awt.*;
  * @author Administrateur
  */
 public class BottomPanel extends JPanel{
-    private static JLabel info = new JLabel();
+    private static JLabel info = getInfo();
     
     public BottomPanel(String title) {
         JLabel signatureLabel = new JLabel(title);//Ing. ABOUNA P.E
@@ -34,6 +34,8 @@ public class BottomPanel extends JPanel{
     }
 
     public static JLabel getInfo() {
+        info = new JLabel();
+        info.setSize(150, 20);
         return info;
     }
 

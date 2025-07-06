@@ -12,16 +12,19 @@ public class LogScreenPanel extends JPanel{
         Font font = new Font(Font.SERIF, Font.BOLD, 20);
         textArea.setFont(font);
         textArea.setForeground(Color.WHITE);
+        textArea.setCaretPosition(textArea.getDocument().getLength());
         setLayout(new BorderLayout(10, 10));
         add(new JScrollPane(textArea), BorderLayout.CENTER);
     }
 
     public static void append(String log) {
         textArea.append(log);
-        textArea.setCaretPosition(textArea.getDocument().getLength());
     }
 
-    public static void clear() {
-        textArea.setText("");
+    public static void deleteOldText() {
+        if(textArea.getText().length() < 1000000) {
+            return;
+        }
+        textArea.replaceRange(null, 0, 200000);
     }
 }

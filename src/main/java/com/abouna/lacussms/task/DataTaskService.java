@@ -58,6 +58,8 @@ public class DataTaskService {
                 error(errorDbMessage, e);
             } catch (ParseException e) {
                 error( errorDateMessage, e);
+            } catch (Exception e) {
+                error(String.format("Une erreur inattendue s'est produite lors du traitement des événements: %s", e.getMessage()), e);
             }
         }
 
@@ -69,6 +71,8 @@ public class DataTaskService {
                 error( errorDbMessage, e);
             } catch (ParseException e) {
                 error( errorDateMessage, e);
+            } catch (Exception e) {
+                error(String.format("Une erreur inattendue s'est produite lors du traitement des salaires: %s", e.getMessage()), e);
             }
         }
 
@@ -79,6 +83,8 @@ public class DataTaskService {
                 error( errorDbMessage, e);
             } catch (ParseException e) {
                 error( errorDateMessage, e);
+            } catch (Exception e) {
+                error(String.format("Une erreur inattendue s'est produite lors du traitement des crédits: %s", e.getMessage()), e);
             }
         }
 
@@ -89,6 +95,8 @@ public class DataTaskService {
                 error( errorDbMessage, e);
             } catch (ParseException e) {
                 error( errorDateMessage, e);
+            } catch (Exception e) {
+                error(String.format("Une erreur inattendue s'est produite lors du traitement des mandats: %s", e.getMessage()), e);
             }
         }
     }

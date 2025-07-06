@@ -41,21 +41,11 @@ public class MainMenuPanel extends JPanel {
         JXHyperlink gescom = createLink("Comptes clients", BkCompCliPanel.class);
         JXHyperlink accueilBtn = createLink("Accueil", HomePanel.class);
         JXHyperlink licenceBtn = createLink("Licence", null);
+        JXHyperlink mandatBtn = createLink("Mandats", MandatPanel.class);
 
 
         licenceBtn.addActionListener((ActionEvent ae) -> {
             getLicencePanel();
-        });
-
-        JXHyperlink holidayBtn = createLink("Jour ferié", null);
-        holidayBtn.addActionListener((ActionEvent ae) -> {
-            HolidayDialog nouveau1 = new HolidayDialog();
-            nouveau1.setSize(600, 400);
-            nouveau1.setLocationRelativeTo(null);
-            nouveau1.setModal(true);
-            nouveau1.setResizable(false);
-            nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            nouveau1.setVisible(true);
         });
 
         JXTaskPane donneesPane = createTaskPane("Configurations");
@@ -64,7 +54,7 @@ public class MainMenuPanel extends JPanel {
         donneesPane.add(cliBtn);
         donneesPane.add(gescom);
         donneesPane.add(grpCliBtn);
-        donneesPane.add(etatParam);
+        //donneesPane.add(etatParam);
         donneesPane.add(opeBtn);
         donneesPane.add(formatMsgBtn);
         donneesPane.add(remoteBdBtn);
@@ -75,6 +65,7 @@ public class MainMenuPanel extends JPanel {
         JXTaskPane rapportPane = createTaskPane("Gestion");
         rapportPane.add(eveBtn);
         rapportPane.add(rapportBtn);
+        rapportPane.add(mandatBtn);
 
         /* creation du menu */
         JXTaskPaneContainer menu = new JXTaskPaneContainer();

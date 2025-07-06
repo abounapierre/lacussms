@@ -17,6 +17,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  *
@@ -42,5 +43,15 @@ public class MessageDaoImpl extends GenericDao<Message, Integer> implements IMes
         CriteriaDelete<Message> cq = builder.createCriteriaDelete(Message.class);
         return getManager().createQuery(cq).executeUpdate();
     }
-    
+
+    @Override
+    public Optional<Message> getMessageByEveId(Integer eveId) {
+        CriteriaBuilder builder =  getManager().getCriteriaBuilder();
+        CriteriaQuery<Message> cq = builder.createQuery(Message.class);
+        Root<Message> msgRoot = cq.from(Message.class);
+        cq.where(builder.equal(msgRoot.get("bkEve").get("id"), eveId));
+        cq.select(msgRoot);
+        return getManager().createQuery(cq).getResultList().stream().findFirst();
+    }
+
 }

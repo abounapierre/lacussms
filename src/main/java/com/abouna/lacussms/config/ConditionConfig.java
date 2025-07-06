@@ -4,6 +4,9 @@ import com.abouna.lacussms.dto.BkEtatOpConfigBean;
 import com.abouna.lacussms.entities.BkEtatOp;
 import com.abouna.lacussms.entities.Config;
 import com.abouna.lacussms.service.LacusSmsService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,9 +14,11 @@ import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 @Configuration
 public class ConditionConfig {
+    private static final Logger log = LoggerFactory.getLogger(ConditionConfig.class);
     private final LacusSmsService lacusSmsService;
 
     public ConditionConfig(LacusSmsService lacusSmsService) {
@@ -28,12 +33,23 @@ public class ConditionConfig {
     }
 
     @Bean
-    public BkEtatOpConfigBean condition() {
-        return getBkEtatOpConfigBean();
+    public BkEtatOpConfigBean condition(@Qualifier("external-configs") Properties externalConfigs) {
+        return getBkEtatOpConfigBean(externalConfigs);
     }
 
-    private BkEtatOpConfigBean getBkEtatOpConfigBean() {
+    private BkEtatOpConfigBean getBkEtatOpConfigBean(Properties externalConfigs) {
         List<BkEtatOp> list = lacusSmsService.getListBkEtatOp(true);
+
+        if (list.isEmpty()) {
+            String operations = externalConfigs.getProperty("application.etat.operation.enabled");
+            int i = 1;
+            for(String op : operations.split(",")) {
+                list.add(new BkEtatOp(i, op.trim(), true));
+                i++;
+            }
+        }
+
+        log.info("##### List of operations: {} #####", list);
 
         StringBuilder condition = new StringBuilder();
         List<String> listString = new ArrayList<>();

@@ -19,9 +19,8 @@ import java.util.List;
  */
 public interface IBkEveDao extends IDao<BkEve, Integer>{
     List<BkEve> getBkEvesByEtat(String etat, Date date);
-    List<BkEve> getBkEveMaxDate();
-    List<BkEve> getBkEveByDate(Date date);
-    List<BkEve> getBkEveBySendParam(boolean send);
+    List<BkEve> getBkEveMaxDate(List<String> states);
+    List<BkEve> getBkEveByDate(Date date, List<String> states);
     Integer getMaxIndexBkEve();
     Integer getMaxIndexBkEve(TypeEvent type);
     List<BkEve> getBkEveByPeriode(Date d1, Date d2);
@@ -38,5 +37,5 @@ public interface IBkEveDao extends IDao<BkEve, Integer>{
     List<BkEve> getBkEveByCriteria(String code, String compte, String heure, String montant);
     List<BkEve> getBkEveByCriteriaMontant(String code, String compte, String montant);
     List<BkEve> getBkEveByPeriode(String code, String compte, Date date1, Date date2);
-    
+    Long countEve();
 }

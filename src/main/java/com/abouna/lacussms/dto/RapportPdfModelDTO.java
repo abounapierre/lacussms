@@ -13,6 +13,7 @@ public class RapportPdfModelDTO {
     private String messageContent;
     private String messageStatus;
     private String agence;
+    private String agenceCode;
 
     public String getIdMessage() {
         return idMessage;
@@ -107,5 +108,13 @@ public class RapportPdfModelDTO {
 
     public void setAgence(String agence) {
         this.agence = agence;
+    }
+
+    public String getAgenceCode() {
+        return agenceCode;
+    }
+
+    public void setAgenceCode(String agenceCode) {
+        this.agenceCode = agenceCode;
     }
 }

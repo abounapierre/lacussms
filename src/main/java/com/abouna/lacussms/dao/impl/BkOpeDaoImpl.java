@@ -17,5 +17,4 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class BkOpeDaoImpl extends GenericDao<BkOpe, String> implements IBkOpeDao{
-    
 }

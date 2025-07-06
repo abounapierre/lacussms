@@ -10,6 +10,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -45,6 +46,9 @@ public class BkEve implements Serializable{
     private String montant;
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date DCO;
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    @Column(name = "creation_date")
+    private Date creationDate;
 
     public BkEve() {
     }
@@ -138,7 +142,6 @@ public class BkEve implements Serializable{
         this.sent = sent;
     }
 
-    
     public String getHsai() {
         return hsai;
     }
@@ -195,6 +198,13 @@ public class BkEve implements Serializable{
         this.id = id;
     }
 
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
+    }
 
     @Override
     public String toString() {
@@ -220,16 +230,16 @@ public class BkEve implements Serializable{
             return false;
         }
         final BkEve other = (BkEve) obj;
-        if ((this.etat == null) ? (other.etat != null) : !this.etat.equals(other.etat)) {
+        if (!Objects.equals(this.etat, other.etat)) {
             return false;
         }
-        if ((this.compte == null) ? (other.compte != null) : !this.compte.equals(other.compte)) {
+        if (!Objects.equals(this.compte, other.compte)) {
             return false;
         }
-        if (this.ope != other.ope && (this.ope == null || !this.ope.equals(other.ope))) {
+        if (!Objects.equals(this.ope, other.ope)) {
             return false;
         }
-        return this.cli == other.cli || (this.cli != null && this.cli.equals(other.cli));
+        return Objects.equals(this.cli, other.cli);
     }
     
 }

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.abouna.lacussms.service.ColUtils.getColValue;
+import static com.abouna.lacussms.service.ServiceUtils.isStopped;
 import static com.abouna.lacussms.views.tools.ConstantUtils.DEFAULT_ACCOUNT_LENGTH;
 import static com.abouna.lacussms.views.tools.ConstantUtils.DEFAULT_AGENCE_CODE;
 import static com.abouna.lacussms.views.tools.ConstantUtils.GET_CONNECTION_NULL_ERROR;
@@ -90,6 +91,7 @@ public class ServiceCredit {
             ResultSet rs = ps.executeQuery();
             Logger.info(String.format("nombre de lignes trouvées: %s", ColUtils.getSize(rs)), ServiceCredit.class);
             while (rs.next()) {
+                if (isStopped()) return;
                 runServiceCredit(rs);
             }
         }catch (Throwable e) {
@@ -152,6 +154,7 @@ public class ServiceCredit {
                 eve.setNumEve(rs.getString(4).trim());
                 eve.setId(serviceManager.getMaxIndexBkEve() + 1);
                 eve.setType(TypeEvent.credit);
+                eve.setCreationDate(new Date());
 
                 boolean traitement = bkCli != null;
 
@@ -191,7 +194,14 @@ public class ServiceCredit {
     private void runSms() {
         Logger.info("Debut envoie de message des crédits....", ServiceCredit.class);
         List<BkEve> list = serviceManager.getBkEveBySendParam(false, listString, TypeEvent.credit);
-        list.forEach((eve) -> {
+        for (BkEve eve : list) {
+            if (isStopped()) return;
+            if (serviceManager.getMessageByEveId(eve.getId()).isPresent()) {
+                String msg = "Un message existe déjà pour l'évènement: " + eve.getNumEve();
+                Logger.info(msg, false, ServiceEvenement.class);
+                BottomPanel.settextLabel(msg, Color.BLACK);
+                continue;
+            }
             BkCli bkCli = eve.getCli();
             if (bkCli != null && eve.getOpe() != null && bkCli.isEnabled() && serviceManager.getBkCompCliByCriteria(bkCli, eve.getCompte(), true) != null && bkCli.getPhone() != 0L) {
                 MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), bkCli.getLangue());
@@ -200,7 +210,7 @@ public class ServiceCredit {
                     String msg = String.format("Envoie du message de crédit au client %s %s", bkCli.getNom(), bkCli.getPrenom());
                     Logger.info(msg, ServiceCredit.class);
                     BottomPanel.settextLabel("Envoie du Message à.... " + eve.getCompte(), Color.BLACK);
-                    SendResponseDTO sendResponseDTO = senderContext.send(String.valueOf(bkCli.getPhone()) , text);
+                    SendResponseDTO sendResponseDTO = senderContext.send(String.valueOf(bkCli.getPhone()), text);
                     Message message = new Message();
                     message.setTitle(eve.getOpe().getLib());
                     message.setContent(text);
@@ -208,6 +218,8 @@ public class ServiceCredit {
                     message.setSendDate(new Date());
                     message.setNumero(Long.toString(bkCli.getPhone()));
                     message.setSent(sendResponseDTO.isSent());
+                    message.setSendTime(new Date());
+                    message.setNumEve(eve.getNumEve());
                     serviceManager.enregistrer(message);
                     eve.setSent(sendResponseDTO.isSent());
                     serviceManager.modifier(eve);
@@ -216,6 +228,6 @@ public class ServiceCredit {
                     BottomPanel.settextLabel(msg, Color.BLACK);
                 }
             }
-        });
+        }
     }
 }

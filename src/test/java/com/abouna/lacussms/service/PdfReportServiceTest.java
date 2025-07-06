@@ -15,8 +15,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.abouna.lacussms.pdf.DateUtils.getPreviousMonth;
-import static com.abouna.lacussms.pdf.DateUtils.getPreviousYear;
+import static com.abouna.lacussms.pdf.PdfUtils.getPreviousMonth;
+import static com.abouna.lacussms.pdf.PdfUtils.getPreviousYear;
 
 @SpringBootTest
 @ActiveProfiles(value = "test")

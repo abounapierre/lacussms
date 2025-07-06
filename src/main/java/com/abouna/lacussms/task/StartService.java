@@ -55,7 +55,7 @@ public class StartService {
                         Logger.info("###### service is running .... ######", StartService.class);
                         waitThread(DEFAULT_WAIT_NUMBER);
                         Logger.info("###### end running service task.... ######", StartService.class);
-                        LogScreenPanel.clear();
+                        LogScreenPanel.deleteOldText();
                     } catch (Throwable e) {
                         Logger.error("Error in task execution", e, StartService.class);
                     }
@@ -80,7 +80,7 @@ public class StartService {
         appRunConfig.setDataServiceEnabled(Boolean.FALSE);
         appRunConfig.setMessageServiceEnabled(Boolean.FALSE);
         BottomPanel.settextLabel("");
-        Logger.info("le service a été arrêté", StartService.class);
+        Logger.info("le service a été arrêté par l'utilisateur", StartService.class);
         BottomPanel.settextLabel("", Color.BLACK);
     }
 }

@@ -60,53 +60,7 @@ public class BkMadPanel extends JPanel{
         Image ajouImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Ajouter.png")));
         Image supprImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Cancel2.png")));
         Image modifImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/OK.png")));
-        JButton nouveau = new JButton(new ImageIcon(ajouImg));
-        nouveau.setToolTipText("Ajouter un nouvel évenement");
-        JButton supprimer = new JButton(new ImageIcon(supprImg));
-        supprimer.setToolTipText("Suprimer un evenement");
-        JButton modifier = new JButton(new ImageIcon(modifImg));
-        modifier.setToolTipText("Modifier un evenement");
-        JButton filtre = new JButton("Filtrer");
-        nouveau.addActionListener(ae -> {
-            DialogUtils.initDialog(new BkMadPanel.Nouveau(null), BkMadPanel.this.getParent(), 400, 300);
-        });
-        modifier.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                int selected = table.getSelectedRow();
-                if (selected >= 0) {
-                    Integer id = (Integer) tableModel.getValueAt(selected, 0);
-                    try {
-                        DialogUtils.initDialog(new BkMadPanel.Nouveau(serviceManager.getBkEveById(id)), BkMadPanel.this.getParent(), 400, 300);
-                    } catch (Exception ex) {
-                        Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(BkMadPanel.this.getParent(), "Aucun élément n'est selectionné");
-                }
-            }
-        });
-        supprimer.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                int selected = table.getSelectedRow();
-                if (selected >= 0) {
-                    Integer id = (Integer) tableModel.getValueAt(selected, 0);
-                    int res = JOptionPane.showConfirmDialog(BkMadPanel.this.getParent(), "Etes vous sûr de suppimer l'évenement courant?", "Confirmation",
-                            JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-                    if (res == JOptionPane.YES_OPTION) {
-                        try {
-                            serviceManager.supprimerBkMad(id);
-                        } catch (Exception ex) {
-                            Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        tableModel.removeRow(selected);
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(BkMadPanel.this.getParent(), "Aucun élément selectionné");
-                }
-            }
-        });
+        JButton supprimer = getJButton(ajouImg, supprImg, modifImg);
         JButton purgerBtn = new JButton("Purger");
         purgerBtn.addActionListener((ActionEvent e) -> {
             DeleteBkMadPanel nouveau1 = null;
@@ -209,6 +163,57 @@ public class BkMadPanel extends JPanel{
         } catch (Exception ex) {
             Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    private JButton getJButton(Image ajouImg, Image supprImg, Image modifImg) {
+        JButton nouveau = new JButton(new ImageIcon(ajouImg));
+        nouveau.setToolTipText("Ajouter un nouvel évenement");
+        JButton supprimer = new JButton(new ImageIcon(supprImg));
+        supprimer.setToolTipText("Suprimer un evenement");
+        JButton modifier = new JButton(new ImageIcon(modifImg));
+        modifier.setToolTipText("Modifier un evenement");
+        JButton filtre = new JButton("Filtrer");
+        nouveau.addActionListener(ae -> {
+            DialogUtils.initDialog(new Nouveau(null), BkMadPanel.this.getParent(), 400, 300);
+        });
+        modifier.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                int selected = table.getSelectedRow();
+                if (selected >= 0) {
+                    Integer id = (Integer) tableModel.getValueAt(selected, 0);
+                    try {
+                        DialogUtils.initDialog(new Nouveau(serviceManager.getBkEveById(id)), BkMadPanel.this.getParent(), 400, 300);
+                    } catch (Exception ex) {
+                        Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(BkMadPanel.this.getParent(), "Aucun élément n'est selectionné");
+                }
+            }
+        });
+        supprimer.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                int selected = table.getSelectedRow();
+                if (selected >= 0) {
+                    Integer id = (Integer) tableModel.getValueAt(selected, 0);
+                    int res = JOptionPane.showConfirmDialog(BkMadPanel.this.getParent(), "Etes vous sûr de suppimer l'évenement courant?", "Confirmation",
+                            JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                    if (res == JOptionPane.YES_OPTION) {
+                        try {
+                            serviceManager.supprimerBkMad(id);
+                        } catch (Exception ex) {
+                            Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        tableModel.removeRow(selected);
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(BkMadPanel.this.getParent(), "Aucun élément selectionné");
+                }
+            }
+        });
+        return supprimer;
     }
 
     private class Nouveau extends JDialog {

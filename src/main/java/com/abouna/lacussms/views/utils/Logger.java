@@ -12,6 +12,13 @@ public class Logger {
         LogScreenPanel.append(getCurrentTime() + message + RETURN_LINE);
     }
 
+    public static void info(String message, boolean printInLog, Class<?> clazz) {
+        if (printInLog) {
+            LoggerFactory.getLogger(clazz).info(message);
+        }
+        LogScreenPanel.append(getCurrentTime() + message + RETURN_LINE);
+    }
+
     public static void error(String message, Exception e, Class<?> clazz) {
         LoggerFactory.getLogger(clazz).error(message, e);
         LogScreenPanel.append(getCurrentTime() + message + RETURN_LINE);

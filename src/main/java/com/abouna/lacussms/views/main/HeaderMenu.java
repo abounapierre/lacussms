@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.abouna.lacussms.views.main;
 
 
@@ -19,11 +14,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
 
 /**
  *
- * @author Administrateur
+ * @author @Abouna Pierre
  */
 public class HeaderMenu extends JMenuBar {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(HeaderMenu.class);
@@ -60,13 +54,12 @@ public class HeaderMenu extends JMenuBar {
         JMenuItem restart = new JMenuItem("Redémarrer");
         JMenuItem typeSMS = new JMenuItem("Type SMS");
         JMenuItem formatSMS = new JMenuItem("Format SMS");
-        JMenuItem paramBD = new JMenuItem("BD Distante");
+        JMenuItem adminBD = new JMenuItem("Administration BD");
         JMenuItem paramTbl = new JMenuItem("Tables Distance");
         JMenuItem dateSolde = new JMenuItem("Date d'envoie de solde");
         employee = new JMenu("Clients");
         JMenuItem licence = new JMenuItem("Licence");
         JMenuItem user = new JMenuItem("utilisateur");
-        JMenuItem typeRapport = new JMenuItem("Type de Rapports");
         JMenuItem rapport = new JMenuItem("Fichier de Banque");
         JMenuItem voirContact = new JMenuItem("Afficher");
         JMenuItem importFichierClient = new JMenuItem("Import csv");
@@ -83,12 +76,12 @@ public class HeaderMenu extends JMenuBar {
         fichier1.add(couper);
         fichier1.add(coller);
         fichier1.add(quitter);
-        fichier1.add(restart);
+        //fichier1.add(restart);
 
         configuration.add(initialiser);
         configuration.add(typeSMS);
         configuration.add(formatSMS);
-        configuration.add(paramBD);
+        configuration.add(adminBD);
         configuration.add(paramTbl);
         configuration.add(service);
 
@@ -178,8 +171,8 @@ public class HeaderMenu extends JMenuBar {
         profil.add(user);
         rapports.add(rapport);
         contact.add(voirContact);
-        initialiser.addActionListener((ActionEvent e) -> {
-        });
+        initialiser.addActionListener((ActionEvent e) -> {});
+
         quitter.addActionListener((ActionEvent e) -> {
             int response = JOptionPane.showConfirmDialog(HeaderMenu.this.getParent(), "Voulez-vous vraiment quitter cette application?", "Confirmation",
                     JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
@@ -271,21 +264,6 @@ public class HeaderMenu extends JMenuBar {
                     }
                 }
             }
-        });
-        
-        rapport.addActionListener((ActionEvent e) -> {
-            CbsFileDialog nouveau1;
-            try {
-                nouveau1 = new CbsFileDialog();
-                nouveau1.setSize(375, 200);
-                nouveau1.setLocationRelativeTo(null);
-                nouveau1.setModal(true);
-                nouveau1.setResizable(false);
-                nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                nouveau1.setVisible(true);
-            } catch (ParseException ex) {
-                logger.error("Erreur de parsing", ex);
-            }    
         });
         
         add(fichier1);

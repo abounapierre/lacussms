@@ -47,11 +47,16 @@ public class LacusImportDataServiceImpl implements LacusImportDataService {
                 bkCli.setLangue(model.getLangue());
                 bkCli.setEnabled(true);
                 bkCli.setLibelle(model.getCivilite());
-                if (bkCliDao.findById(bkCli.getCode()) == null) {
+                BkCli existingClient = bkCliDao.findById(bkCli.getCode());
+                if (existingClient == null) {
                     bkCliDao.create(bkCli);
                     resultImportDataModelDTO.getSuccess().add(new SuccessImportDataModelDTO(model));
                     ++line;
-                } {
+                } else  {
+                    if(existingClient.getPhone() == 0) {
+                        existingClient.setPhone(bkCli.getPhone());
+                        bkCliDao.update(existingClient);
+                    }
                     ++exists;
                 }
                 bkCompCli.setCli(bkCli);
@@ -65,6 +70,7 @@ public class LacusImportDataServiceImpl implements LacusImportDataService {
             resultImportDataModelDTO.getErrors().add(new FailImportDataModelDTO(e.getMessage(), line));
         }
         resultImportDataModelDTO.setTotalExisting(exists);
+        resultImportDataModelDTO.setTotalUpdated(exists);
         return resultImportDataModelDTO;
     }
 }

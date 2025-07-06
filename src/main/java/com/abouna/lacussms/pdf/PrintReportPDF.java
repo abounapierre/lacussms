@@ -26,7 +26,7 @@ import java.util.Date;
 
 /**
  *
- * @author SATELLITE
+ * @author eabouna@gmail.com
  */
 public class PrintReportPDF {
     private final byte[] bytes;

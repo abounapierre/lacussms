@@ -3,7 +3,7 @@
     <property name="LOG_FILE" value="test"/>
     <springProperty scope="context" name="profile" source="spring.profiles.active"/>
 
-    <if condition='property("profile").equals("prod")'>
+    <if condition='property("profile").equals("prod") || property("profile").equals("preprod")'>
         <then>
             <springProperty scope="context" name="log_file_path" source="application.log.path.prod"/>
         </then>

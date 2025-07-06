@@ -30,9 +30,11 @@ public class MessageFormat implements Serializable{
     public MessageFormat() {
     }
 
-    public MessageFormat(String name, String content) {
+    public MessageFormat(String name, String content, BkOpe ope, String langue) {
         this.name = name;
         this.content = content;
+        this.ope = ope;
+        this.langue = langue;
     }
 
     public String getLangue() {

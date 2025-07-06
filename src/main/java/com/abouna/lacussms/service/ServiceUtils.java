@@ -1,6 +1,7 @@
 package com.abouna.lacussms.service;
 
 import com.abouna.lacussms.entities.BkCli;
+import com.abouna.lacussms.task.StartService;
 import com.abouna.lacussms.views.main.BottomPanel;
 import com.abouna.lacussms.views.tools.Utils;
 import com.abouna.lacussms.views.utils.Logger;
@@ -57,5 +58,14 @@ public class ServiceUtils {
             Logger.error(String.format("%s: %s", "Impossible de traiter ce numero de telephone", e.getMessage()), e, ServiceUtils.class);
         }
         return n;
+    }
+
+    public static boolean isStopped() {
+        if(!StartService.isRunningService) {
+            BottomPanel.settextLabel("Service arrêté par l'utilisateur", Color.RED);
+            Logger.info("Service arrêté par l'utilisateur", ServiceCredit.class);
+            return true;
+        }
+        return false;
     }
 }

@@ -3,10 +3,11 @@ package com.abouna.lacussms.dto;
 import java.util.List;
 
 public class ReportPDFInputDTO {
-    List<RapportPdfModelDTO> dataModels;
+    private List<RapportPdfModelDTO> dataModels;
     private String entreprise;
     private String month;
     private String year;
+    private boolean mask;
 
     public List<RapportPdfModelDTO> getDataModels() {
         return dataModels;
@@ -38,5 +39,13 @@ public class ReportPDFInputDTO {
 
     public void setYear(String year) {
         this.year = year;
+    }
+
+    public boolean isMask() {
+        return mask;
+    }
+
+    public void setMask(boolean mask) {
+        this.mask = mask;
     }
 }

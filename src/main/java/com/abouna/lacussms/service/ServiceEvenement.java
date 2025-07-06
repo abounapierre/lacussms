@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+import static com.abouna.lacussms.service.ServiceUtils.isStopped;
 import static com.abouna.lacussms.views.tools.ConstantUtils.GET_CONNECTION_NULL_ERROR;
 import static com.abouna.lacussms.views.tools.ConstantUtils.SECRET_KEY;
 
@@ -63,11 +64,21 @@ public class ServiceEvenement {
     }
 
     private void runSms() {
-        Logger.info("Début envoie de message des évènements....", ServiceEvenement.class);
+        Logger.info(String.format("Début envoie de message des évènements....%s", listString), ServiceEvenement.class);
         List<BkEve> list = serviceManager.getBkEveBySendParam(false, listString, TypeEvent.ordinaire);
-        list.forEach((eve) -> {
+        Logger.info(String.format("Nombre d'évènement à traiter %s", list.size()), ServiceEvenement.class);
+        for (BkEve eve : list) {
+            if (isStopped()) return;
+            if (serviceManager.getMessageByEveId(eve.getId()).isPresent()) {
+                String msg = "Un message existe déjà pour l'évènement: " + eve.getNumEve();
+                Logger.info(msg, false, ServiceEvenement.class);
+                BottomPanel.settextLabel(msg, Color.BLACK);
+                continue;
+            }
             BkCli bkCli = eve.getCli();
-            if (bkCli != null && eve.getOpe() != null && bkCli.isEnabled() && serviceManager.getBkCompCliByCriteria(bkCli, eve.getCompte(), true) != null && bkCli.getPhone() != 0L) {
+            boolean verify = bkCli != null && eve.getOpe() != null && bkCli.isEnabled() && serviceManager.getBkCompCliByCriteria(bkCli, eve.getCompte(), true) != null && bkCli.getPhone() != 0L;
+            logVerification(eve, verify);
+            if (verify) {
                 MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), bkCli.getLangue());
                 if (mf != null) {
                     String text = Utils.remplacerVariable(bkCli, eve.getOpe(), eve, mf);
@@ -82,6 +93,8 @@ public class ServiceEvenement {
                     message.setSendDate(new Date());
                     message.setNumero(Long.toString(bkCli.getPhone()));
                     message.setSent(sendResponseDTO.isSent());
+                    message.setSendTime(new Date());
+                    message.setNumEve(eve.getNumEve());
                     serviceManager.enregistrer(message);
                     eve.setSent(sendResponseDTO.isSent());
                     serviceManager.modifier(eve);
@@ -90,7 +103,12 @@ public class ServiceEvenement {
                     BottomPanel.settextLabel(msg, Color.BLACK);
                 }
             }
-        });
+        }
+    }
+
+    private static void logVerification(BkEve eve, boolean verify) {
+        Logger.info(String.format("Sms évènement: vérification des conditions: eve %s vérifié: %s", eve.getNumEve(), verify), false, ServiceEvenement.class);
+        BottomPanel.settextLabel(String.format("Sms évènement: vérification des conditions: eve %s vérifié: %s", eve.getNumEve(), verify), Color.BLACK);
     }
 
     public void serviceEvenement() throws SQLException, ParseException {
@@ -103,6 +121,7 @@ public class ServiceEvenement {
             String msg = "Recherche des évènements en cours...." + ps.getFetchSize();
             Logger.info(String.format("##### %s ######", msg), ServiceEvenement.class);
             while (rs.next()) {
+                if (isStopped()) return;
                 runServiceEvt(rs);
             }
         }catch (Throwable e) {
@@ -153,6 +172,7 @@ public class ServiceEvenement {
                 eve.setNumEve(rs.getString("EVE").trim());
                 eve.setId(serviceManager.getMaxIndexBkEve() + 1);
                 eve.setType(TypeEvent.ordinaire);
+                eve.setCreationDate(new Date());
 
 
                 boolean traitement = bkCli != null;

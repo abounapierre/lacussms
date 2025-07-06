@@ -11,6 +11,7 @@ import com.abouna.lacussms.entities.Message;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  *
@@ -19,4 +20,5 @@ import java.util.List;
 public interface IMessageDao extends IDao<Message, Integer>{
     List<Message> getMessageFromPeriode(Date d1, Date d2);
     int supprimerTout();
+    Optional<Message> getMessageByEveId(Integer eveId);
 }

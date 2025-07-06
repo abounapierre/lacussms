@@ -563,7 +563,7 @@ public class Utils {
             res = URLDecoder.decode(results.toString(), "UTF-8");
             rCode = "OK";
         } catch (IOException var21) {
-            logger.error(var21.getMessage() + var21.getCause());
+            logger.error("{} {}", var21.getMessage(), var21.getCause());
         }
     }
 

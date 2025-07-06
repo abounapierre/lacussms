@@ -13,7 +13,6 @@ import com.abouna.lacussms.sender.context.SenderContext;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.components.ContentMessageDialog;
 import com.abouna.lacussms.views.main.MainMenuPanel;
-import com.abouna.lacussms.views.tools.PrintReportPDF;
 import com.abouna.lacussms.views.utils.CustomTable;
 import com.abouna.lacussms.views.utils.CustomTableCellRenderer;
 import com.abouna.lacussms.views.utils.DialogUtils;
@@ -29,8 +28,6 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -82,7 +79,6 @@ public class RapportPanel extends JPanel {
         supprimer.setToolTipText("Supprimer un message");
         JButton modifier = new JButton(new ImageIcon(modifImg));
         modifier.setToolTipText("Modifier un message");
-        JButton filtre = new JButton("Filtrer");
         nouveau.addActionListener((ActionEvent ae) -> {
             DialogUtils.initDialog(new RapportPanel.Nouveau(null), RapportPanel.this.getParent(), 400, 300);
         });
@@ -134,82 +130,12 @@ public class RapportPanel extends JPanel {
         dateDeb = new JXDatePicker();
         JLabel labelDate2 = new JLabel("DAte de fin");
         dateFin = new JXDatePicker();
-        JButton filterBtn = new JButton("Filtrer");
-        JButton printBtn = new JButton("Imprimer");
-        filterBtn.addActionListener((ActionEvent e) -> {
-            try {
-                Date d1, d2;
-                SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-
-                if (dateDeb.getDate() == null || dateFin.getDate() == null) {
-                    JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "la date de début ou de fin ne doit pas etre vide");
-                    return;
-                }
-                d1 = format.parse(format.format(dateDeb.getDate()));
-                d2 = format.parse(format.format(dateFin.getDate()));
-                tableModel.setNumRows(0);
-                List<Message> messageList = serviceManager.getMessageFromPeriode(d1, d2);
-                addData(messageList);
-
-            } catch (HeadlessException | ParseException ex) {
-                Logger.getLogger(RapportPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
-        printBtn.addActionListener((ActionEvent e) -> {
-            try {
-                Date date1, date2;
-                SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-
-                if (dateDeb.getDate() == null || dateFin.getDate() == null) {
-                    JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "la date de début ou de fin ne doit pas etre vide");
-                    return;
-                }
-                date1 = format.parse(format.format(dateDeb.getDate()));
-                date2 = format.parse(format.format(dateFin.getDate()));
-                if (date1 != null & date2 != null) {
-                    int valRetour = fc.showSaveDialog(RapportPanel.this);
-                    if (valRetour == JFileChooser.APPROVE_OPTION) {
-                        File fichier = fc.getSelectedFile();
-                        String path = fichier.getAbsolutePath() + ".pdf";
-                        try {
-                            PrintReportPDF report = new PrintReportPDF(path, date1, date2, serviceManager);
-                        } catch (FileNotFoundException ex) {
-                            Logger.getLogger(RapportPanel.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        int response = JOptionPane.showConfirmDialog(RapportPanel.this.getParent(), "<html>Rapport généré avec success!!<br>Voulez vous l'ouvrir?", "Confirmation",
-                                JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-                        if (response == JOptionPane.YES_OPTION) {
-                            try {
-                                File pdfFile = new File(path);
-                                if (pdfFile.exists()) {
-                                    if (Desktop.isDesktopSupported()) {
-                                        Desktop.getDesktop().open(pdfFile);
-                                    } else {
-                                        JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "Ce type de fichier n'est pas pris en charge");
-                                        log.info("Awt Desktop is not supported!");
-                                    }
-                                } else {
-                                    JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "Ce fichier n'existe pas");
-                                    System.out.println("File is not exists!");
-                                }
-                            } catch (IOException | HeadlessException ex) {
-                                log.error("Erreur d'ouverture du fichier PDF", ex);
-                            }
-                        }
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(parentPanel, "les dates de début et de fin sont obligatoires");
-                }
-            } catch (ParseException ex) {
-                Logger.getLogger(RapportPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
+        JButton filterBtn = getFilterBtn();
         filtrePanel.add(labelDate1);
         filtrePanel.add(dateDeb);
         filtrePanel.add(labelDate2);
         filtrePanel.add(dateFin);
         filtrePanel.add(filterBtn);
-        filtrePanel.add(printBtn);
         filtrePanel.setBackground(new Color(166, 202, 240));
         searchField.addActionListener((ActionEvent e) -> {
             if (searchField.getText() != null) {
@@ -239,6 +165,30 @@ public class RapportPanel extends JPanel {
         } catch (Exception ex) {
             Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    private JButton getFilterBtn() {
+        JButton filterBtn = new JButton("Filtrer");
+        filterBtn.addActionListener((ActionEvent e) -> {
+            try {
+                Date d1, d2;
+                SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+
+                if (dateDeb.getDate() == null || dateFin.getDate() == null) {
+                    JOptionPane.showMessageDialog(RapportPanel.this.getParent(), "la date de début ou de fin ne doit pas etre vide");
+                    return;
+                }
+                d1 = format.parse(format.format(dateDeb.getDate()));
+                d2 = format.parse(format.format(dateFin.getDate()));
+                tableModel.setNumRows(0);
+                List<Message> messageList = serviceManager.getMessageFromPeriode(d1, d2);
+                addData(messageList);
+
+            } catch (HeadlessException | ParseException ex) {
+                Logger.getLogger(RapportPanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+        return filterBtn;
     }
 
     private void addData(List<Message> messageList) {
@@ -462,7 +412,6 @@ public class RapportPanel extends JPanel {
                 a.setCli((BkCli) bkCliBox.getSelectedItem());
                 a.setBkAgence((BkAgence) bkAgenceBox.getSelectedItem());
                 Date d = new Date();
-                //a.setHsai(d);
                 a.setSent(false);
                 SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
                 try {
@@ -495,11 +444,6 @@ public class RapportPanel extends JPanel {
 
             annulerBtn.addActionListener((ActionEvent ae) -> {
                 dispose();
-                try {
-                    parentPanel.setContent(new BkEvePanel());
-                } catch (IOException ex) {
-                    Logger.getLogger(BkEvePanel.class.getName()).log(Level.SEVERE, null, ex);
-                }
             });
         }
     }

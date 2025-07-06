@@ -143,5 +143,16 @@ public class BkMadDaoImpl extends GenericDao<BkMad, Integer> implements IBkMadDa
         cq.orderBy(builder.desc(bkMadRoot.get("id")));
         return getManager().createQuery(cq).setMaxResults(limit).getResultList();
     }
-    
+
+    @Override
+    public List<BkMad> getBkMadByDate(Date date) {
+        CriteriaBuilder builder =  getManager().getCriteriaBuilder();
+        CriteriaQuery<BkMad> cq = builder.createQuery(BkMad.class);
+        Root<BkMad> bkMadRoot = cq.from(BkMad.class);
+        cq.where(builder.equal(bkMadRoot.get("creationDate"), date));
+        cq.select(bkMadRoot);
+        cq.orderBy(builder.desc(bkMadRoot.get("id")));
+        return getManager().createQuery(cq).getResultList();
+    }
+
 }

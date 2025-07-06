@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package com.abouna.lacussms.entities;
 
 import javax.persistence.*;
@@ -25,11 +19,16 @@ public class MessageMandat implements Serializable{
     private String content;
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date sendDate;
-    @OneToOne
-    private BkMad bkMad;
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date sendTime;
+    private Integer bkMad;
+    @Column(name = "bk_mad_eve")
+    private String bkMadEve;
     private String numero;
     @Column(name = "is_sent")
     private Boolean isSent = false;
+    @Column(name = "num_eve")
+    private String numEve;
 
     public MessageMandat() {
     }
@@ -48,11 +47,11 @@ public class MessageMandat implements Serializable{
         this.numero = numero;
     }
 
-    public BkMad getBkMad() {
+    public Integer getBkMad() {
         return bkMad;
     }
 
-    public void setBkMad(BkMad bkMad) {
+    public void setBkMad(Integer bkMad) {
         this.bkMad = bkMad;
     }
 
@@ -94,6 +93,30 @@ public class MessageMandat implements Serializable{
 
     public void setSent(Boolean sent) {
         isSent = sent;
+    }
+
+    public Date getSendTime() {
+        return sendTime;
+    }
+
+    public void setSendTime(Date sendTime) {
+        this.sendTime = sendTime;
+    }
+
+    public String getNumEve() {
+        return numEve;
+    }
+
+    public void setNumEve(String numEve) {
+        this.numEve = numEve;
+    }
+
+    public String getBkMadEve() {
+        return bkMadEve;
+    }
+
+    public void setBkMadEve(String bkMadEve) {
+        this.bkMadEve = bkMadEve;
     }
 
     @Override

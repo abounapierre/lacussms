@@ -27,6 +27,7 @@ public class ContentMessageDialog extends JDialog {
                 : message.getBkEve().getCli().getNom() + " " + message.getBkEve().getCli().getPrenom())));
         builder.append("Agence:", createTextField((message.getBkEve() == null ? "" : message.getBkEve().getBkAgence() == null
                 ? "" : message.getBkEve().getBkAgence().getNoma())));
+        builder.append("Statut:", createCheckBox(message.getSent()));
         add(BorderLayout.CENTER, builder.getPanel());
     }
 
@@ -51,5 +52,12 @@ public class ContentMessageDialog extends JDialog {
         textArea.setPreferredSize(new Dimension(400, 100));
         textArea.setBorder(BorderFactory.createEtchedBorder());
         return textArea;
+    }
+
+    private JCheckBox createCheckBox(Boolean sent) {
+        JCheckBox checkBox = new JCheckBox();
+        checkBox.setSelected(sent);
+        checkBox.setEnabled(false);
+        return checkBox;
     }
 }

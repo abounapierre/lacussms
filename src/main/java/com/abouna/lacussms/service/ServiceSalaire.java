@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+import static com.abouna.lacussms.service.ServiceUtils.isStopped;
 import static com.abouna.lacussms.views.tools.ConstantUtils.GET_CONNECTION_NULL_ERROR;
 import static com.abouna.lacussms.views.tools.ConstantUtils.SECRET_KEY;
 
@@ -59,6 +60,7 @@ public class ServiceSalaire {
             ResultSet rs = ps.executeQuery();
             Logger.info(String.format("nombre de lignes trouvées: %s", ColUtils.getSize(rs)), ServiceSalaire.class);
             while (rs.next()) {
+                if (isStopped()) return;
                 runServiceSalaire(rs);
             }
         }catch (Throwable e) {
@@ -106,6 +108,7 @@ public class ServiceSalaire {
                     eve.setNumEve(rs.getString(5).trim());
                     eve.setId(serviceManager.getMaxIndexBkEve() + 1);
                     eve.setType(TypeEvent.salaire);
+                    eve.setCreationDate(new Date());
 
                     if (bkCli != null) {
                         if (serviceManager.getBkEveByCriteria(eve.getNumEve(), eve.getEventDate(), eve.getCompte()).isEmpty()) {
@@ -137,30 +140,41 @@ public class ServiceSalaire {
         List<BkEve> list = serviceManager.getBkEveBySendParam(false, listString, TypeEvent.salaire);
         Logger.info("Debut envoie de message des salaires....", ServiceSalaire.class);
         list.forEach((eve) -> {
-            BkCli bkCli = eve.getCli();
-            if (bkCli != null && eve.getOpe() != null && bkCli.isEnabled() && serviceManager.getBkCompCliByCriteria(bkCli, eve.getCompte(), true) != null && bkCli.getPhone() != 0L) {
-                MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), bkCli.getLangue());
-                if (mf != null) {
-                    String text = Utils.remplacerVariable(bkCli, eve.getOpe(), eve, mf);
-                    String msg = "Envoie du Message à.... " + eve.getCompte();
-                    Logger.info(msg, ServiceSalaire.class);
-                    BottomPanel.settextLabel(msg, Color.BLACK);
-                    SendResponseDTO sendResponseDTO = senderContext.send(String.valueOf(bkCli.getPhone()), text);
-                    Message message = new Message();
-                    message.setTitle(eve.getOpe().getLib());
-                    message.setContent(text);
-                    message.setBkEve(eve);
-                    message.setSendDate(new Date());
-                    message.setNumero(Long.toString(bkCli.getPhone()));
-                    message.setSent(sendResponseDTO.isSent());
-                    serviceManager.enregistrer(message);
-                    eve.setSent(sendResponseDTO.isSent());
-                    serviceManager.modifier(eve);
-                    msg = sendResponseDTO.getMessage();
-                    Logger.info(msg, ServiceSalaire.class);
-                    BottomPanel.settextLabel(msg, Color.BLACK);
-                }
+            if (serviceManager.getMessageByEveId(eve.getId()).isPresent()){
+                String msg = "Un message existe déjà pour l'évènement: " + eve.getNumEve();
+                Logger.info(msg, false, ServiceEvenement.class);
+                BottomPanel.settextLabel(msg, Color.BLACK);
+                return; // Skip if message already sent
             }
+            saveAndSend(eve);
         });
+    }
+
+    private void saveAndSend(BkEve eve) {
+        BkCli bkCli = eve.getCli();
+        if (bkCli != null && eve.getOpe() != null && bkCli.isEnabled() && serviceManager.getBkCompCliByCriteria(bkCli, eve.getCompte(), true) != null && bkCli.getPhone() != 0L) {
+            MessageFormat mf = serviceManager.getFormatByBkOpe(eve.getOpe(), bkCli.getLangue());
+            if (mf != null) {
+                String text = Utils.remplacerVariable(bkCli, eve.getOpe(), eve, mf);
+                String msg = "Envoie du Message à.... " + eve.getCompte();
+                Logger.info(msg, ServiceSalaire.class);
+                BottomPanel.settextLabel(msg, Color.BLACK);
+                SendResponseDTO sendResponseDTO = senderContext.send(String.valueOf(bkCli.getPhone()), text);
+                Message message = new Message();
+                message.setTitle(eve.getOpe().getLib());
+                message.setContent(text);
+                message.setBkEve(eve);
+                message.setSendDate(new Date());
+                message.setNumero(Long.toString(bkCli.getPhone()));
+                message.setSent(sendResponseDTO.isSent());
+                message.setSendTime(new Date());
+                serviceManager.enregistrer(message);
+                eve.setSent(sendResponseDTO.isSent());
+                serviceManager.modifier(eve);
+                msg = sendResponseDTO.getMessage();
+                Logger.info(msg, ServiceSalaire.class);
+                BottomPanel.settextLabel(msg, Color.BLACK);
+            }
+        }
     }
 }

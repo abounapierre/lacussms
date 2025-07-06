@@ -7,6 +7,7 @@ import com.abouna.lacussms.task.StartService;
 import com.abouna.lacussms.views.ContactPanel;
 import com.abouna.lacussms.views.sms.groupe.GroupeSMSJDialog;
 import com.abouna.lacussms.views.components.LacusIcon;
+import com.abouna.lacussms.views.tools.GeneratePDF;
 import com.abouna.lacussms.views.tools.TestSMSPanel;
 import org.jdesktop.swingx.JXButton;
 
@@ -18,6 +19,7 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.Objects;
 
+import static com.abouna.lacussms.views.tools.ConstantUtils.ICON_PDF_REPORT;
 import static com.abouna.lacussms.views.tools.ConstantUtils.ICON_SEND_SMS;
 
 /**
@@ -72,6 +74,7 @@ public  class HeaderPanel extends JPanel{
         add(getTestCheckBox());
         add(getTestSMSButton());
         add(getGroupeSMSButton());
+        add(getPDFButton());
 
         runBtn.addActionListener((ActionEvent e) -> startAll());
         runParaBtn.addActionListener((ActionEvent e) -> startAll());
@@ -90,7 +93,7 @@ public  class HeaderPanel extends JPanel{
 
     private JButton getGroupeSMSButton() {
         JButton groupeSMSButton = new JButton(new LacusIcon(ICON_SEND_SMS));
-        groupeSMSButton.setPreferredSize(new Dimension(100, 30));
+        groupeSMSButton.setPreferredSize(new Dimension(30, 30));
         groupeSMSButton.addActionListener(e -> GroupeSMSJDialog.initDialog());
         return groupeSMSButton;
     }
@@ -124,6 +127,13 @@ public  class HeaderPanel extends JPanel{
         serviceDataCheckBox.setEnabled(true);
         serviceDataCheckBox.addActionListener((ActionEvent e) -> getSetDataServiceEnabled(serviceDataCheckBox));
         return serviceDataCheckBox;
+    }
+
+    private JButton getPDFButton() {
+        JButton pdfButton = new JButton(new LacusIcon(ICON_PDF_REPORT));
+        pdfButton.setPreferredSize(new Dimension(30, 30));
+        pdfButton.addActionListener(e -> GeneratePDF.init());
+        return pdfButton;
     }
 
     private void getSetDataServiceEnabled(JCheckBox serviceDataCheckBox) {

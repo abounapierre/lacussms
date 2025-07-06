@@ -1,22 +1,9 @@
 package com.abouna.lacussms.service;
 
-import com.abouna.lacussms.entities.*;
 import com.abouna.lacussms.sender.context.SenderContext;
-import com.abouna.lacussms.views.tools.ConstantUtils;
-import com.abouna.lacussms.views.main.BottomPanel;
-import com.abouna.lacussms.views.tools.AES;
-import com.abouna.lacussms.views.tools.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import java.awt.*;
-import java.sql.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 
 @Component
 public class ServiceRequete {
@@ -30,7 +17,7 @@ private static final Logger logger = LoggerFactory.getLogger(ServiceRequete.clas
         this.senderContext = senderContext;
     }
 
-    public void serviceRequete() throws SQLException, ParseException {
+    /*public void serviceRequete() throws SQLException, ParseException {
         BottomPanel.settextLabel("Traitement des requêtes en cours.... ", Color.BLACK);
         new SimpleDateFormat("yyyy-MM-dd");
         new SimpleDateFormat("dd/MM/yyyy");
@@ -153,5 +140,5 @@ private static final Logger logger = LoggerFactory.getLogger(ServiceRequete.clas
     }
 
     public void setConn(Connection connexion) {
-    }
+    }*/
 }

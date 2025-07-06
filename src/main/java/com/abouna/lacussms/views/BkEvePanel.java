@@ -50,6 +50,7 @@ public class BkEvePanel extends JPanel{
     private final MainMenuPanel parentPanel;
     private final LacusSmsService serviceManager;
     private final CustomTableCellRenderer renderer = new CustomTableCellRenderer();
+    private JTextField totalNumberText;
 
     public BkEvePanel() throws IOException{
         serviceManager = ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
@@ -75,7 +76,6 @@ public class BkEvePanel extends JPanel{
         supprimer.setToolTipText("Supprimer un evenement");
         JButton modifier = new JButton(new ImageIcon(updateImg));
         modifier.setToolTipText("Modifier un evenement");
-        JButton filtre = new JButton("Filtrer");
         nouveau.addActionListener((ActionEvent ae) -> {
             DialogUtils.initDialog(new Nouveau(null), BkEvePanel.this.getParent(), 500, 400);
         });
@@ -118,6 +118,7 @@ public class BkEvePanel extends JPanel{
         bas.add(modifier);
         bas.add(supprimer);
         bas.add(purgerBtn);
+        bas.add(getTotalNumberText(), BorderLayout.EAST);
         JPanel filtrePanel = new JPanel();
         JPanel searchPanel = new JPanel(new FlowLayout());
         filtrePanel.setLayout(new FlowLayout());
@@ -166,6 +167,12 @@ public class BkEvePanel extends JPanel{
         }
     }
 
+    private JTextField getTotalNumberText() {
+        totalNumberText = new JTextField(20);
+        totalNumberText.setEditable(false);
+        return totalNumberText;
+    }
+
     private JPopupMenu getPopupMenu() {
         JPopupMenu popup = new JPopupMenu();
         JMenuItem menuItem = new JMenuItem("Détails");
@@ -187,6 +194,7 @@ public class BkEvePanel extends JPanel{
     }
 
     private void addData(List<BkEve> bkeveList) {
+        totalNumberText.setText(serviceManager.countBkEve() + " évènements");
         renderer.setSelectedRows(IntStream.range(0, bkeveList.size()).filter(i -> !bkeveList.get(i).isSent()).boxed().collect(Collectors.toList()));
         bkeveList.forEach((a) -> tableModel.addRow(new Object[]{
             a.getId(),

@@ -31,6 +31,7 @@ public class ConstantUtils {
     public static final String ICON_UPDATE = "/images/OK.png";
     public static final String ICON_DELETE = "/images/Cancel2.png";
     public static final String ICON_SEND_SMS = "/images/send.png";
+    public static final String ICON_PDF_REPORT = "/images/icon_pdf.png";
     public static final String [] HEADER = {"code","civilite", "nom", "prenom", "telephone","compte", "langue"};
     public static final String ROOT_LACUS_PATH = Paths.get(".").toAbsolutePath().getParent().getParent().toString();
     public static final String GET_CONNECTION_NULL_ERROR = "Connexion cannot be null";

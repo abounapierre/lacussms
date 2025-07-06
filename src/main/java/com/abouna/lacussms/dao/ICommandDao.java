@@ -9,6 +9,7 @@ package com.abouna.lacussms.dao;
 import com.abouna.generic.dao.IDao;
 import com.abouna.lacussms.entities.Command;
 import com.abouna.lacussms.entities.Status;
+
 import java.util.Date;
 import java.util.List;
 
@@ -17,7 +18,7 @@ import java.util.List;
  * @author SATELLITE
  */
 public interface ICommandDao extends IDao<Command, Integer>{
-    public List<Command> getCommandByStatus(Status status);
+    List<Command> getCommandByStatus(Status status);
     
-    public List<Command> getCommandByDate(Date dateDebut, Date dateFin, Status status);
+    List<Command> getCommandByDate(Date dateDebut, Date dateFin, Status status);
 }

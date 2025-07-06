@@ -9,9 +9,10 @@ package com.abouna.lacussms.dao.impl;
 import com.abouna.generic.dao.impl.GenericDao;
 import com.abouna.lacussms.dao.ICutOffDao;
 import com.abouna.lacussms.entities.CutOff;
+import org.springframework.stereotype.Repository;
+
 import java.util.Date;
 import java.util.List;
-import org.springframework.stereotype.Repository;
 
 /**
  *

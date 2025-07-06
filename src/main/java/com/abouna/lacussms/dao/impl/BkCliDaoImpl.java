@@ -1,19 +1,15 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.abouna.lacussms.dao.impl;
 
 import com.abouna.generic.dao.impl.GenericDao;
 import com.abouna.lacussms.dao.IBkCliDao;
 import com.abouna.lacussms.entities.BkCli;
-import java.util.List;
+import org.springframework.stereotype.Repository;
+
 import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 
 /**
  *
@@ -47,10 +43,10 @@ public class BkCliDaoImpl extends GenericDao<BkCli, String> implements IBkCliDao
         CriteriaBuilder cb = getManager().getCriteriaBuilder();
         CriteriaQuery<BkCli> cq = cb.createQuery(BkCli.class);
         Root<BkCli> bkCliRoot = cq.from(BkCli.class);
-        /*cq.where(cb.or(cb.like(bkCliRoot.get(BkCli_.code),"%"+code+"%"),
-         cb.like(bkCliRoot.get(BkCli_.nom),"%"+code+"%"),
-         cb.like(bkCliRoot.get(BkCli_.prenom),"%"+code+"%")));*/
-        return null;
+        cq.where(cb.or(cb.like(bkCliRoot.get("code"),"%" + code + "%"),
+        cb.like(bkCliRoot.get("nom"),"%" + code + "%"),
+        cb.like(bkCliRoot.get("prenom"),"%" + code + "%")));
+        return getManager().createQuery(cq).getResultList();
     }
 
     @Override
@@ -66,5 +62,4 @@ public class BkCliDaoImpl extends GenericDao<BkCli, String> implements IBkCliDao
             return null;
         }
     }
-
 }

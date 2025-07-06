@@ -8,14 +8,17 @@ package com.abouna.lacussms.dao;
 
 import com.abouna.generic.dao.IDao;
 import com.abouna.lacussms.entities.Message;
+
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  *
  * @author SATELLITE
  */
 public interface IMessageDao extends IDao<Message, Integer>{
-    public List<Message> getMessageFromPeriode(Date d1,Date d2);
-    public int supprimerTout();
+    List<Message> getMessageFromPeriode(Date d1, Date d2);
+    int supprimerTout();
+    Optional<Message> getMessageByEveId(Integer eveId);
 }

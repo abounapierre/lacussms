@@ -9,6 +9,7 @@ package com.abouna.lacussms.dao;
 import com.abouna.generic.dao.IDao;
 import com.abouna.lacussms.entities.JobAccount;
 import com.abouna.lacussms.entities.SmsScheduled;
+
 import java.util.List;
 
 /**
@@ -16,5 +17,5 @@ import java.util.List;
  * @author SATELLITE
  */
 public interface IJobAccountDao extends IDao<JobAccount, Long>{
-    public List<JobAccount> getClientJobInfos(SmsScheduled smsScheduled);
+    List<JobAccount> getClientJobInfos(SmsScheduled smsScheduled);
 }

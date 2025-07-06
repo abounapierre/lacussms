@@ -12,43 +12,33 @@ import com.abouna.lacussms.entities.BkCli;
 import com.abouna.lacussms.entities.BkEve;
 import com.abouna.lacussms.entities.BkOpe;
 import com.abouna.lacussms.service.LacusSmsService;
+import com.abouna.lacussms.views.components.ContentEveDialog;
 import com.abouna.lacussms.views.main.MainMenuPanel;
+import com.abouna.lacussms.views.utils.CustomTable;
+import com.abouna.lacussms.views.utils.CustomTableCellRenderer;
+import com.abouna.lacussms.views.utils.DialogUtils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Image;
+import org.jdesktop.swingx.JXDatePicker;
+import org.jdesktop.swingx.JXSearchField;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
-import org.jdesktop.swingx.JXDatePicker;
-import org.jdesktop.swingx.JXSearchField;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static com.abouna.lacussms.views.tools.ConstantUtils.NO_SELECTED_ITEM;
 
 /**
  *
@@ -57,17 +47,14 @@ import org.springframework.stereotype.Component;
 public class BkEvePanel extends JPanel{
     private DefaultTableModel tableModel;
     private JTable table;
-    private final JButton nouveau, modifier, supprimer;
-    private final JButton filtre;
-    @Autowired
-    private  MainMenuPanel parentPanel;
-    @Autowired
-    private  LacusSmsService serviceManager;
-    private JXDatePicker dateDeb;
-    private JXDatePicker dateFin;
-    
+    private final MainMenuPanel parentPanel;
+    private final LacusSmsService serviceManager;
+    private final CustomTableCellRenderer renderer = new CustomTableCellRenderer();
+    private JTextField totalNumberText;
+
     public BkEvePanel() throws IOException{
         serviceManager = ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
+        parentPanel = ApplicationConfig.getApplicationContext().getBean(MainMenuPanel.class);
         setLayout(new BorderLayout());
         JPanel haut = new JPanel();
         haut.setLayout(new FlowLayout(FlowLayout.CENTER));
@@ -80,50 +67,36 @@ public class BkEvePanel extends JPanel{
         contenu.setLayout(new BorderLayout());
         JPanel bas = new JPanel();
         bas.setLayout(new FlowLayout());
-        Image ajouImg = ImageIO.read(getClass().getResource("/images/Ajouter.png"));
-        Image supprImg = ImageIO.read(getClass().getResource("/images/Cancel2.png"));
-        Image modifImg = ImageIO.read(getClass().getResource("/images/OK.png"));
-        nouveau = new JButton(new ImageIcon(ajouImg));
+        Image addImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Ajouter.png")));
+        Image deleteImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Cancel2.png")));
+        Image updateImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/OK.png")));
+        JButton nouveau = new JButton(new ImageIcon(addImg));
         nouveau.setToolTipText("Ajouter un nouvel évenement");
-        supprimer = new JButton(new ImageIcon(supprImg));
-        supprimer.setToolTipText("Suprimer un evenement");
-        modifier = new JButton(new ImageIcon(modifImg));
+        JButton supprimer = new JButton(new ImageIcon(deleteImg));
+        supprimer.setToolTipText("Supprimer un evenement");
+        JButton modifier = new JButton(new ImageIcon(updateImg));
         modifier.setToolTipText("Modifier un evenement");
-        filtre = new JButton("Filtrer");
         nouveau.addActionListener((ActionEvent ae) -> {
-            Nouveau nouveau1 = new Nouveau(null);
-            nouveau1.setSize(400, 300);
-            nouveau1.setLocationRelativeTo(null);
-            nouveau1.setModal(true);
-            nouveau1.setResizable(false);
-            nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            nouveau1.setVisible(true);
+            DialogUtils.initDialog(new Nouveau(null), BkEvePanel.this.getParent(), 500, 400);
         });
         modifier.addActionListener((ActionEvent ae) -> {
             int selected = table.getSelectedRow();
             if (selected >= 0) {
                 Integer id = (Integer) tableModel.getValueAt(selected, 0);
-                Nouveau nouveau1 = null;
                 try {
-                    nouveau1 = new Nouveau(serviceManager.getBkEveById(id));
+                    DialogUtils.initDialog(new Nouveau(serviceManager.getBkEveById(id)), BkEvePanel.this.getParent(), 500, 400);
                 } catch (Exception ex) {
                     Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                nouveau1.setSize(400, 300);
-                nouveau1.setLocationRelativeTo(null);
-                nouveau1.setModal(true);
-                nouveau1.setResizable(false);
-                nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                nouveau1.setVisible(true);
             } else {
-                JOptionPane.showMessageDialog(null, "Aucun élément n'est selectionné");
+                JOptionPane.showMessageDialog(BkEvePanel.this.getParent(), "Aucun élément n'est selectionné");
             }
         });
         supprimer.addActionListener((ActionEvent ae) -> {
             int selected = table.getSelectedRow();
             if (selected >= 0) {
                 Integer id = (Integer) tableModel.getValueAt(selected, 0);
-                int res = JOptionPane.showConfirmDialog(null, "Etes vous sûr de suppimer l'évenement courant?", "Confirmation",
+                int res = JOptionPane.showConfirmDialog(BkEvePanel.this.getParent(), "Etes vous sûr de suppimer l'évenement courant?", "Confirmation",
                         JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
                 if (res == JOptionPane.YES_OPTION) {
                     try {
@@ -134,34 +107,27 @@ public class BkEvePanel extends JPanel{
                     tableModel.removeRow(selected);
                 }
             } else {
-                JOptionPane.showMessageDialog(null, "Aucun élément selectionné");
+                JOptionPane.showMessageDialog(BkEvePanel.this.getParent(), NO_SELECTED_ITEM);
             }
         });
         JButton purgerBtn = new JButton("Purger");
         purgerBtn.addActionListener((ActionEvent e) -> {
-            DeleteBkEveDialog nouveau1;
-            nouveau1 = new DeleteBkEveDialog();
-            nouveau1.setSize(450, 200);
-            nouveau1.setLocationRelativeTo(null);
-            nouveau1.setModal(true);
-            nouveau1.setResizable(false);
-            nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            nouveau1.setVisible(true);
+            DialogUtils.initDialog(new DeleteBkEveDialog(), BkEvePanel.this.getParent(), 450, 200);
         });
         bas.add(nouveau);
         bas.add(modifier);
         bas.add(supprimer);
         bas.add(purgerBtn);
+        bas.add(getTotalNumberText(), BorderLayout.EAST);
         JPanel filtrePanel = new JPanel();
-        //filtrePanel.setPreferredSize(new Dimension(500, 20));
         JPanel searchPanel = new JPanel(new FlowLayout());
         filtrePanel.setLayout(new FlowLayout());
         final JXSearchField searchField = new JXSearchField("Rechercher");
         searchField.setPreferredSize(new Dimension(500, 25));
         JLabel labelDate1 = new JLabel("DAte de début");
-        dateDeb = new JXDatePicker();
+        JXDatePicker dateDeb = new JXDatePicker();
         JLabel labelDate2 = new JLabel("DAte de fin");
-        dateFin = new JXDatePicker();
+        JXDatePicker dateFin = new JXDatePicker();
         JButton filterBtn = new JButton("Filtrer");
         JButton printBtn = new JButton("Imprimer");
         searchPanel.add(labelDate1);
@@ -172,30 +138,14 @@ public class BkEvePanel extends JPanel{
         searchPanel.add(printBtn);
         filtrePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createRaisedBevelBorder(), "Zone de recherche"));
         filtrePanel.add(searchField);
-        //filtrePanel.add(searchPanel,BorderLayout.SOUTH);
-         filtrePanel.setBackground(new Color(166, 202, 240));
+        filtrePanel.setBackground(new Color(166, 202, 240));
         searchField.addActionListener((ActionEvent e) -> {
             String val;
             if (searchField.getText() != null) {
                 try {
                     val = searchField.getText().toUpperCase();
                     tableModel.setNumRows(0);
-                    List<BkEve> bkeveList = serviceManager.getBkEveByCriteria(val);
-                    bkeveList.stream().forEach((a) -> {
-                        tableModel.addRow(new Object[]{
-                            a.getId(),
-                            a.getNumEve(),
-                            a.getCli() == null?"":a.getCli().getNom() + " " + a.getCli().getPrenom(),
-                            a.getOpe()==null?"":a.getOpe().getLib(),
-                            a.getCompte(),
-                            a.getMontant(),
-                            a.getEtat(),
-                            a.getBkAgence()==null?"":a.getBkAgence().getNoma(),
-                            a.getDVAB()==null?"":a.getDVAB(),
-                            a.getHsai(),
-                            a.isSent()
-                        });
-                    });
+                    addData(serviceManager.getBkEveByCriteria(val));
                 } catch (Exception ex) {
                     Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -203,48 +153,74 @@ public class BkEvePanel extends JPanel{
         });
         contenu.add(BorderLayout.AFTER_LAST_LINE, bas);
         contenu.add(BorderLayout.BEFORE_FIRST_LINE, filtrePanel);
-        tableModel = new DefaultTableModel(new Object[]{"Id","Code","Client", "Opération","Compte","Montant","Etat","Agence","Date","Heure","Traité?"}, 0);
-
-        table = new JTable(tableModel);
+        tableModel = new DefaultTableModel(new Object[]{"Id","Code","Client","Compte","Date","Heure","Traité?"}, 0);
+        table = new CustomTable(tableModel, renderer);
         table.setBackground(Color.WHITE);
-        //table.setBackground(Color.LIGHT_GRAY);
-        //table.setFont(new Font("Comic Sans MS", 1, 14));
-        //table.setForeground(Color.MAGENTA);
-        //table.getColumnModel().getColumn(2).setPreferredWidth(280);
-        //table.removeColumn(table.getColumnModel().getColumn(0));
+        table.setComponentPopupMenu(getPopupMenu());
+        table.setSelectionForeground(Color.BLUE);
         contenu.add(BorderLayout.CENTER, new JScrollPane(table));
         add(BorderLayout.CENTER, contenu);
         try {
-            serviceManager.getBkEveByLimit(100).stream().forEach((a) -> {
-                tableModel.addRow(new Object[]{
-                    a.getId(),
-                    a.getNumEve(),
-                    a.getCli() == null?"":a.getCli().getNom() + " " + a.getCli().getPrenom(),
-                    a.getOpe()==null?"":a.getOpe().getLib(),
-                    a.getCompte(),
-                    a.getMontant()==null?a.getMont():a.getMontant(),
-                    a.getEtat(),
-                    a.getBkAgence()==null?"":a.getBkAgence().getNoma(),
-                    a.getDVAB()==null?"":a.getDVAB(),
-                    a.getHsai(),
-                    a.isSent()
-                });
-            });
+            addData(serviceManager.getBkEveByLimit(100));
         } catch (Exception ex) {
             Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
+    private JTextField getTotalNumberText() {
+        totalNumberText = new JTextField(20);
+        totalNumberText.setEditable(false);
+        return totalNumberText;
+    }
+
+    private JPopupMenu getPopupMenu() {
+        JPopupMenu popup = new JPopupMenu();
+        JMenuItem menuItem = new JMenuItem("Détails");
+        menuItem.addActionListener((ActionEvent e) -> {
+            int selected = table.getSelectedRow();
+            if (selected >= 0) {
+                Integer id = (Integer) tableModel.getValueAt(selected, 0);
+                try {
+                    ContentEveDialog.initDialog(serviceManager.getBkEveById(id));
+                } catch (Exception ex) {
+                    Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                JOptionPane.showMessageDialog(BkEvePanel.this.getParent(), "Aucun élément n'est selectionné");
+            }
+        });
+        popup.add(menuItem);
+        return popup;
+    }
+
+    private void addData(List<BkEve> bkeveList) {
+        totalNumberText.setText(serviceManager.countBkEve() + " évènements");
+        renderer.setSelectedRows(IntStream.range(0, bkeveList.size()).filter(i -> !bkeveList.get(i).isSent()).boxed().collect(Collectors.toList()));
+        bkeveList.forEach((a) -> tableModel.addRow(new Object[]{
+            a.getId(),
+            a.getNumEve(),
+            a.getCli() == null ? "" : a.getCli().getNom() + " " + a.getCli().getPrenom(),
+            a.getCompte(),
+            a.getDVAB() == null ? "" : a.getDVAB(),
+            a.getHsai(),
+            a.isSent() ? "Oui" : "Non"
+        }));
+    }
+
     private class Nouveau extends JDialog {
 
-        private final JButton okBtn, annulerBtn;
         private final JTextField compteText;
         private final JComboBox<String> etatBox;
         private final JComboBox<BkOpe> bkOpeBox;
         private final JComboBox<BkCli> bkCliBox;
         private final JComboBox<BkAgence> bkAgenceBox;
         private final JTextField montText,codeText;
-        private int c = 0, rang =0,c1 = 0, rang1 =0,c2=0,rang2=0;
+        private int c = 0;
+        private int rang =0;
+        private int c1 = 0;
+        private int rang1 =0;
+        private final int c2=0;
+        private int rang2=0;
 
         public Nouveau(final BkEve bkeve) {
             setTitle("NOUVEL EVENEMENT");
@@ -273,45 +249,31 @@ public class BkEvePanel extends JPanel{
             etatBox.addItem("AB");
             etatBox.addItem("AN");
             etatBox.addItem("TR");
-            serviceManager.getAllCli().stream().map((bkCli) -> {
-                bkCliBox.addItem(bkCli);
-                return bkCli;
-            }).map((bkCli) -> {
+            serviceManager.getAllCli().stream().peek(bkCliBox::addItem).peek((bkCli) -> {
                 if(bkeve != null){
                     if(bkeve.getCli().getCode().equals(bkCli.getCode())){
                         rang = c;
                     } 
                 }
-                return bkCli;
-            }).forEach((_item) -> {
-                c++;
-            });
-            serviceManager.getAllBkAgences().stream().map((bkagence) -> {
-                bkAgenceBox.addItem(bkagence);
-                return bkagence;
-            }).map((bkagence) -> {
+            }).forEach((_item) -> c++);
+            serviceManager.getAllBkAgences().stream().peek(bkAgenceBox::addItem).peek((bkagence) -> {
                 if(bkeve != null){
                     if(bkeve.getBkAgence().getNuma().equals(bkagence.getNuma())){
                         rang2 = c2;
                     } 
                 }
-                return bkagence;
-            }).forEach((_item) -> {
-                c++;
-            });
-            serviceManager.getAllBkOpes().stream().map((bkOpe) -> {
-                bkOpeBox.addItem(bkOpe);
-                return bkOpe;
-            }).map((bkOpe) -> {
+            }).forEach((_item) -> c++);
+            serviceManager.getAllBkOpes().stream().peek(bkOpeBox::addItem).peek((bkOpe) -> {
                 if(bkeve != null){
                     if(bkeve.getOpe().getOpe().equals(bkOpe.getOpe())){
                         rang1 = c1;
                     }  
                 }
-                return bkOpe;
             }).forEach((_item) -> {
                 c1++;
             });
+            JButton okBtn;
+            JButton annulerBtn;
             JPanel buttonBar = ButtonBarFactory.buildOKCancelBar(okBtn = new JButton("Enrégistrer"), annulerBtn = new JButton("Annuler"));
             builder.append(buttonBar, builder.getColumnCount());
             add(BorderLayout.CENTER, builder.getPanel());
@@ -324,91 +286,90 @@ public class BkEvePanel extends JPanel{
                bkOpeBox.setSelectedIndex(rang1);
                bkAgenceBox.setSelectedIndex(rang2);
                montText.setText(Double.toString(bkeve.getMont()));
-               if(bkeve.getEtat().equals("VA"))
-                   etatBox.setSelectedIndex(0);
-               else if(bkeve.getEtat().equals("AT"))
-                   etatBox.setSelectedIndex(1);
-               else if(bkeve.getEtat().equals("FO"))
-                   etatBox.setSelectedIndex(2);
-                else if(bkeve.getEtat().equals("VF"))
-                   etatBox.setSelectedIndex(2);
-                else if(bkeve.getEtat().equals("IG"))
-                   etatBox.setSelectedIndex(2);
-                else if(bkeve.getEtat().equals("IF"))
-                   etatBox.setSelectedIndex(2);
-                else if(bkeve.getEtat().equals("AB"))
-                   etatBox.setSelectedIndex(2);
-                else if(bkeve.getEtat().equals("AN"))
-                   etatBox.setSelectedIndex(7);
-                else if(bkeve.getEtat().equals("TR"))
-                   etatBox.setSelectedIndex(8);
+                switch (bkeve.getEtat()) {
+                    case "VA":
+                        etatBox.setSelectedIndex(0);
+                        break;
+                    case "AT":
+                        etatBox.setSelectedIndex(1);
+                        break;
+                    case "FO":
+                    case "IG":
+                    case "IF":
+                    case "AB":
+                    case "VF":
+                        etatBox.setSelectedIndex(2);
+                        break;
+                    case "AN":
+                        etatBox.setSelectedIndex(7);
+                        break;
+                    case "TR":
+                        etatBox.setSelectedIndex(8);
+                        break;
+                }
             }
 
-            okBtn.addActionListener(new ActionListener() {
+            okBtn.addActionListener(ae -> {
+                BkEve a = new BkEve();
+                 if (!compteText.getText().isEmpty()) {
+                    a.setCompte(compteText.getText());
+                } else {
+                    JOptionPane.showMessageDialog(BkEvePanel.this.getParent(), "Le compte est obligatoire");
+                    return;
+                }
+                 if (!montText.getText().isEmpty()) {
+                    a.setMont(Double.parseDouble(montText.getText()));
+                } else {
+                    JOptionPane.showMessageDialog(BkEvePanel.this.getParent(), "Le compte est obligatoire");
+                    return;
+                }
 
-                @Override
-                public void actionPerformed(ActionEvent ae) {
-                    BkEve a = new BkEve();
-                     if (!compteText.getText().equals("")) {
-                        a.setCompte(compteText.getText());
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Le compte est obligatoire");
-                        return;
-                    }
-                     if (!montText.getText().equals("")) {
-                        a.setMont(Double.parseDouble(montText.getText()));
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Le compte est obligatoire");
-                        return;
-                    }
-                    
-                    if (!codeText.getText().equals("")) {
-                        a.setNumEve(codeText.getText());
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Le code est obligatoire");
-                        return;
-                    }
-                    
-                    a.setOpe((BkOpe) bkOpeBox.getSelectedItem());
-                    a.setEtat((String) etatBox.getSelectedItem());
-                    a.setCli((BkCli) bkCliBox.getSelectedItem());
-                    a.setBkAgence((BkAgence) bkAgenceBox.getSelectedItem());
-                    Date d = new Date();
-                    long l = d.getTime();
-                    a.setHsai(Long.toString(l));
-                    a.setSent(false);
-                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd 00:00:00");
-                    a.setEventDate(d);
-                    a.setDVAB(format.format(d));
-                    a.setId(serviceManager.getMaxIndexBkEve() + 1);
+                if (!codeText.getText().isEmpty()) {
+                    a.setNumEve(codeText.getText());
+                } else {
+                    JOptionPane.showMessageDialog(BkEvePanel.this.getParent(), "Le code est obligatoire");
+                    return;
+                }
 
-                    if (bkeve == null) {
-                        try {
-                            serviceManager.enregistrer(a);
-                        } catch (Exception ex) {
-                            Logger.getLogger(BkEvePanel.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    } else {
-                        a.setId(bkeve.getId());
-                        try {
-                            serviceManager.modifier(a);
-                        } catch (Exception ex) {
-                            Logger.getLogger(BkEvePanel.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
-                    dispose();
+                a.setOpe((BkOpe) bkOpeBox.getSelectedItem());
+                a.setEtat((String) etatBox.getSelectedItem());
+                a.setCli((BkCli) bkCliBox.getSelectedItem());
+                a.setBkAgence((BkAgence) bkAgenceBox.getSelectedItem());
+                Date d = new Date();
+                long l = d.getTime();
+                a.setHsai(Long.toString(l));
+                a.setSent(false);
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd 00:00:00");
+                a.setEventDate(d);
+                a.setDVAB(format.format(d));
+                a.setId(serviceManager.getMaxIndexBkEve() + 1);
+
+                if (bkeve == null) {
                     try {
-                        parentPanel.setContenu(new BkEvePanel());
-                    } catch (IOException ex) {
+                        serviceManager.enregistrer(a);
+                    } catch (Exception ex) {
                         Logger.getLogger(BkEvePanel.class.getName()).log(Level.SEVERE, null, ex);
                     }
+                } else {
+                    a.setId(bkeve.getId());
+                    try {
+                        serviceManager.modifier(a);
+                    } catch (Exception ex) {
+                        Logger.getLogger(BkEvePanel.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                dispose();
+                try {
+                    parentPanel.setContent(new BkEvePanel());
+                } catch (IOException ex) {
+                    Logger.getLogger(BkEvePanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             });
 
             annulerBtn.addActionListener((ActionEvent ae) -> {
                 dispose();
                 try {
-                    parentPanel.setContenu(new BkEvePanel());
+                    parentPanel.setContent(new BkEvePanel());
                 } catch (IOException ex) {
                     Logger.getLogger(BkEvePanel.class.getName()).log(Level.SEVERE, null, ex);
                 }

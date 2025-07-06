@@ -1,406 +1,148 @@
 package com.abouna.lacussms.views.main;
 
-import com.abouna.lacussms.views.BkAgencePanel;
-import com.abouna.lacussms.views.BkCliPanel;
-import com.abouna.lacussms.views.BkCompCliPanel;
-import com.abouna.lacussms.views.BkEvePanel;
-import com.abouna.lacussms.views.BkMadPanel;
-import com.abouna.lacussms.views.BkOpePanel;
-import com.abouna.lacussms.views.CommandPanel;
-import com.abouna.lacussms.views.EmailSchedulerPanel;
-import com.abouna.lacussms.views.EnvoieSMSDialog;
-import com.abouna.lacussms.views.EtatOPParamPanel;
-import com.abouna.lacussms.views.HolidayDialog;
-import com.abouna.lacussms.views.LicencePanel;
-import com.abouna.lacussms.views.MessageFormatPanel;
-import com.abouna.lacussms.views.MessageMandatPanel;
-import com.abouna.lacussms.views.ParametreRequetePanel;
-import com.abouna.lacussms.views.RapportPanel;
-import com.abouna.lacussms.views.RemoteDBPanel;
-import com.abouna.lacussms.views.ServiceOffertPanel;
-import com.abouna.lacussms.views.SmsScheduledPanel;
-import com.abouna.lacussms.views.UrlParamPanel;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.border.Border;
+import com.abouna.lacussms.config.ApplicationConfig;
+import com.abouna.lacussms.views.*;
+import com.abouna.lacussms.views.groupe.GroupeClientPanel;
+import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import javax.swing.*;
+import javax.swing.border.Border;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * @author Emmanuel ABOUNA <abouna.emmanuel@yahoo.fr> copy right 2017
- * @author Vincent Douwe <douwevincent@yahoo.fr>
  */
 @Component
-public final class MainMenuPanel extends JPanel {
+public class MainMenuPanel extends JPanel {
+    private static final Logger logger = LoggerFactory.getLogger(MainMenuPanel.class);
+    private final ContainerPanel container;
 
-    private JButton accueilBtn = new JButton("Accueil");
-    private JButton typeMsgBtn = new JButton("Types SMS");
-    private JButton formatMsgBtn = new JButton("Format SMS");
-    private JButton cliBtn = new JButton("Client");
-    private JButton opeBtn = new JButton("Opération");
-    private JButton eveBtn = new JButton("Evenement");
-    private JButton remoteBdBtn = new JButton("Param BD");
-    private JButton employeeBtn = new JButton("Employés");
-    private JButton paramTblBtn = new JButton("Param Table");
-    private JButton licenceBtn = new JButton("Licence");
-    private JButton userBtn = new JButton("Utilisateur");
-    private JButton rapportTypeBtn = new JButton("Types Rapports");
-    private JButton rapportBtn = new JButton("Rapports");
-    private JButton agenceBtn = new JButton("Agence");
-    private JButton urlParam = new JButton("Param Url");
-    private JButton etatParam = new JButton("Param Etat OP");
-    private JButton gescom = new JButton("Gest. Compte");
-    private JButton mandat = new JButton("Mandats");
-    private JButton rapportMandatBtn = new JButton("Rapports Mandats");
-    private JButton commandBtn = new JButton("Requêtes");
-    private JButton serviceBtn = new JButton("Services");
-    private JButton programBtn = new JButton("Prog. Mail");
-    private JButton programSmsBtn = new JButton("Prog. SMS");
-    private JButton configReqBtn = new JButton("Conf. req.");
-
-    private final JPanel container;
-    private Border RaisedBevelBorder = BorderFactory.createRaisedSoftBevelBorder();
-    private Border defautBorder = BorderFactory.createCompoundBorder(RaisedBevelBorder, RaisedBevelBorder);
-    private JButton envoieMsgBtn = new JButton("SMS PUSH");
-    private JButton holidayBtn = new JButton("Jour ferié");
-
-    public MainMenuPanel() {
+    public MainMenuPanel() throws IOException {
         setLayout(new BorderLayout());
 
-        accueilBtn.setBackground(new Color(166, 202, 240));
-        accueilBtn.setBorder(RaisedBevelBorder);
-        accueilBtn.addActionListener((ActionEvent ae) -> {
-            try {
-                setContenu(new EmptyPanel());
-            } catch (Exception ex) {
-                Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
-        
-        configReqBtn.setBackground(new Color(166, 202, 240));
-        configReqBtn.setBorder(RaisedBevelBorder);
-        configReqBtn.addActionListener((ActionEvent ae) -> {
-            try {
-                setContenu(new ParametreRequetePanel());
-            } catch (IOException ex) {
-                Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
+        JXHyperlink formatMsgBtn = createLink("Formats SMS", MessageFormatPanel.class);
+        JXHyperlink cliBtn = createLink("Clients", BkCliPanel.class);
+        JXHyperlink grpCliBtn = createLink("Groupes clients", GroupeClientPanel.class);
+        JXHyperlink opeBtn = createLink("Opérations", BkOpePanel.class);
+        JXHyperlink eveBtn = createLink("Évènements", BkEvePanel.class);
+        JXHyperlink remoteBdBtn = createLink("BD CBS", RemoteDBPanel.class);
+        JXHyperlink userBtn = createLink("Utilisateur", MessageFormatPanel.class);
+        JXHyperlink rapportBtn = createLink("Messages", RapportPanel.class);
+        JXHyperlink agenceBtn = createLink("Agences", BkAgencePanel.class);
+        JXHyperlink etatParam = createLink("Etat OP", EtatOPParamPanel.class);
+        JXHyperlink gescom = createLink("Comptes clients", BkCompCliPanel.class);
+        JXHyperlink accueilBtn = createLink("Accueil", HomePanel.class);
+        JXHyperlink licenceBtn = createLink("Licence", null);
+        JXHyperlink mandatBtn = createLink("Mandats", MandatPanel.class);
 
-        typeMsgBtn.setBorder(RaisedBevelBorder);
-        typeMsgBtn.addActionListener((ActionEvent ae) -> {
-            try {
-                setContenu(new MessageFormatPanel());
-            } catch (IOException ex) {
-                Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
-        typeMsgBtn.setBackground(new Color(166, 202, 240));
 
-        serviceBtn.setBorder(RaisedBevelBorder);
-        serviceBtn.addActionListener((ActionEvent ae) -> {
-            try {
-                setContenu(new ServiceOffertPanel());
-            } catch (IOException ex) {
-                Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
-        serviceBtn.setBackground(new Color(166, 202, 240));
-
-        formatMsgBtn.setBorder(RaisedBevelBorder);
-        formatMsgBtn.addActionListener((ActionEvent ae) -> {
-            try {
-                setContenu(new MessageFormatPanel());
-            } catch (IOException ex) {
-                Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
-        formatMsgBtn.setBackground(new Color(166, 202, 240));
-
-        remoteBdBtn.setBorder(RaisedBevelBorder);
-        remoteBdBtn.addActionListener((ActionEvent ae) -> {
-            try {
-                setContenu(new RemoteDBPanel());
-            } catch (IOException ex) {
-                Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
-        remoteBdBtn.setBackground(new Color(166, 202, 240));
-
-        urlParam.setBorder(RaisedBevelBorder);
-        urlParam.addActionListener((ActionEvent ae) -> {
-            try {
-                setContenu(new UrlParamPanel());
-            } catch (IOException ex) {
-                Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
-        urlParam.setBackground(new Color(166, 202, 240));
-
-        employeeBtn.setBorder(RaisedBevelBorder);
-        employeeBtn.addActionListener((ActionEvent ae) -> {
-            try {
-                setContenu(new MessageFormatPanel());
-            } catch (IOException ex) {
-                Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
-        employeeBtn.setBackground(new Color(166, 202, 240));
-
-        paramTblBtn.setBorder(RaisedBevelBorder);
-        paramTblBtn.addActionListener((ActionEvent ae) -> {
-            try {
-                setContenu(new MessageFormatPanel());
-            } catch (IOException ex) {
-                Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
-        paramTblBtn.setBackground(new Color(166, 202, 240));
-
-        mandat.setBorder(RaisedBevelBorder);
-        mandat.addActionListener((ActionEvent ae) -> {
-            try {
-                setContenu(new BkMadPanel());
-            } catch (IOException ex) {
-                Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
-        mandat.setBackground(new Color(166, 202, 240));
-
-        gescom.setBorder(RaisedBevelBorder);
-        gescom.addActionListener((ActionEvent ae) -> {
-            try {
-                setContenu(new BkCompCliPanel());
-            } catch (IOException ex) {
-                Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
-        gescom.setBackground(new Color(166, 202, 240));
-
-        licenceBtn.setBorder(RaisedBevelBorder);
         licenceBtn.addActionListener((ActionEvent ae) -> {
-            LicencePanel nouveau1 = new LicencePanel(null);
-            nouveau1.setSize(450, 150);
-            nouveau1.setLocationRelativeTo(null);
-            nouveau1.setModal(true);
-            nouveau1.setResizable(false);
-            nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            nouveau1.setVisible(true);
+            getLicencePanel();
         });
-        licenceBtn.setBackground(new Color(166, 202, 240));
 
-        userBtn.setBorder(RaisedBevelBorder);
-        userBtn.addActionListener((ActionEvent ae) -> {
-        });
-        userBtn.setBackground(new Color(166, 202, 240));
-
-        rapportTypeBtn.setBorder(RaisedBevelBorder);
-        rapportTypeBtn.addActionListener((ActionEvent ae) -> {
-            try {
-                setContenu(new MessageFormatPanel());
-            } catch (IOException ex) {
-                Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
-        rapportTypeBtn.setBackground(new Color(166, 202, 240));
-
-        rapportMandatBtn.setBorder(RaisedBevelBorder);
-        rapportMandatBtn.addActionListener((ActionEvent ae) -> {
-            try {
-                setContenu(new MessageMandatPanel());
-            } catch (IOException ex) {
-                Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
-        rapportMandatBtn.setBackground(new Color(166, 202, 240));
-
-        rapportBtn.setBorder(RaisedBevelBorder);
-        rapportBtn.addActionListener((ActionEvent ae) -> {
-            try {
-                setContenu(new RapportPanel());
-            } catch (IOException ex) {
-                Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
-        rapportBtn.setBackground(new Color(166, 202, 240));
-
-        commandBtn.setBorder(RaisedBevelBorder);
-        commandBtn.addActionListener((ActionEvent ae) -> {
-            try {
-                setContenu(new CommandPanel());
-            } catch (IOException ex) {
-                Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
-        commandBtn.setBackground(new Color(166, 202, 240));
-
-        cliBtn.setBorder(RaisedBevelBorder);
-        cliBtn.addActionListener((ActionEvent ae) -> {
-            try {
-                setContenu(new BkCliPanel());
-            } catch (IOException ex) {
-                Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
-        cliBtn.setBackground(new Color(166, 202, 240));
-
-        opeBtn.setBorder(RaisedBevelBorder);
-        opeBtn.addActionListener((ActionEvent ae) -> {
-            try {
-                setContenu(new BkOpePanel());
-            } catch (IOException ex) {
-                Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
-        opeBtn.setBackground(new Color(166, 202, 240));
-
-        eveBtn.setBorder(RaisedBevelBorder);
-        eveBtn.addActionListener((ActionEvent ae) -> {
-            try {
-                setContenu(new BkEvePanel());
-            } catch (IOException ex) {
-                Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
-        eveBtn.setBackground(new Color(166, 202, 240));
-        
-        programBtn.setBorder(RaisedBevelBorder);
-        programBtn.addActionListener((ActionEvent ae) -> {
-                setContenu(new EmailSchedulerPanel());
-        });
-        programBtn.setBackground(new Color(166, 202, 240));
-        
-        programSmsBtn.setBorder(RaisedBevelBorder);
-        programSmsBtn.addActionListener((ActionEvent ae) -> {
-                setContenu(new SmsScheduledPanel());
-        });
-        programSmsBtn.setBackground(new Color(166, 202, 240));
-
-        envoieMsgBtn.setBorder(RaisedBevelBorder);
-        envoieMsgBtn.addActionListener((ActionEvent ae) -> {
-            EnvoieSMSDialog nouveau1 = new EnvoieSMSDialog();
-            nouveau1.setSize(500, 300);
-            nouveau1.setLocationRelativeTo(null);
-            nouveau1.setModal(true);
-            nouveau1.setResizable(false);
-            nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            nouveau1.setVisible(true);
-        });
-        envoieMsgBtn.setBackground(new Color(166, 202, 240));
-
-        holidayBtn.setBorder(RaisedBevelBorder);
-        holidayBtn.addActionListener((ActionEvent ae) -> {
-            HolidayDialog nouveau1 = new HolidayDialog();
-            nouveau1.setSize(600, 400);
-            nouveau1.setLocationRelativeTo(null);
-            nouveau1.setModal(true);
-            nouveau1.setResizable(false);
-            nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            nouveau1.setVisible(true);
-        });
-        holidayBtn.setBackground(new Color(166, 202, 240));
-
-        agenceBtn.setBorder(RaisedBevelBorder);
-        agenceBtn.addActionListener((ActionEvent ae) -> {
-            try {
-                setContenu(new BkAgencePanel());
-            } catch (IOException ex) {
-                Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
-        agenceBtn.setBackground(new Color(166, 202, 240));
-
-        etatParam.setBorder(RaisedBevelBorder);
-        etatParam.addActionListener((ActionEvent ae) -> {
-            try {
-                setContenu(new EtatOPParamPanel());
-            } catch (IOException ex) {
-                Logger.getLogger(MainMenuPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
-        etatParam.setBackground(new Color(166, 202, 240));
-
-        JXTaskPaneContainer menu = new JXTaskPaneContainer();
-        JXTaskPane donneesPane = new JXTaskPane() {
-            @Override
-            public boolean isVisible() {
-                return true;
-            }
-        };
-        
-
-        JXTaskPane comptePane = new JXTaskPane() {
-            @Override
-            public boolean isVisible() {
-                return true;
-            }
-        };
-
-        JXTaskPane rapportPane = new JXTaskPane() {
-            @Override
-            public boolean isVisible() {
-                return true;
-            }
-        };
-        menu.setEnabled(false);
-
-        donneesPane.setTitle("Configurations");
+        JXTaskPane donneesPane = createTaskPane("Configurations");
         donneesPane.add(accueilBtn);
         donneesPane.add(agenceBtn);
         donneesPane.add(cliBtn);
         donneesPane.add(gescom);
-        donneesPane.add(etatParam);
+        donneesPane.add(grpCliBtn);
+        //donneesPane.add(etatParam);
         donneesPane.add(opeBtn);
-        donneesPane.add(serviceBtn);
         donneesPane.add(formatMsgBtn);
-        donneesPane.add(eveBtn);
-        //donneesPane.add(holidayBtn);
-        donneesPane.add(programBtn);
-        donneesPane.add(programSmsBtn);
-        donneesPane.add(envoieMsgBtn);
         donneesPane.add(remoteBdBtn);
-        donneesPane.add(configReqBtn);
-        donneesPane.add(urlParam);
-
-        //donneesPane.add(typeMsgBtn);
+        JXTaskPane comptePane = createTaskPane("Profil");
         comptePane.setTitle("Profil");
-        comptePane.add(licenceBtn);
         comptePane.add(userBtn);
 
-        rapportPane.setTitle("Rapports");
-        //rapportPane.add(rapportTypeBtn);
+        JXTaskPane rapportPane = createTaskPane("Gestion");
+        rapportPane.add(eveBtn);
         rapportPane.add(rapportBtn);
-        rapportPane.add(commandBtn);
-        //rapportPane.add(rapportMandatBtn);
+        rapportPane.add(mandatBtn);
 
+        /* creation du menu */
+        JXTaskPaneContainer menu = new JXTaskPaneContainer();
+        menu.setEnabled(false);
         menu.add(donneesPane);
         menu.add(comptePane);
         menu.add(rapportPane);
 
         menu.setBackground(new Color(166, 202, 240));
+        Border raisedBevelBorder = BorderFactory.createRaisedSoftBevelBorder();
+        Border defautBorder = BorderFactory.createCompoundBorder(raisedBevelBorder, raisedBevelBorder);
         menu.setBorder(defautBorder);
-        add(new JScrollPane(menu), BorderLayout.BEFORE_LINE_BEGINS);
-        container = new JPanel();
+        JScrollPane jScrollPane = new JScrollPane(menu);
+
+        container = new ContainerPanel();
         container.setLayout(new BorderLayout());
-        container.setBorder(/*new EmptyBorder(2, 20, 20, 20)*/defautBorder);
+        container.setBorder(defautBorder);
         setBackground(Color.red);
-        add(container, BorderLayout.CENTER);
+        JSplitPane jSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, jScrollPane, container);
+        jSplitPane.setResizeWeight(0.2);
+        jSplitPane.setDividerLocation(.2);
+        add(jSplitPane, BorderLayout.CENTER);
     }
 
-    public void setContenu(JPanel pan) {
+    public static MainMenuPanel getInstance() {
+        return ApplicationConfig.getApplicationContext().getBean(MainMenuPanel.class);
+    }
+
+    public void setContent(JPanel pan) {
+        //stopTimer(pan);
         container.removeAll();
-        container.add(BorderLayout.CENTER, pan);
+        container.add(pan);
         container.validate();
+    }
+
+    private <T  extends JPanel> JXHyperlink createLink(String text, Class<T>  panelClass) {
+        JXHyperlink b = new JXHyperlink();
+        Color textColor = new Color(16, 66, 104);
+        b.setUnclickedColor(textColor);
+        b.setClickedColor(textColor);
+        b.setFocusable(false);
+        b.setText(text);
+        b.setBackground(new Color(166, 202, 240));
+        if(panelClass != null) {
+            b.addActionListener((ActionEvent ae) -> {
+                try {
+                    setContent(panelClass.getDeclaredConstructor().newInstance());
+                } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                         NoSuchMethodException e) {
+                    logger.error("Erreur: ", e);
+                    JOptionPane.showMessageDialog(MainMenuPanel.this.getParent(), "Erreur lors de la création du panneau");
+                }
+            });
+        }
+        return b;
+    }
+
+    private void getLicencePanel() {
+        LicencePanel nouveau1 = new LicencePanel(null);
+        nouveau1.setSize(450, 150);
+        nouveau1.setLocationRelativeTo(null);
+        nouveau1.setModal(true);
+        nouveau1.setResizable(false);
+        nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        nouveau1.setVisible(true);
+    }
+
+    private JXTaskPane createTaskPane(String title) {
+        JXTaskPane task = new JXTaskPane() {
+            @Override
+            public boolean isVisible() {
+                return true;
+            }
+        };
+        task.setCollapsed(true);
+        task.setTitle(title);
+        return task;
     }
 
 }

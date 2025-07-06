@@ -5,11 +5,11 @@
  */
 package com.abouna.lacussms.entities;
 
-import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.io.Serializable;
 
 /**
  *
@@ -22,6 +22,15 @@ public class BkEtatOp implements Serializable{
     private Integer id;
     private String valeur;
     private boolean actif;
+
+    public BkEtatOp() {
+    }
+
+    public BkEtatOp(Integer id, String valeur, boolean actif) {
+        this.id = id;
+        this.valeur = valeur;
+        this.actif = actif;
+    }
 
     public Integer getId() {
         return id;
@@ -46,6 +55,13 @@ public class BkEtatOp implements Serializable{
     public void setActif(boolean actif) {
         this.actif = actif;
     }
-    
-    
+
+    @Override
+    public String toString() {
+        return "BkEtatOp{" +
+                "id=" + id +
+                ", valeur='" + valeur + '\'' +
+                ", actif=" + actif +
+                '}';
+    }
 }

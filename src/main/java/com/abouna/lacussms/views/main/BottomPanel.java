@@ -6,24 +6,18 @@
 
 package com.abouna.lacussms.views.main;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  *
  * @author Administrateur
  */
 public class BottomPanel extends JPanel{
-    private final JLabel signatureLabel;
-    private JLabel label;
-    private static JLabel info = new JLabel();
+    private static JLabel info = getInfo();
     
-    public BottomPanel(){
-        signatureLabel = new JLabel("Design by SMILE SOFTWARE FONDATION");//Ing. ABOUNA P.E
+    public BottomPanel(String title) {
+        JLabel signatureLabel = new JLabel(title);//Ing. ABOUNA P.E
         signatureLabel.setFont(new Font("",Font.ITALIC,8));
         signatureLabel.setForeground(Color.red);
         setBackground(new Color(166,202,240));
@@ -39,15 +33,9 @@ public class BottomPanel extends JPanel{
         add(rightPanel,BorderLayout.AFTER_LINE_ENDS);
     }
 
-    public JLabel getLabel() {
-        return label;
-    }
-
-    public void setLabel(JLabel label) {
-        this.label = label;
-    }
-
     public static JLabel getInfo() {
+        info = new JLabel();
+        info.setSize(150, 20);
         return info;
     }
 

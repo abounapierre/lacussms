@@ -6,78 +6,21 @@
 package com.abouna.lacussms.service.impl;
 
 import com.abouna.generic.dao.DataAccessException;
-import com.abouna.lacussms.dao.HolidayDao;
-import com.abouna.lacussms.dao.IBkAgenceDao;
-import com.abouna.lacussms.dao.IBkCliDao;
-import com.abouna.lacussms.dao.IBkCompCliDao;
-import com.abouna.lacussms.dao.IBkEtatOpDao;
-import com.abouna.lacussms.dao.IBkEveDao;
-import com.abouna.lacussms.dao.IBkMadDao;
-import com.abouna.lacussms.dao.IBkOpeDao;
-import com.abouna.lacussms.dao.IBkTelCliDao;
-import com.abouna.lacussms.dao.ICommandDao;
-import com.abouna.lacussms.dao.IConfigDao;
-import com.abouna.lacussms.dao.ICutOffDao;
-import com.abouna.lacussms.dao.ILicenceDao;
-import com.abouna.lacussms.dao.IMessageDao;
-import com.abouna.lacussms.dao.IMessageFormatDao;
-import com.abouna.lacussms.dao.IMessageMandatDao;
-import com.abouna.lacussms.dao.IRemoteDBDao;
-import com.abouna.lacussms.dao.ISentMailDao;
-import com.abouna.lacussms.dao.ISmsScheduledDao;
-import com.abouna.lacussms.dao.ISmsScheduledFormatDao;
-import com.abouna.lacussms.dao.ITypeMessageDao;
-import com.abouna.lacussms.dao.IUrlMessageDao;
-import com.abouna.lacussms.dao.IUserDao;
-import com.abouna.lacussms.dao.ParametreRequeteDao;
-import com.abouna.lacussms.dao.ServiceOffertDao;
-import com.abouna.lacussms.dto.SmsScheduledDto;
-import com.abouna.lacussms.entities.BkAgence;
-import com.abouna.lacussms.entities.BkCli;
-import com.abouna.lacussms.entities.BkCompCli;
-import com.abouna.lacussms.entities.BkEtatOp;
-import com.abouna.lacussms.entities.BkEve;
-import com.abouna.lacussms.entities.BkMad;
-import com.abouna.lacussms.entities.BkOpe;
-import com.abouna.lacussms.entities.BkTelCli;
-import com.abouna.lacussms.entities.Command;
-import com.abouna.lacussms.entities.Config;
-import com.abouna.lacussms.entities.CutOff;
-import com.abouna.lacussms.entities.Holiday;
-import com.abouna.lacussms.entities.Licence;
-import com.abouna.lacussms.entities.Message;
-import com.abouna.lacussms.entities.MessageFormat;
-import com.abouna.lacussms.entities.MessageMandat;
-import com.abouna.lacussms.entities.ParametreRequete;
-import com.abouna.lacussms.entities.RemoteDB;
-import com.abouna.lacussms.entities.SentMail;
-import com.abouna.lacussms.entities.ServiceOffert;
-import com.abouna.lacussms.entities.SmsProgramming;
-import com.abouna.lacussms.entities.SmsScheduled;
-import com.abouna.lacussms.entities.SmsScheduledFormat;
-import com.abouna.lacussms.entities.Status;
-import com.abouna.lacussms.entities.TypeEvent;
-import com.abouna.lacussms.entities.TypeMessage;
-import com.abouna.lacussms.entities.TypeService;
-import com.abouna.lacussms.entities.UrlMessage;
-import com.abouna.lacussms.entities.User;
+import com.abouna.lacussms.dao.*;
+import com.abouna.lacussms.entities.*;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.tools.AES;
 import com.abouna.lacussms.views.tools.ConstantUtils;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -86,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class LacusSmsServiceImpl implements LacusSmsService {
-
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(LacusSmsServiceImpl.class);
     @Autowired
     private IMessageFormatDao messageFormat;
     @Autowired
@@ -124,158 +67,8 @@ public class LacusSmsServiceImpl implements LacusSmsService {
     @Autowired
     private IConfigDao configDao;
     @Autowired
-    private HolidayDao holidayDao;
-    @Autowired
-    private ICommandDao commandDao;
-    @Autowired
-    private ServiceOffertDao serviceOffertDao;
-    @Autowired
-    private ICutOffDao cutOffDao;
-    @Autowired
     private ParametreRequeteDao parametreRequeteDao;
-    @Autowired
-    private ISmsScheduledDao smsScheduledDao;
-    @Autowired
-    private ISmsScheduledFormatDao smsScheduledFormatDao;
 
-    public IMessageMandatDao getMessageMandatDao() {
-        return messageMandatDao;
-    }
-
-    public void setMessageMandatDao(IMessageMandatDao messageMandatDao) {
-        this.messageMandatDao = messageMandatDao;
-    }
-
-    public ISentMailDao getSentMailDao() {
-        return sentMailDao;
-    }
-
-    public void setSentMailDao(ISentMailDao sentMailDao) {
-        this.sentMailDao = sentMailDao;
-    }
-
-    public IBkMadDao getBkMadDao() {
-        return bkMadDao;
-    }
-
-    public void setBkMadDao(IBkMadDao bkMadDao) {
-        this.bkMadDao = bkMadDao;
-    }
-
-    public IBkCompCliDao getBkCompCliDao() {
-        return bkCompCliDao;
-    }
-
-    public void setBkCompCliDao(IBkCompCliDao bkCompCliDao) {
-        this.bkCompCliDao = bkCompCliDao;
-    }
-
-    public IBkEtatOpDao getBkEtatOpDao() {
-        return bkEtatOpDao;
-    }
-
-    public void setBkEtatOpDao(IBkEtatOpDao bkEtatOpDao) {
-        this.bkEtatOpDao = bkEtatOpDao;
-    }
-
-    public IUrlMessageDao getUrlMessageDao() {
-        return urlMessageDao;
-    }
-
-    public void setUrlMessageDao(IUrlMessageDao urlMessageDao) {
-        this.urlMessageDao = urlMessageDao;
-    }
-
-    public IBkTelCliDao getBkTelCliDao() {
-        return bkTelCliDao;
-    }
-
-    public void setBkTelCliDao(IBkTelCliDao bkTelCliDao) {
-        this.bkTelCliDao = bkTelCliDao;
-    }
-
-    public ILicenceDao getLicenceDao() {
-        return licenceDao;
-    }
-
-    public void setLicenceDao(ILicenceDao licenceDao) {
-        this.licenceDao = licenceDao;
-    }
-
-    public IBkAgenceDao getBkAgenceDao() {
-        return bkAgenceDao;
-    }
-
-    public void setBkAgenceDao(IBkAgenceDao bkAgenceDao) {
-        this.bkAgenceDao = bkAgenceDao;
-    }
-
-    public IRemoteDBDao getRemoteDBDao() {
-        return remoteDBDao;
-    }
-
-    public void setRemoteDBDao(IRemoteDBDao remoteDBDao) {
-        this.remoteDBDao = remoteDBDao;
-    }
-
-    public IMessageDao getMessageDao() {
-        return messageDao;
-    }
-
-    public void setMessageDao(IMessageDao messageDao) {
-        this.messageDao = messageDao;
-    }
-
-    public IUserDao getUserDao() {
-        return userDao;
-    }
-
-    public void setUserDao(IUserDao userDao) {
-        this.userDao = userDao;
-    }
-
-    public IMessageFormatDao getMessageFormat() {
-        return messageFormat;
-    }
-
-    public void setMessageFormat(IMessageFormatDao messageFormat) {
-        this.messageFormat = messageFormat;
-    }
-
-    public IBkCliDao getBkCliDao() {
-        return bkCliDao;
-    }
-
-    public void setBkCliDao(IBkCliDao bkCliDao) {
-        this.bkCliDao = bkCliDao;
-    }
-
-    public IBkEveDao getBkEveDao() {
-        return bkEveDao;
-    }
-
-    public void setBkEveDao(IBkEveDao bkEveDao) {
-        this.bkEveDao = bkEveDao;
-    }
-
-    public IBkOpeDao getBkOpeDao() {
-        return bkOpeDao;
-    }
-
-    public void setBkOpeDao(IBkOpeDao bkOpeDao) {
-        this.bkOpeDao = bkOpeDao;
-    }
-
-    public ITypeMessageDao getTypeMessageDao() {
-        return typeMessageDao;
-    }
-
-    public void setTypeMessageDao(ITypeMessageDao typeMessageDao) {
-        this.typeMessageDao = typeMessageDao;
-    }
-
-    public LacusSmsServiceImpl() {
-    }
 
     @Override
     public MessageFormat enregistrer(MessageFormat mf) {
@@ -489,38 +282,9 @@ public class LacusSmsServiceImpl implements LacusSmsService {
     }
 
     @Override
-    public List<TypeMessage> getAllTypeMessages() {
-        try {
-            return typeMessageDao.findAll();
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    @Override
     public TypeMessage modifier(TypeMessage tm) {
         try {
             return typeMessageDao.update(tm);
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    @Override
-    public void supprimerTypeMessage(Integer id) {
-        try {
-            typeMessageDao.delete(typeMessageDao.findById(id));
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    @Override
-    public TypeMessage getTypeMessageById(Integer id) {
-        try {
-            return typeMessageDao.findById(id);
         } catch (DataAccessException ex) {
             Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -538,46 +302,12 @@ public class LacusSmsServiceImpl implements LacusSmsService {
     }
 
     @Override
-    public List<User> getAllUsers() {
-        try {
-            return userDao.findAll();
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    @Override
     public User modifier(User u) {
         try {
             return userDao.update(u);
         } catch (DataAccessException ex) {
             Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return null;
-    }
-
-    @Override
-    public void supprimerUser(String id) {
-        try {
-            userDao.delete(userDao.findById(id));
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    @Override
-    public User getUserById(String id) {
-        try {
-            return userDao.findById(id);
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    @Override
-    public List<BkCli> getBkCliByName(String val) {
         return null;
     }
 
@@ -622,15 +352,6 @@ public class LacusSmsServiceImpl implements LacusSmsService {
     }
 
     @Override
-    public void supprimerMessage(Integer id) {
-        try {
-            messageDao.delete(messageDao.findById(id));
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    @Override
     public Message getMessageById(Integer id) {
         try {
             return messageDao.findById(id);
@@ -641,30 +362,10 @@ public class LacusSmsServiceImpl implements LacusSmsService {
     }
 
     @Override
-    public List<MessageFormat> getFormatByBkOpe(BkOpe bkOpe) {
-        return messageFormat
-                .getMessageFormatByOpe(bkOpe);
+    public List<BkEve> getBkEveByDate(Date date, List<String> states) {
+        return bkEveDao.getBkEveByDate(date, states);
     }
 
-    @Override
-    public List<BkEve> getBkEveByEtat(String etat, Date date) {
-        return bkEveDao.getBkEvesByEtat(etat, date);
-    }
-
-    @Override
-    public List<BkEve> getBkEveByDate(Date date) {
-        return bkEveDao.getBkEveByDate(date);
-    }
-
-    @Override
-    public List<BkEve> getBkEveMaxDate() {
-        return bkEveDao.getBkEveMaxDate();
-    }
-
-    @Override
-    public List<BkEve> getBkEveBySendParam(boolean send) {
-        return bkEveDao.getBkEveBySendParam(send);
-    }
 
     @Override
     public BkAgence enregistrer(BkAgence a) {
@@ -776,11 +477,6 @@ public class LacusSmsServiceImpl implements LacusSmsService {
     }
 
     @Override
-    public List<BkEve> getBkEveByPeriode(Date d1, Date d2) {
-        return bkEveDao.getBkEveByPeriode(d1, d2);
-    }
-
-    @Override
     public List<Message> getMessageFromPeriode(Date d1, Date d2) {
         return messageDao.getMessageFromPeriode(d1, d2);
     }
@@ -803,6 +499,7 @@ public class LacusSmsServiceImpl implements LacusSmsService {
             licence.setStartDate(sdf.format(cal.getTime()));
             String secretKey = ConstantUtils.SECRET_KEY;
             String value = AES.decrypt(licence.getValeur(), secretKey);
+            assert value != null;
             long jour = (sdf.parse(value.substring(0, 6)).getTime() - cal.getTime().getTime()) / (1000 * 60 * 60 * 24);
             licence.setJour(jour);
             return licenceDao.create(licence);
@@ -820,8 +517,9 @@ public class LacusSmsServiceImpl implements LacusSmsService {
             licence.setStartDate(sdf.format(cal.getTime()));
             String secretKey = ConstantUtils.SECRET_KEY;
             String value = AES.decrypt(licence.getValeur(), secretKey);
+            assert value != null;
             long jour = (sdf.parse(value.substring(0, 6)).getTime() - cal.getTime().getTime()) / (1000 * 60 * 60 * 24);
-            System.out.println("jour=" + jour);
+            logger.info("jour=" + jour);
             licence.setJour(jour);
             return licenceDao.update(licence);
         } catch (DataAccessException | ParseException ex) {
@@ -831,29 +529,9 @@ public class LacusSmsServiceImpl implements LacusSmsService {
     }
 
     @Override
-    public List<BkTelCli> getListBkTelByCli(BkCli b) {
-        return bkTelCliDao.getListBkTelByCli(b);
-    }
-
-    @Override
-    public BkTelCli getListBkTelByCliDefault(BkCli b, boolean d) {
-        return bkTelCliDao.getBkTelCliDefault(b, d);
-    }
-
-    @Override
     public BkTelCli enregistrer(BkTelCli bkTelCli) {
         try {
             return bkTelCliDao.create(bkTelCli);
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    @Override
-    public List<BkTelCli> getBkTelByClis() {
-        try {
-            return bkTelCliDao.findAll();
         } catch (DataAccessException ex) {
             Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -877,26 +555,6 @@ public class LacusSmsServiceImpl implements LacusSmsService {
         } catch (DataAccessException ex) {
             Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
-    @Override
-    public BkTelCli getBkTelCliById(Integer i) {
-        try {
-            return bkTelCliDao.findById(i);
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    @Override
-    public Integer count(BkTelCli bkTelCli) {
-        try {
-            bkTelCliDao.count(bkTelCli);
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return 0;
     }
 
     @Override
@@ -1092,16 +750,6 @@ public class LacusSmsServiceImpl implements LacusSmsService {
     }
 
     @Override
-    public List<BkCompCli> getBkCompCliByCli(BkCli cli, boolean actif) {
-        try {
-            return bkCompCliDao.getBkCompCliByCli(cli, actif);
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    @Override
     public List<BkCli> getBkCliByCriteria(String criteria) {
         return bkCliDao.getBkCliByCriteria(criteria);
     }
@@ -1117,18 +765,8 @@ public class LacusSmsServiceImpl implements LacusSmsService {
     }
 
     @Override
-    public List<BkEve> getBkEveByCriteria(String code, String date, String compte) {
-        return bkEveDao.getBkEveByCriteria(code, date, compte);
-    }
-
-    @Override
     public List<BkEve> getBkEveByCriteria(String code) {
         return bkEveDao.getBkEveByCriteria(code);
-    }
-
-    @Override
-    public int supprimerParPeriode(String date1, String date2) {
-        return bkEveDao.supprimerParPeriode(date1, date2);
     }
 
     @Override
@@ -1163,16 +801,6 @@ public class LacusSmsServiceImpl implements LacusSmsService {
     }
 
     @Override
-    public List<BkCompCli> getBkCompCliByCli(BkCli cli, String compte, boolean actif) {
-        try {
-            return bkCompCliDao.getBkCompCliByCli(cli, compte, actif);
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    @Override
     public BkCompCli getBkCompCliByCriteria(BkCli cli, String compte, boolean actif) {
         return bkCompCliDao.getBkCompCliByCriteria(cli, compte, actif);
     }
@@ -1183,11 +811,6 @@ public class LacusSmsServiceImpl implements LacusSmsService {
     }
 
     @Override
-    public List<BkMad> getBkMadsByPeriode(Date d1, Date d2) {
-        return bkMadDao.getBkMadsByPeriode(d1, d2);
-    }
-
-    @Override
     public int supprimerBkMad(Date d1, Date d2) {
         return bkMadDao.supprimerBkMad(d1, d2);
     }
@@ -1195,11 +818,6 @@ public class LacusSmsServiceImpl implements LacusSmsService {
     @Override
     public List<BkMad> getbkMadsByCriteria(String val) {
         return bkMadDao.getbkMadsByCriteria(val);
-    }
-
-    @Override
-    public BkMad getBkMadByCriteria(String num, String ad1p, Date date) {
-        return bkMadDao.getBkMadByCriteria(num, ad1p, date);
     }
 
     @Override
@@ -1240,6 +858,7 @@ public class LacusSmsServiceImpl implements LacusSmsService {
         try {
             bkMadDao.delete(bkMadDao.findById(id));
         } catch (DataAccessException ex) {
+            throw new RuntimeException("Error deleting BkMad with id: " + id, ex);
         }
     }
 
@@ -1299,23 +918,6 @@ public class LacusSmsServiceImpl implements LacusSmsService {
         return null;
     }
 
-    @Override
-    public void supprimerMessageMandat(Integer id) {
-        try {
-            messageMandatDao.delete(messageMandatDao.findById(id));
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    @Override
-    public MessageMandat getMessageMandatById(Integer id) {
-        try {
-            return messageMandatDao.findById(id);
-        } catch (DataAccessException ex) {
-            return null;
-        }
-    }
 
     @Override
     public List<MessageMandat> getMessageMandatFromPeriode(Date d1, Date d2) {
@@ -1342,10 +944,6 @@ public class LacusSmsServiceImpl implements LacusSmsService {
         return bkEveDao.getBkEveByLimit(limit);
     }
 
-    @Override
-    public List<BkEve> getBkEveByCriteria2(String code, Date date, String compte) {
-        return bkEveDao.getBkEveByCriteria2(code, date, compte);
-    }
 
     @Override
     public List<BkEve> getBkEveByCriteria(String code, String compte, String heure, String montant) {
@@ -1363,26 +961,11 @@ public class LacusSmsServiceImpl implements LacusSmsService {
     }
 
     @Override
-    public List<SentMail> getMailByDate(Date d) {
-        return sentMailDao.getMailByDate(d);
-    }
-
-    @Override
     public SentMail saveMail(SentMail mail) {
         try {
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
             mail.setDate2(format.format(mail.getSentDate()));
             return sentMailDao.create(mail);
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
-    }
-
-    @Override
-    public List<SentMail> getAllEmails() {
-        try {
-            return sentMailDao.findAll();
         } catch (DataAccessException ex) {
             Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
             return null;
@@ -1415,62 +998,8 @@ public class LacusSmsServiceImpl implements LacusSmsService {
             return configDao.findAll();
         } catch (DataAccessException ex) {
             Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
-    }
-
-    @Override
-    public boolean viderLicence() {
-        return licenceDao.vider();
-    }
-
-    @Override
-    public Holiday saveHoliday(Holiday holiday) {
-        try {
-            return holidayDao.create(holiday);
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    @Override
-    public void supprimerHoliday(Integer id) {
-        try {
-            holidayDao.delete(holidayDao.findById(id));
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    @Override
-    public List<Holiday> getHolidays() {
-        try {
-            return holidayDao.findAll();
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
-    }
-
-    @Override
-    public Holiday getHolidayById(Integer id) {
-        try {
-            return holidayDao.findById(id);
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    @Override
-    public List<Holiday> getHolidaysByDate(String date) {
-        return holidayDao.getHolidaysByDate(date);
-    }
-
-    @Override
-    public List<BkEve> getBkEveByCriteria(String code, String compte) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -1481,221 +1010,6 @@ public class LacusSmsServiceImpl implements LacusSmsService {
     @Override
     public List<BkEve> getBkEveByPeriode(String code, String compte, Date date1, Date date2) {
         return bkEveDao.getBkEveByPeriode(code, compte, date1, date2);
-    }
-
-    @Override
-    public Command enregistrer(Command cmd) {
-        try {
-            return commandDao.create(cmd);
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    @Override
-    public List<Command> getAllCommands() {
-        try {
-            return commandDao.findAll();
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    @Override
-    public List<Command> getAllCommands(Date date) {
-        return commandDao.getCommandByDate(date, null, Status.ERROR);
-    }
-
-    @Override
-    public Command modifier(Command cmd) {
-        try {
-            return commandDao.update(cmd);
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    @Override
-    public void supprimerCommand(Integer id) {
-        try {
-            commandDao.delete(getCommandById(id));
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    @Override
-    public Command getCommandById(Integer id) {
-        try {
-            return commandDao.findById(id);
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    @Override
-    public void serviceRequete() {
-        Thread t = new Thread(() -> {
-            List<Command> commands = commandDao.getCommandByStatus(Status.PENDING);
-            for (Command command : commands) {
-                long numero = Long.parseLong(command.getPhone().replace(" ", ""));
-                String content = command.getContent();
-                String[] token = content.split(" ");
-                for (String token1 : token) {
-                    if (token1.toLowerCase().contains("solde")) {
-                    }
-                }
-            }
-        });
-        t.start();
-    }
-
-    /*public void envoieSMSRequete(String methode, BkOpe ope, String compte) {
-     BkCli bkCli = eve.getCli();
-     if (bkCli != null && ope != null && !"".equals(methode)) {
-     if (bkCli.isEnabled() && getBkCompCliByCriteria(bkCli, compte, true) != null && bkCli.getPhone() != 0) {
-     MessageFormat mf = getFormatByBkOpe(ope, bkCli.getLangue());
-     if (mf != null) {
-     String text = Utils.remplacerVariable(bkCli, eve.getOpe(), eve, mf);
-     String res = testConnexionInternet();
-     BottomPanel.settextLabel("Test connexion ...." + res, java.awt.Color.BLACK);
-     if (res.equals("OK")) {
-     BottomPanel.settextLabel("Envoie du Message à.... " + eve.getCompte(), java.awt.Color.BLACK);
-     if (methode.equals("METHO1")) {
-     App.send(urlParam, "" + bkCli.getPhone(), text);
-     } else if (methode.equals("METHO2")) {
-     App.send2(urlParam, "" + bkCli.getPhone(), text);
-     }
-     } else {
-     BottomPanel.settextLabel("Message non envoyé à.... " + eve.getCompte() + " Problème de connexion internet!!", java.awt.Color.RED);
-     }
-     Message message = new Message();
-     message.setTitle(eve.getOpe().getLib());
-     message.setContent(text);
-     message.setBkEve(eve);
-     message.setSendDate(new Date());
-     message.setNumero(Long.toString(bkCli.getPhone()));
-     if (res.equals("OK")) {
-     serviceManager.enregistrer(message);
-     eve.setSent(true);
-     serviceManager.modifier(eve);
-     BottomPanel.settextLabel("OK Message envoyé ", java.awt.Color.BLACK);
-     }
-     }
-     }
-     }
-     }*/
-    @Override
-    public List<Command> getCommandByStatus(Status status) {
-        return commandDao.getCommandByStatus(status);
-    }
-
-    @Override
-    public List<ServiceOffert> getServiceOfferts() {
-        return serviceOffertDao.getServiceOfferts();
-    }
-
-    @Override
-    public ServiceOffert findServiceByCode(String code) {
-        return serviceOffertDao.findServiceByCode(code);
-    }
-
-    @Override
-    public ServiceOffert enregistrerService(ServiceOffert s) {
-        try {
-            return serviceOffertDao.create(s);
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    @Override
-    public ServiceOffert modifierService(ServiceOffert s) {
-        try {
-            return serviceOffertDao.update(s);
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    @Override
-    public void supprimerService(Integer id) {
-        try {
-            serviceOffertDao.delete(serviceOffertDao.findById(id));
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    @Override
-    public ServiceOffert getServiceById(Integer id) {
-        try {
-            return serviceOffertDao.findById(id);
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    @Override
-    public ServiceOffert getServiceByCode(String id) {
-        return serviceOffertDao.findServiceByCode(id);
-    }
-
-    @Override
-    public List<CutOff> getCutOffs() {
-        return cutOffDao.getCutOffs();
-    }
-
-    @Override
-    public CutOff getLastCutOff(Date dateDebut) {
-        return cutOffDao.getLastCutOff(dateDebut);
-    }
-
-    @Override
-    public List<CutOff> getAllCutOffs() {
-        try {
-            return cutOffDao.findAll();
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    @Override
-    public CutOff getCutOffById(Integer id) {
-        try {
-            return cutOffDao.findById(id);
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    @Override
-    public SmsProgramming save(SmsProgramming sms) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public SmsProgramming uodate(SmsProgramming sms) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public List<SmsProgramming> findAll() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public List<SmsProgramming> findByDate(Date date) {
-        return null;
     }
 
     @Override
@@ -1720,125 +1034,39 @@ public class LacusSmsServiceImpl implements LacusSmsService {
     }
 
     @Override
-    public List<ParametreRequete> getParametreRequetes(TypeService typeService) {
-        return parametreRequeteDao.getParametersByService(typeService);
-    }
-
-    @Override
     public Map<String, String> getParametreRequeteValues(TypeService typeService) {
         Map<String, String> map = new HashMap<>();
-        parametreRequeteDao.getParametersByService(typeService).forEach((p) -> {
-            map.put(p.getCode(), p.getValeur());
-        });
+        parametreRequeteDao.getParametersByService(typeService).forEach(p -> map.put(p.getCode(), p.getValeur()));
         return map;
     }
 
     @Override
-    public SmsScheduled getSmsScheduledById(Long id) {
-        try {
-            return smsScheduledDao.findById(id);
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    public Parametre enregistrerParametre(Parametre parametre) {
         return null;
     }
 
     @Override
-    public List<SmsScheduled> getAllSmsScheduleds() {
-        try {
-            return smsScheduledDao.findAll();
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return Collections.EMPTY_LIST;
+    public Optional<Message> getMessageByEveId(Integer eveId) {
+        return messageDao.getMessageByEveId(eveId);
     }
 
     @Override
-    public List<SmsScheduledDto> getAllSmsScheduledDtos() {
-        try {
-            List<SmsScheduledDto> list = new ArrayList<>();
-            for (SmsScheduled sms : smsScheduledDao.findAll()) {
-                SmsScheduledDto smsScheduledDto = new SmsScheduledDto();
-                smsScheduledDto.setSmsScheduled(sms);
-                List<MessageFormat> messageFormats = new ArrayList<>();
-                for (SmsScheduledFormat smsScheduledFormat : smsScheduledFormatDao.getScheduledFormats(sms)) {
-                    for (MessageFormat format : messageFormat.findAll()) {
-                        if (format.getId().equals(smsScheduledFormat.getMessageFormat().getId())) {
-                            messageFormats.add(format);
-                        }
-                    }
-                }
-                smsScheduledDto.setMessageFormats(messageFormats);
-                list.add(smsScheduledDto);
-            }
-            return list;
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return Collections.EMPTY_LIST;
+    public Optional<MessageMandat> getMessageMandatByNumEve(String eve) {
+        return messageMandatDao.getMessageMandatByNumEve(eve);
     }
 
     @Override
-    public SmsScheduledDto getSmsScheduledDtoById(Long id) {
+    public Long countBkEve() {
         try {
-            SmsScheduled sms = smsScheduledDao.findById(id);
-            SmsScheduledDto smsScheduledDto = new SmsScheduledDto();
-            smsScheduledDto.setSmsScheduled(sms);
-            List<MessageFormat> messageFormats = new ArrayList<>();
-            for (SmsScheduledFormat smsScheduledFormat : smsScheduledFormatDao.getScheduledFormats(sms)) {
-                for (MessageFormat format : messageFormat.findAll()) {
-                    if (format.getId().equals(smsScheduledFormat.getMessageFormat().getId())) {
-                        messageFormats.add(format);
-                    }
-                }
-            }
-            smsScheduledDto.setMessageFormats(messageFormats);
-            return smsScheduledDto;
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            return bkEveDao.countEve();
+        } catch (Exception e) {
+            logger.error("Error counting BkEve records", e);
+            return 0L;
         }
-        return null;
     }
 
     @Override
-    public Long saveSmsScheduled(SmsScheduledDto smsScheduledDto) {
-        SmsScheduled smsScheduled;
-        try {
-            if ("create".equals(smsScheduledDto.getAction())) {
-                smsScheduled = smsScheduledDao.create(smsScheduledDto.getSmsScheduled());
-            } else {
-                smsScheduledFormatDao.deleteScheduledFormats(smsScheduledDto.getSmsScheduled());
-                smsScheduled = smsScheduledDao.update(smsScheduledDto.getSmsScheduled());
-            }
-
-            List<MessageFormat> formats = smsScheduledDto.getMessageFormats();
-            if (smsScheduled != null) {
-                if (formats != null) {
-                    for (MessageFormat messageFormat1 : formats) {
-                        SmsScheduledFormat smsScheduledFormat = new SmsScheduledFormat();
-                        smsScheduledFormat.setSmsScheduled(smsScheduled);
-                        smsScheduledFormat.setMessageFormat(messageFormat1);
-                        smsScheduledFormatDao.create(smsScheduledFormat);
-                    }
-                }
-            }
-
-            if (smsScheduled != null) {
-                return smsScheduled.getId();
-            }
-
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    @Override
-    public void updateQuartzId(SmsScheduled smsScheduled) {
-        try {
-            smsScheduledDao.update(smsScheduled);
-        } catch (DataAccessException ex) {
-            Logger.getLogger(LacusSmsServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    public List<BkMad> getBkMadByDate(Date date) {
+        return bkMadDao.getBkMadByDate(date);
     }
 }

@@ -6,19 +6,9 @@
 
 package com.abouna.lacussms.entities;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
 
 /**
  *
@@ -35,12 +25,16 @@ public class Message implements Serializable {
     private String content;
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date sendDate;
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date sendTime;
     @JoinColumn(name = "bkeve")
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     private BkEve bkEve;
-    @OneToOne
-    private BkMad bkMad;
     private String numero;
+    @Column(name = "is_sent")
+    private Boolean isSent = false;
+    @Column(name = "num_eve")
+    private String numEve;
 
     public Message() {
     }
@@ -51,20 +45,20 @@ public class Message implements Serializable {
         this.sendDate = sendDate;
     }
 
+    public Message(Integer id, String title, String content, Date sendDate, String numero) {
+        this.title = title;
+        this.content = content;
+        this.sendDate = sendDate;
+        this.id = id;
+        this.numero = numero;
+    }
+
     public String getNumero() {
         return numero;
     }
 
     public void setNumero(String numero) {
         this.numero = numero;
-    }
-
-    public BkMad getBkMad() {
-        return bkMad;
-    }
-
-    public void setBkMad(BkMad bkMad) {
-        this.bkMad = bkMad;
     }
 
     public Integer getId() {
@@ -107,6 +101,30 @@ public class Message implements Serializable {
         this.bkEve = bkEve;
     }
 
+    public Boolean getSent() {
+        return isSent;
+    }
+
+    public void setSent(Boolean sent) {
+        isSent = sent;
+    }
+
+    public Date getSendTime() {
+        return sendTime;
+    }
+
+    public void setSendTime(Date sendTime) {
+        this.sendTime = sendTime;
+    }
+
+    public String getNumEve() {
+        return numEve;
+    }
+
+    public void setNumEve(String numEve) {
+        this.numEve = numEve;
+    }
+
     @Override
     public int hashCode() {
         int hash = 0;
@@ -116,15 +134,11 @@ public class Message implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
         if (!(object instanceof Message)) {
             return false;
         }
         Message other = (Message) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
+        return (this.id != null || other.id == null) && (this.id == null || this.id.equals(other.id));
     }
 
     @Override

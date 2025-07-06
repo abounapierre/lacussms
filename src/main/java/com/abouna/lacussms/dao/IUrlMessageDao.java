@@ -13,5 +13,5 @@ import com.abouna.lacussms.entities.UrlMessage;
  * @author ABOUNA
  */
 public interface IUrlMessageDao extends IDao<UrlMessage, Integer>{
-    public UrlMessage getDefaultUrlMessage();
+    UrlMessage getDefaultUrlMessage();
 }

@@ -8,6 +8,7 @@ package com.abouna.lacussms.dao;
 
 import com.abouna.generic.dao.IDao;
 import com.abouna.lacussms.entities.ServiceOffert;
+
 import java.util.List;
 
 /**
@@ -15,6 +16,6 @@ import java.util.List;
  * @author SATELLITE
  */
 public interface ServiceOffertDao extends IDao<ServiceOffert, Integer>{
-    public List<ServiceOffert> getServiceOfferts();
-    public ServiceOffert findServiceByCode(String code);
+    List<ServiceOffert> getServiceOfferts();
+    ServiceOffert findServiceByCode(String code);
 }

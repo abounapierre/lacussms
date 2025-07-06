@@ -6,24 +6,38 @@
 
 package com.abouna.lacussms.views.tools;
 
+import java.nio.file.Paths;
+
 /**
  *
  * @author SATELLITE
  */
 public class ConstantUtils {
-    public static final String SECRET_KEY = "!LACUS@2017!";
-    public static final String PUBLIC_KEY = "LACUSS2017";
-    public static String CONFIG_KEY_EXPIRATION;
-    public static String CONFIG_KEY_MSISDN_MASK;
-    public static String CONFIG_KEY_REFRESH_RATE_CONFIG;
-    public static String CONFIG_KEY_REFRESH_RATE_METRIC;
-    public static String CONFIG_KEY_REFRESH_RATE_TOKEN;
-    public static String CONFIG_KEY_REFRESH_RATE_USER;
-    public static String CONFIG_KEY_REST_TIMEOUT_CONNECT;
-    public static String CONFIG_KEY_REST_TIMEOUT_READ;
-    public static String CONFIG_KEY_SECRET;
-    public static String CONFIG_KEY_TOKEN_PREFIX;
-    public ConstantUtils() {
+    private ConstantUtils() {
     }
-    
+
+    public static final String SECRET_KEY = "!LACUS@2017!";
+    public static final String DATE_SOLDE = "DATE_ENVOIE_SOLDE";
+    public static String LOGO_GENU = "/images/genu-logo.png";
+    public static String LOGO = "/images/logo-absoft.jpg";
+    public static String LOGO_1 = "/images/LACUS.PNG";
+    public static final String ORACLE_DRIVER_CLASS = "oracle.jdbc.OracleDriver";
+    public static final String POSTGRESQL_DRIVER_CLASS = "org.postgresql.Driver";
+    public static final String H2_DRIVER_CLASS = "org.h2.Driver";
+    public static final String MYSQL_DRIVER_CLASS = "com.mysql.jdbc.Driver";
+    public static final int CLIENT_NUMBER_LENGTH = 9;
+    public static final String ICON_EXCEL = "/images/excel.PNG";
+    public static final String ICON_ADD = "/images/Ajouter.png";
+    public static final String ICON_UPDATE = "/images/OK.png";
+    public static final String ICON_DELETE = "/images/Cancel2.png";
+    public static final String ICON_SEND_SMS = "/images/send.png";
+    public static final String ICON_PDF_REPORT = "/images/icon_pdf.png";
+    public static final String [] HEADER = {"code","civilite", "nom", "prenom", "telephone","compte", "langue"};
+    public static final String ROOT_LACUS_PATH = Paths.get(".").toAbsolutePath().getParent().getParent().toString();
+    public static final String GET_CONNECTION_NULL_ERROR = "Connexion cannot be null";
+    public static final String DEFAULT_AGENCE_CODE = "00200";
+    public static final int DEFAULT_ACCOUNT_LENGTH = 10;
+    public static final long DEFAULT_WAIT_NUMBER = 5000;
+    public static final String NO_SELECTED_ITEM = "Aucun élément sélectionné";
+    public static final String COMA = ",";
 }

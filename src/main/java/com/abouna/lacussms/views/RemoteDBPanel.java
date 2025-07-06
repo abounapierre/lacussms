@@ -7,44 +7,32 @@ package com.abouna.lacussms.views;
 
 import com.abouna.lacussms.config.ApplicationConfig;
 import com.abouna.lacussms.entities.RemoteDB;
-import com.abouna.lacussms.main.App;
 import com.abouna.lacussms.service.LacusSmsService;
+import com.abouna.lacussms.views.main.BottomPanel;
 import com.abouna.lacussms.views.main.MainMenuPanel;
 import com.abouna.lacussms.views.tools.AES;
 import com.abouna.lacussms.views.tools.ConstantUtils;
+import com.abouna.lacussms.views.tools.Utils;
+import com.abouna.lacussms.views.utils.DialogUtils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Image;
+import org.jdesktop.swingx.JXSearchField;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
-import org.jdesktop.swingx.JXSearchField;
+
+import static com.abouna.lacussms.views.tools.ConstantUtils.H2_DRIVER_CLASS;
+import static com.abouna.lacussms.views.tools.ConstantUtils.MYSQL_DRIVER_CLASS;
+import static com.abouna.lacussms.views.tools.ConstantUtils.ORACLE_DRIVER_CLASS;
+import static com.abouna.lacussms.views.tools.ConstantUtils.POSTGRESQL_DRIVER_CLASS;
 
 /**
  *
@@ -54,10 +42,8 @@ public class RemoteDBPanel extends JPanel {
 
     private DefaultTableModel tableModel;
     private JTable table;
-    private final JButton nouveau, modifier, supprimer;
-    private final JButton filtre;
-    private MainMenuPanel parentPanel;
-    private LacusSmsService serviceManager;
+    private final MainMenuPanel parentPanel;
+    private final LacusSmsService serviceManager;
 
     public RemoteDBPanel() throws IOException {
         serviceManager = ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
@@ -74,50 +60,34 @@ public class RemoteDBPanel extends JPanel {
         contenu.setLayout(new BorderLayout());
         JPanel bas = new JPanel();
         bas.setLayout(new FlowLayout());
-        Image ajouImg = ImageIO.read(getClass().getResource("/images/Ajouter.png"));
-        Image supprImg = ImageIO.read(getClass().getResource("/images/Cancel2.png"));
-        Image modifImg = ImageIO.read(getClass().getResource("/images/OK.png"));
-        nouveau = new JButton(new ImageIcon(ajouImg));
+        Image ajouImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Ajouter.png")));
+        Image supprImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Cancel2.png")));
+        Image modifImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/OK.png")));
+        JButton nouveau = new JButton(new ImageIcon(ajouImg));
         nouveau.setToolTipText("Ajouter une nouvelle agence");
-        supprimer = new JButton(new ImageIcon(supprImg));
+        JButton supprimer = new JButton(new ImageIcon(supprImg));
         supprimer.setToolTipText("Suprimer une agence");
-        modifier = new JButton(new ImageIcon(modifImg));
+        JButton modifier = new JButton(new ImageIcon(modifImg));
         modifier.setToolTipText("Modifier une agence");
-        filtre = new JButton("Filtrer");
-        nouveau.addActionListener((ActionEvent ae) -> {
-            Nouveau nouveau1 = new Nouveau(null);
-            nouveau1.setSize(500, 300);
-            nouveau1.setLocationRelativeTo(null);
-            nouveau1.setModal(true);
-            nouveau1.setResizable(false);
-            nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            nouveau1.setVisible(true);
-        });
+        nouveau.addActionListener((ActionEvent ae) -> DialogUtils.initDialog(new Nouveau(null), RemoteDBPanel.this.getParent(), 500, 300));
         modifier.addActionListener((ActionEvent ae) -> {
             int selected = table.getSelectedRow();
             if (selected >= 0) {
                 Integer id = (Integer) tableModel.getValueAt(selected, 0);
-                Nouveau nouveau1;
                 try {
-                    nouveau1 = new Nouveau(serviceManager.getRemoteDBById(id));
-                    nouveau1.setSize(500, 300);
-                    nouveau1.setLocationRelativeTo(null);
-                    nouveau1.setModal(true);
-                    nouveau1.setResizable(false);
-                    nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                    nouveau1.setVisible(true);
+                    DialogUtils.initDialog(new RemoteDBPanel.Nouveau(serviceManager.getRemoteDBById(id)), RemoteDBPanel.this.getParent(), 500, 300);
                 } catch (Exception ex) {
                     Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } else {
-                JOptionPane.showMessageDialog(null, "Aucun élément n'est selectionné");
+                JOptionPane.showMessageDialog(RemoteDBPanel.this.getParent(), "Aucun élément n'est selectionné");
             }
         });
         supprimer.addActionListener((ActionEvent ae) -> {
             int selected = table.getSelectedRow();
             if (selected >= 0) {
                 Integer id = (Integer) tableModel.getValueAt(selected, 0);
-                int res = JOptionPane.showConfirmDialog(null, "Etes vous sûr de suppimer le client courant?", "Confirmation",
+                int res = JOptionPane.showConfirmDialog(RemoteDBPanel.this.getParent(), "Etes vous sûr de suppimer le client courant?", "Confirmation",
                         JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
                 if (res == JOptionPane.YES_OPTION) {
                     try {
@@ -128,17 +98,10 @@ public class RemoteDBPanel extends JPanel {
                     tableModel.removeRow(selected);
                 }
             } else {
-                JOptionPane.showMessageDialog(null, "Aucun élément selectionné");
+                JOptionPane.showMessageDialog(RemoteDBPanel.this.getParent(), "Aucun élément selectionné");
             }
         });
-        JButton testBtn = new JButton("Test Connexion");
-        testBtn.addActionListener((ActionEvent e) -> {
-            if (App.testConnexion()) {
-                JOptionPane.showMessageDialog(parentPanel, "Connexion réussie");
-            } else {
-                JOptionPane.showMessageDialog(parentPanel, "Erreur lors de l'établissement de la connexion!");
-            }
-        });
+        JButton testBtn = getTestConnexionButton();
         bas.add(nouveau);
         bas.add(modifier);
         bas.add(supprimer);
@@ -151,20 +114,15 @@ public class RemoteDBPanel extends JPanel {
         filtrePanel.add(searchField);
         filtrePanel.setBackground(new Color(166, 202, 240));
         searchField.addActionListener((ActionEvent e) -> {
-            String val = null;
             if (searchField.getText() != null) {
                 try {
-                    val = searchField.getText().toUpperCase();
                     tableModel.setNumRows(0);
-                    List<RemoteDB> remoliList = serviceManager.getAllRemoteDB();
-                    remoliList.stream().forEach((a) -> {
-                        tableModel.addRow(new Object[]{
-                            a.getId(),
-                            a.getUrl(),
-                            a.getHostName(),
-                            a.getName()
-                        });
-                    });
+                    serviceManager.getAllRemoteDB().forEach((a) -> tableModel.addRow(new Object[]{
+                        a.getId(),
+                        a.getUrl(),
+                        a.getHostName(),
+                        a.getName()
+                    }));
                 } catch (Exception ex) {
                     Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -181,34 +139,42 @@ public class RemoteDBPanel extends JPanel {
         contenu.add(BorderLayout.CENTER, new JScrollPane(table));
         add(BorderLayout.CENTER, contenu);
         try {
-            serviceManager.getAllRemoteDB().stream().forEach((a) -> {
-                tableModel.addRow(new Object[]{
-                    a.getId(),
-                    a.getUrl(),
-                    a.getHostName(),
-                    a.getName()
-                });
-            });
+            serviceManager.getAllRemoteDB().forEach((a) -> tableModel.addRow(new Object[]{
+                a.getId(),
+                a.getUrl(),
+                a.getHostName(),
+                a.getName()
+            }));
         } catch (Exception ex) {
             Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
+    private JButton getTestConnexionButton() {
+        JButton testBtn = new JButton("Test Connexion");
+        testBtn.addActionListener((ActionEvent e) -> {
+            com.abouna.lacussms.views.utils.Logger.info("### Test de connexion de la BD ###", RemoteDBPanel.class);
+            if (Utils.testConnexion(serviceManager, ConstantUtils.SECRET_KEY) != null) {
+                JOptionPane.showMessageDialog(parentPanel, "Connexion réussie");
+                BottomPanel.settextLabel("Connexion réussie", Color.GREEN);
+            } else {
+                JOptionPane.showMessageDialog(parentPanel, "Erreur lors de l'établissement de la connexion!");
+            }
+        });
+        return testBtn;
+    }
+
     private class Nouveau extends JDialog {
 
-        private final JButton okBtn, annulerBtn;
         private final JTextField nomText;
         private final JTextField urlText;
         private final JPasswordField passwordText;
         private final JTextField hostText;
         private final JCheckBox chkBox;
         private final JComboBox<String> driverBox;
-        private Map map = new HashMap();
-
-        private int c = 0, rang = 0;
 
         public Nouveau(final RemoteDB remoteDB) {
-            setTitle("NOUVELLE AGENCE");
+            setTitle("CONFIGURATION DE LA BASE DE DONNEES DISTANTE");
             setModal(true);
             setLayout(new BorderLayout(10, 10));
             JPanel haut = new JPanel();
@@ -232,6 +198,8 @@ public class RemoteDBPanel extends JPanel {
 
             urlText.setToolTipText("jdbc:oracle:thin:@localhost:1521:SID");
 
+            JButton okBtn;
+            JButton annulerBtn;
             JPanel buttonBar = ButtonBarFactory.buildOKCancelBar(okBtn = new JButton("Enrégistrer"), annulerBtn = new JButton("Annuler"));
             builder.append(buttonBar, builder.getColumnCount());
             add(BorderLayout.CENTER, builder.getPanel());
@@ -248,24 +216,20 @@ public class RemoteDBPanel extends JPanel {
                     }
                 }
                 hostText.setText(remoteDB.getHostName());
-                if (remoteDB.isParDefault()) {
-                    chkBox.setSelected(true);
-                } else {
-                    chkBox.setSelected(false);
-                }
+                chkBox.setSelected(remoteDB.isParDefault());
                 String driver = remoteDB.getDriverClassName();
                 if (driver != null) {
                     switch (driver) {
-                        case "com.mysql.jdbc.Driver":
+                        case MYSQL_DRIVER_CLASS:
                             driverBox.setSelectedIndex(0);
                             break;
-                        case "oracle.jdbc.driver.OracleDriver":
+                        case ORACLE_DRIVER_CLASS:
                             driverBox.setSelectedIndex(1);
                             break;
-                        case "org.h2.Driver":
+                        case H2_DRIVER_CLASS:
                             driverBox.setSelectedIndex(2);
                             break;
-                        case "org.postgresql.Driver":
+                        case POSTGRESQL_DRIVER_CLASS:
                             driverBox.setSelectedIndex(3);
                             break;
                     }
@@ -274,66 +238,38 @@ public class RemoteDBPanel extends JPanel {
 
             okBtn.addActionListener((ActionEvent ae) -> {
                 RemoteDB a = new RemoteDB();
-                if (!nomText.getText().equals("")) {
+                if (!nomText.getText().isEmpty()) {
                     a.setName(nomText.getText());
                 } else {
-                    JOptionPane.showMessageDialog(null, "Le nom est obligatoire");
+                    JOptionPane.showMessageDialog(RemoteDBPanel.this.getParent(), "Le nom est obligatoire");
                     return;
                 }
-                if (!urlText.getText().equals("")) {
+                if (!urlText.getText().isEmpty()) {
                     a.setUrl(urlText.getText());
                 } else {
-                    JOptionPane.showMessageDialog(null, "L'url est obligatoire");
+                    JOptionPane.showMessageDialog(RemoteDBPanel.this.getParent(), "L'url est obligatoire");
                     return;
                 }
                 if (passwordText.getPassword().length != 0) {
-                    String passText = new String(passwordText.getPassword());
-                    String originalString = passText;
+                    String originalString = new String(passwordText.getPassword());
                     String encryptedString = AES.encrypt(originalString, ConstantUtils.SECRET_KEY);
                     a.setPassword(encryptedString);
                 }
 
-                if (!hostText.getText().equals("")) {
+                if (!hostText.getText().isEmpty()) {
                     a.setHostName(hostText.getText());
                 } else {
-                    JOptionPane.showMessageDialog(null, "Le nom de l'hote est obligatoire");
+                    JOptionPane.showMessageDialog(RemoteDBPanel.this.getParent(), "Le nom de l'hote est obligatoire");
                     return;
                 }
 
-                if (chkBox.isSelected()) {
-                    a.setParDefault(true);
-                } else {
-                    a.setParDefault(false);
-                }
+                a.setParDefault(chkBox.isSelected());
 
                 if (a.isParDefault()) {
-                    serviceManager.getAllRemoteDB().stream().map((r) -> {
-                        r.setParDefault(false);
-                        return r;
-                    }).forEach((r) -> {
-                        serviceManager.modifier(r);
-                    });
+                    serviceManager.getAllRemoteDB().stream().peek((r) -> r.setParDefault(false)).forEach(serviceManager::modifier);
                 }
 
-                String driver = null;
-                if (driverBox.getSelectedIndex() == 1) {
-                    driver = "com.mysql.jdbc.Driver";
-                }
-
-                if (driverBox.getSelectedIndex() == 2) {
-                    driver = "oracle.jdbc.driver.OracleDriver";
-                }
-
-                if (driverBox.getSelectedIndex() == 3) {
-                    driver = "org.h2.Driver";
-                }
-
-                if (driverBox.getSelectedIndex() == 4) {
-                    driver = "org.postgresql.Driver";
-                }
-                if (driverBox.getSelectedIndex() == 0) {
-                    driver = "";
-                }
+                String driver = getDriverClass();
 
                 a.setDriverClassName(driver);
 
@@ -353,7 +289,7 @@ public class RemoteDBPanel extends JPanel {
                 }
                 dispose();
                 try {
-                    parentPanel.setContenu(new RemoteDBPanel());
+                    parentPanel.setContent(new RemoteDBPanel());
                     JOptionPane.showMessageDialog(parentPanel, "Enregistré avec success");
                 } catch (IOException ex) {
                     Logger.getLogger(RemoteDBPanel.class.getName()).log(Level.SEVERE, null, ex);
@@ -363,11 +299,34 @@ public class RemoteDBPanel extends JPanel {
             annulerBtn.addActionListener((ActionEvent ae) -> {
                 dispose();
                 try {
-                    parentPanel.setContenu(new RemoteDBPanel());
+                    parentPanel.setContent(new RemoteDBPanel());
                 } catch (IOException ex) {
                     Logger.getLogger(RemoteDBPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
             });
+        }
+
+        private String getDriverClass() {
+            String driver = null;
+            if (driverBox.getSelectedIndex() == 1) {
+                driver = MYSQL_DRIVER_CLASS;
+            }
+
+            if (driverBox.getSelectedIndex() == 2) {
+                driver = ORACLE_DRIVER_CLASS;
+            }
+
+            if (driverBox.getSelectedIndex() == 3) {
+                driver = H2_DRIVER_CLASS;
+            }
+
+            if (driverBox.getSelectedIndex() == 4) {
+                driver = POSTGRESQL_DRIVER_CLASS;
+            }
+            if (driverBox.getSelectedIndex() == 0) {
+                driver = "";
+            }
+            return driver;
         }
     }
 }

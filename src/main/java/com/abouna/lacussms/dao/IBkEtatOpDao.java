@@ -7,6 +7,7 @@ package com.abouna.lacussms.dao;
 
 import com.abouna.generic.dao.IDao;
 import com.abouna.lacussms.entities.BkEtatOp;
+
 import java.util.List;
 
 /**
@@ -14,5 +15,5 @@ import java.util.List;
  * @author ABOUNA
  */
 public interface IBkEtatOpDao extends IDao<BkEtatOp, Integer>{
-    public List<BkEtatOp> getListBkEtatOp(boolean actif);
+    List<BkEtatOp> getListBkEtatOp(boolean actif);
 }

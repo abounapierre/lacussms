@@ -6,11 +6,10 @@
 package com.abouna.lacussms.views.tools;
 
 import com.abouna.lacussms.entities.Command;
-import com.abouna.lacussms.entities.ServiceOffert;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,9 +26,7 @@ public class BankFilePrinting {
         try (FileWriter fileWriter = new FileWriter(path); 
                 PrintWriter printWriter = new PrintWriter(fileWriter)) {
             commands.stream().map((command) -> agence + "|" + command.getOpe()
-                    + "|" + command.getCompte() + "|" + command.getMontant() + "|" + "D").forEach((s) -> {
-                            printWriter.println(s);
-            });
+                    + "|" + command.getCompte() + "|" + command.getMontant() + "|" + "D").forEach(printWriter::println);
         } catch (IOException ex) {
             Logger.getLogger(BankFilePrinting.class.getName()).log(Level.SEVERE, null, ex);
         }

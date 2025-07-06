@@ -1,80 +1,84 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package com.abouna.lacussms.config;
 
-import com.abouna.lacussms.service.impl.SmsJob;
+import com.abouna.lacussms.main.MainFrame;
+import com.abouna.lacussms.views.main.LogFile;
+import com.abouna.lacussms.views.tools.ConstantUtils;
 import com.google.common.base.Preconditions;
-import java.io.IOException;
-import java.util.Properties;
-import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
-import org.quartz.SimpleTrigger;
-import org.quartz.spi.JobFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.PropertiesFactoryBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
+import org.jasypt.encryption.StringEncryptor;
+import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
+import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.quartz.JobDetailFactoryBean;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.util.Assert;
+
+import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.stream.Stream;
 
 /**
  *
  * @author abouna
  */
 @Configuration
-@EnableScheduling
 @EnableTransactionManagement
-@PropertySource({ "classpath:bd.properties" })
-@ComponentScan({ "com.abouna.lacussms.dao.impl",
-    "com.abouna.lacussms.service.impl",
-"com.abouna.lacussms.views"})
+@EnableEncryptableProperties
+@PropertySources({
+        @PropertySource("classpath:bd.properties"),
+        @PropertySource("classpath:application.properties")
+})
 public class SpringMainConfig {
-    
-    @Autowired
-    private Environment env;
+
+    private static final Logger log = LoggerFactory.getLogger(SpringMainConfig.class);
     
     public SpringMainConfig(){
         super();
     }
     
     @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(PathConfigBean pathConfigBean, Environment env) {
         final LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-        em.setDataSource(dataSource());
-        em.setPackagesToScan(new String[] { "com.abouna.lacussms.entities" });
+        em.setDataSource(dataSource(pathConfigBean, env));
+        em.setPackagesToScan("com.abouna.lacussms.entities");
         final HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         vendorAdapter.setShowSql(true);
         em.setJpaVendorAdapter(vendorAdapter);
-        em.setJpaProperties(additionalProperties());
+        em.setJpaProperties(additionalProperties(env));
         return em;
     }
 
     @Bean
-    public DataSource dataSource() {
+    public DataSource dataSource(PathConfigBean pathConfigBean, Environment env) {
         final DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName(Preconditions.checkNotNull(env.getProperty("jdbc.driverClassName")));
-        dataSource.setUrl(Preconditions.checkNotNull(env.getProperty("jdbc.url")));
+        dataSource.setUrl(Preconditions.checkNotNull(getUrl(pathConfigBean)));
         dataSource.setUsername(Preconditions.checkNotNull(env.getProperty("jdbc.user")));
         dataSource.setPassword(Preconditions.checkNotNull(env.getProperty("jdbc.pass")));
         return dataSource;
+    }
+
+    private String getUrl(PathConfigBean pathConfigBean) {
+        String url = "jdbc:h2:file:" + pathConfigBean.getRootPath() + "/data/lacus" + ";AUTO_SERVER=TRUE;DB_CLOSE_ON_EXIT=FALSE";
+        log.info("Database URL: {}", url);
+        return url;
     }
 
     @Bean
@@ -89,69 +93,118 @@ public class SpringMainConfig {
         return new PersistenceExceptionTranslationPostProcessor();
     }
 
-    final Properties additionalProperties() {
+    final Properties additionalProperties(Environment env) {
         final Properties hibernateProperties = new Properties();
         hibernateProperties.setProperty("hibernate.hbm2ddl.auto", env.getProperty("hibernate.hbm2ddl.auto"));
         hibernateProperties.setProperty("hibernate.dialect", env.getProperty("hibernate.dialect"));
         // hibernateProperties.setProperty("hibernate.globally_quoted_identifiers", "true");
         return hibernateProperties;
     }
-    
+
     @Bean
-    public Tache execute(){
-        return new Tache();
-    }
-  
-    @Bean
-    public JobFactory jobFactory(ApplicationContext applicationContext)
-    {
-        AutowiringSpringBeanJobFactory jobFactory = new AutowiringSpringBeanJobFactory();
-        jobFactory.setApplicationContext(applicationContext);
-        return jobFactory;
-    }
-    
-    @Bean
-    public SchedulerFactoryBean schedulerFactoryBean(@Autowired DataSource dataSource,
-                                                     @Autowired JobFactory jobFactory) throws IOException
-    {
-        SchedulerFactoryBean factory = new SchedulerFactoryBean();
-        factory.setOverwriteExistingJobs(true);
-        factory.setAutoStartup(true);
-        factory.setDataSource(dataSource);
-        //This is the place where we will wire Quartz and Spring together
-        factory.setJobFactory(jobFactory);
-        factory.setQuartzProperties(quartzProperties());
-        factory.setTriggers(smsJobTrigger().getObject());
-        return factory;
-    }
-    @Bean
-    public Properties quartzProperties() throws IOException
-    {
-        PropertiesFactoryBean propertiesFactoryBean = new PropertiesFactoryBean();
-        propertiesFactoryBean.setLocation(new ClassPathResource("quartz.properties"));
-        propertiesFactoryBean.afterPropertiesSet();
-        return propertiesFactoryBean.getObject();
-    }
-    
-     @Bean(name = "smsJobTrigger")
-    public SimpleTriggerFactoryBean smsJobTrigger() {
-        SimpleTriggerFactoryBean factoryBean = new SimpleTriggerFactoryBean();
-        factoryBean.setJobDetail(smsJobDetails().getObject());
-        factoryBean.setStartDelay(0);
-        factoryBean.setRepeatInterval(60000);
-        factoryBean.setRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY);
-        factoryBean.setMisfireInstruction(SimpleTrigger.MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT);
-        return factoryBean;
-    }
- 
-    @Bean(name = "smsJobDetails")
-    public JobDetailFactoryBean smsJobDetails() {
-        JobDetailFactoryBean jobDetailFactoryBean = new JobDetailFactoryBean();
-        jobDetailFactoryBean.setJobClass(SmsJob.class);
-        jobDetailFactoryBean.setDescription("Sample job");
-        jobDetailFactoryBean.setDurability(true);
-        jobDetailFactoryBean.setName("StatisticsJob");
-        return jobDetailFactoryBean;
+    public LogFile getLogger() {
+        return new LogFile();
     }
 
+    @Bean(name = "jasyptStringEncryptor")
+    public StringEncryptor stringEncryptor() {
+        PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
+        SimpleStringPBEConfig config = new SimpleStringPBEConfig();
+        config.setPassword(ConstantUtils.SECRET_KEY);
+        config.setAlgorithm("PBEWithMD5AndDES");
+        config.setKeyObtentionIterations("1000");
+        config.setPoolSize("1");
+        config.setProviderName("SunJCE");
+        config.setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator");
+        config.setStringOutputType("base64");
+        encryptor.setConfig(config);
+        return encryptor;
+    }
+
+    @Bean("logo")
+    public String logoApp(Environment env) {
+        return env.getProperty("application.logo");
+    }
+
+    @Bean("messageConfigPath")
+    public String messageConfigPath(Environment env) {
+        return env.getProperty("application.message.config.path");
+    }
+
+    @Bean
+    public AppRunConfig getAppRunConfig() {
+        return new AppRunConfig(Boolean.TRUE, Boolean.TRUE, Boolean.TRUE);
+    }
+
+
+    @Bean
+    public PathConfigBean getPathConfigBean(Environment env) {
+        String[] profiles = env.getActiveProfiles();
+        log.info("Active profiles: {}", (Object) profiles);
+        Path path = Paths.get("").toAbsolutePath();
+        Optional<String> profile = Stream.of(profiles).filter(prof -> prof.equals("dev") || prof.equals("prod") || prof.equals("preprod") ).findFirst();
+        return new PathConfigBean(profile.map(pro -> {
+            if (pro.equals("dev")) {
+                return path.toString();
+            } else {
+                return path.getParent().toString();
+            }
+        }).orElse(path.toString()));
+    }
+
+    @Bean("external-configs")
+    public Properties getProperties(PathConfigBean pathConfigBean) {
+        try {
+            String root = pathConfigBean.getRootPath() + "/configs";
+            File folder = new File(root);
+            File[] files = folder.listFiles(File::isFile);
+            Assert.notNull(files, "Files cannot be null");
+            FileSystemResource[] fileSystemResources = Arrays.stream(files).map(
+                    file -> new FileSystemResource(root + "/" + file.getName())
+            ).toArray(FileSystemResource[]::new);
+            Properties properties = new Properties();
+            for (FileSystemResource fileSystemResource : fileSystemResources) {
+                properties.load(fileSystemResource.getInputStream());
+            }
+            log.info("Properties loaded from files: {}", properties);
+            return properties;
+        } catch (Exception e) {
+            log.error("Error loading properties files {}", e.getMessage(), e);
+            throw new RuntimeException("Error loading properties files", e);
+        }
+    }
+
+    @Bean(name = "smsProvider")
+    public SmsProvider configSmsProviderMenuHeader(MainFrame mainFrame) {
+        JMenu smsProviderMenu = mainFrame.getHeaderMenu().getSmsProviderMenu();
+        JCheckBoxMenuItem orange = new JCheckBoxMenuItem("Orange");
+        JCheckBoxMenuItem f1s2u = new JCheckBoxMenuItem("1s2u");
+        JCheckBoxMenuItem keudal = new JCheckBoxMenuItem("keudal");
+        f1s2u.setSelected(true);
+        orange.addActionListener((ActionEvent e) -> {
+            if(orange.isSelected()){
+                f1s2u.setSelected(false);
+                keudal.setSelected(false);
+                SmsProvider.getInstance().setName("orange");
+            }
+        });
+        f1s2u.addActionListener((ActionEvent e) -> {
+            if(f1s2u.isSelected()){
+                orange.setSelected(false);
+                keudal.setSelected(false);
+                SmsProvider.getInstance().setName("1s2u");
+            }
+        });
+        keudal.addActionListener((ActionEvent e) -> {
+            if(keudal.isSelected()){
+                orange.setSelected(false);
+                f1s2u.setSelected(false);
+                SmsProvider.getInstance().setName("keudal");
+            }
+        });
+        smsProviderMenu.add(f1s2u);
+        smsProviderMenu.add(orange);
+        smsProviderMenu.add(keudal);
+        return new SmsProvider("1s2u");
+    }
 }

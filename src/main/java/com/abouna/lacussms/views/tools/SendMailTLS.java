@@ -9,12 +9,6 @@ package com.abouna.lacussms.views.tools;
  *
  * @author SATELLITE
  */
-import com.abouna.lacussms.config.SpringMainConfig;
-import com.abouna.lacussms.entities.SentMail;
-import com.abouna.lacussms.service.LacusSmsService;
-import java.util.Date;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public class SendMailTLS {
 

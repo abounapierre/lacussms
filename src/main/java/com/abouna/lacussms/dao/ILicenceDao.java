@@ -14,5 +14,5 @@ import com.abouna.lacussms.entities.Licence;
  * @author SATELLITE
  */
 public interface ILicenceDao extends IDao<Licence, Integer>{
-    public boolean vider();
+    boolean vider();
 }

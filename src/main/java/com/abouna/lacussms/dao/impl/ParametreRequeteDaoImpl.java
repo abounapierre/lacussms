@@ -10,8 +10,9 @@ import com.abouna.generic.dao.impl.GenericDao;
 import com.abouna.lacussms.dao.ParametreRequeteDao;
 import com.abouna.lacussms.entities.ParametreRequete;
 import com.abouna.lacussms.entities.TypeService;
-import java.util.List;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  *

@@ -8,6 +8,7 @@ package com.abouna.lacussms.dao;
 
 import com.abouna.generic.dao.IDao;
 import com.abouna.lacussms.entities.BkCli;
+
 import java.util.List;
 
 /**
@@ -15,8 +16,8 @@ import java.util.List;
  * @author SATELLITE
  */
 public interface IBkCliDao extends IDao<BkCli, String>{
-    public List<BkCli> getBkCliByCriteria(String code);
-    public List<BkCli> getBkCliLimit(int limit);
-    public List<BkCli> getBkCliByNumCompte(String code);
-    public BkCli getBkCliByNumero(Long numero);
+    List<BkCli> getBkCliByCriteria(String code);
+    List<BkCli> getBkCliLimit(int limit);
+    List<BkCli> getBkCliByNumCompte(String code);
+    BkCli getBkCliByNumero(Long numero);
 }

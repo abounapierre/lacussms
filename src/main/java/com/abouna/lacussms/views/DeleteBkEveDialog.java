@@ -12,8 +12,10 @@ import com.abouna.lacussms.views.main.MainMenuPanel;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import java.awt.BorderLayout;
-import java.awt.Font;
+import org.jdesktop.swingx.JXDatePicker;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.text.ParseException;
@@ -21,26 +23,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import org.jdesktop.swingx.JXDatePicker;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  *
  * @author SATELLITE
  */
 public class DeleteBkEveDialog extends JDialog{
-    private  JButton okBtn, annulerBtn;
-    private  JXDatePicker date1,date2;
-    @Autowired
-    private LacusSmsService serviceManager;
-    @Autowired
-    private MainMenuPanel parentPanel;
+    private final JXDatePicker date1;
+    private final JXDatePicker date2;
+    private final LacusSmsService serviceManager;
+    private final MainMenuPanel parentPanel;
     
     public DeleteBkEveDialog(){
         serviceManager = ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
@@ -57,7 +49,9 @@ public class DeleteBkEveDialog extends JDialog{
             builder.setDefaultDialogBorder();
             builder.append("Date début", date1 = new JXDatePicker());
             builder.append("Date début", date2 = new JXDatePicker());
-            JPanel buttonBar = ButtonBarFactory.buildOKCancelBar(okBtn = new JButton("Valider"), annulerBtn = new JButton("Annuler"));
+        JButton okBtn;
+        JButton annulerBtn;
+        JPanel buttonBar = ButtonBarFactory.buildOKCancelBar(okBtn = new JButton("Valider"), annulerBtn = new JButton("Annuler"));
             builder.append(buttonBar, builder.getColumnCount());
             add(BorderLayout.CENTER, builder.getPanel());
             
@@ -73,33 +67,30 @@ public class DeleteBkEveDialog extends JDialog{
                             JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
                     if (res == JOptionPane.YES_OPTION) {
                         try {
+                            int nbre;
                             if (d1 != null && d2 != null) {
-                                serviceManager.supprimerParPeriode(d1, d2);
+                                nbre = serviceManager.supprimerParPeriode(d1, d2);
                             }else{
-                                serviceManager.supprimerToutBkEve();
+                                nbre = serviceManager.supprimerToutBkEve();
+                            }
+                            if (nbre > 0) {
+                                JOptionPane.showMessageDialog(null, "Suppression de " + nbre + " évènement(s) effectuée avec succès.", "Information", JOptionPane.INFORMATION_MESSAGE);
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Aucun évènement à supprimer.", "Information", JOptionPane.INFORMATION_MESSAGE);
                             }
                         } catch (Exception ex) {
                             Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
                     dispose();
-                    parentPanel.setContenu(new BkEvePanel());
-                } catch (IOException ex) {
-                    Logger.getLogger(DeleteBkEveDialog.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (ParseException ex) {
+                    parentPanel.setContent(new BkEvePanel());
+                } catch (IOException | ParseException ex) {
                     Logger.getLogger(DeleteBkEveDialog.class.getName()).log(Level.SEVERE, null, ex);
                 }
-        });
+            });
 
             annulerBtn.addActionListener((ActionEvent ae) -> {
-                try {
-                    dispose();
-                    parentPanel.setContenu(new BkEvePanel());
-                } catch (IOException ex) {
-                    Logger.getLogger(DeleteBkEveDialog.class.getName()).log(Level.SEVERE, null, ex);
-                }
-        });
+                dispose();
+            });
     }
-    
-    
 }

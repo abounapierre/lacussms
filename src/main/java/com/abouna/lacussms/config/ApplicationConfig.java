@@ -14,14 +14,13 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
  * @author SATELLITE
  */
 public class ApplicationConfig {
-   private static final ApplicationContext applicationContext = buildApplicationContextFactory();
+   private static ApplicationContext applicationContext;// = buildApplicationContextFactory();
 
     private static ApplicationContext buildApplicationContextFactory() {
         try {
             return new AnnotationConfigApplicationContext(SpringMainConfig.class);
         }
         catch (Throwable ex) {
-// Make sure you log the exception, as it might be swallowed
             System.err.println("Initial Application Context creation failed." + ex);
             throw new ExceptionInInitializerError(ex);
         }
@@ -29,5 +28,9 @@ public class ApplicationConfig {
 
     public static ApplicationContext getApplicationContext() {
         return applicationContext;
-    } 
+    }
+
+    public static void setApplicationContext(ApplicationContext applicationContext) {
+        ApplicationConfig.applicationContext = applicationContext;
+    }
 }

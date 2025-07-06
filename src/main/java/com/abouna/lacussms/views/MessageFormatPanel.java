@@ -14,34 +14,18 @@ import com.abouna.lacussms.views.tools.Utils;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Image;
+import org.jdesktop.swingx.JXSearchField;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
-import org.jdesktop.swingx.JXSearchField;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
@@ -51,12 +35,8 @@ public class MessageFormatPanel extends JPanel {
 
     private DefaultTableModel tableModel;
     private JTable table;
-    private final JButton nouveau, modifier, supprimer;
-    private final JButton filtre;
-    @Autowired
-    private MainMenuPanel parentPanel;
-    @Autowired
-    private LacusSmsService serviceManager;
+    private final MainMenuPanel parentPanel;
+    private final LacusSmsService serviceManager;
 
     public MessageFormatPanel() throws IOException {
         serviceManager = ApplicationConfig.getApplicationContext().getBean(LacusSmsService.class);
@@ -73,16 +53,16 @@ public class MessageFormatPanel extends JPanel {
         contenu.setLayout(new BorderLayout());
         JPanel bas = new JPanel();
         bas.setLayout(new FlowLayout());
-        Image ajouImg = ImageIO.read(getClass().getResource("/images/Ajouter.png"));
-        Image supprImg = ImageIO.read(getClass().getResource("/images/Cancel2.png"));
-        Image modifImg = ImageIO.read(getClass().getResource("/images/OK.png"));
-        nouveau = new JButton(new ImageIcon(ajouImg));
+        Image ajouImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Ajouter.png")));
+        Image supprImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Cancel2.png")));
+        Image modifImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/OK.png")));
+        JButton nouveau = new JButton(new ImageIcon(ajouImg));
         nouveau.setToolTipText("Ajouter un nouveau format de massage");
-        supprimer = new JButton(new ImageIcon(supprImg));
+        JButton supprimer = new JButton(new ImageIcon(supprImg));
         supprimer.setToolTipText("Suprimer un format de message");
-        modifier = new JButton(new ImageIcon(modifImg));
+        JButton modifier = new JButton(new ImageIcon(modifImg));
         modifier.setToolTipText("Modifier un format de message");
-        filtre = new JButton("Filtrer");
+        JButton filtre = new JButton("Filtrer");
         nouveau.addActionListener((ActionEvent ae) -> {
             Nouveau nouveau1 = new Nouveau(null);
             nouveau1.setSize(550, 350);
@@ -148,7 +128,7 @@ public class MessageFormatPanel extends JPanel {
                     val = searchField.getText().toUpperCase();
                     tableModel.setNumRows(0);
                     List<MessageFormat> messages = serviceManager.getAll();
-                    messages.stream().forEach((a) -> {
+                    messages.forEach((a) -> {
                         tableModel.addRow(new Object[]{
                             a.getId(),
                             a.getName(),
@@ -173,7 +153,7 @@ public class MessageFormatPanel extends JPanel {
         contenu.add(BorderLayout.CENTER, new JScrollPane(table));
         add(BorderLayout.CENTER, contenu);
         try {
-            serviceManager.getAll().stream().forEach((a) -> {
+            serviceManager.getAll().forEach((a) -> {
                 tableModel.addRow(new Object[]{
                     a.getId(),
                     a.getName(),
@@ -189,7 +169,6 @@ public class MessageFormatPanel extends JPanel {
 
     private class Nouveau extends JDialog {
 
-        private final JButton okBtn, annulerBtn;
         private final JTextField nameText;
         private final JTextArea contentText;
         private final JComboBox<BkOpe> bkOpeBox;
@@ -217,10 +196,7 @@ public class MessageFormatPanel extends JPanel {
             langueBox.addItem("Français");
             langueBox.addItem("Anglais");
             bkOpeBox.addItem(null);
-            serviceManager.getAllBkOpes().stream().map((bkOpe) -> {
-                bkOpeBox.addItem(bkOpe);
-                return bkOpe;
-            }).map((bkOpe) -> {
+            serviceManager.getAllBkOpes().stream().peek(bkOpeBox::addItem).peek((bkOpe) -> {
                 if (messageFormat != null) {
                     BkOpe bkOpe1 = messageFormat.getOpe();
                     if (bkOpe1 != null) {
@@ -229,10 +205,11 @@ public class MessageFormatPanel extends JPanel {
                         }
                     }
                 }
-                return bkOpe;
             }).forEach((_item) -> {
                 c++;
             });
+            JButton annulerBtn;
+            JButton okBtn;
             JPanel buttonBar = ButtonBarFactory.buildOKCancelBar(okBtn = new JButton("Enrégistrer"), annulerBtn = new JButton("Annuler"));
             builder.append(buttonBar, builder.getColumnCount());
             add(BorderLayout.CENTER, builder.getPanel());
@@ -304,7 +281,7 @@ public class MessageFormatPanel extends JPanel {
                 }
                 dispose();
                 try {
-                    parentPanel.setContenu(new MessageFormatPanel());
+                    parentPanel.setContent(new MessageFormatPanel());
                 } catch (IOException ex) {
                     Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -313,7 +290,7 @@ public class MessageFormatPanel extends JPanel {
             annulerBtn.addActionListener((ActionEvent ae) -> {
                 dispose();
                 try {
-                    parentPanel.setContenu(new MessageFormatPanel());
+                    parentPanel.setContent(new MessageFormatPanel());
                 } catch (IOException ex) {
                     Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }

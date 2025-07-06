@@ -14,5 +14,5 @@ import com.abouna.lacussms.entities.User;
  * @author SATELLITE
  */
 public interface IUserDao extends IDao<User, String>{
-    public User getUserByUsername(String username);
+    User getUserByUsername(String username);
 }

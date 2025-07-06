@@ -7,25 +7,21 @@
 package com.abouna.lacussms.views;
 
 import com.abouna.lacussms.config.ApplicationConfig;
-import com.abouna.lacussms.entities.BkAgence;
-import com.abouna.lacussms.entities.BkCli;
-import com.abouna.lacussms.entities.BkEve;
-import com.abouna.lacussms.entities.BkOpe;
-import com.abouna.lacussms.entities.MessageMandat;
+import com.abouna.lacussms.entities.*;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.main.MainMenuPanel;
+import com.abouna.lacussms.views.model.MessageMandatUI;
 import com.abouna.lacussms.views.tools.PrintReportPDF;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.HeadlessException;
-import java.awt.Image;
+import org.jdesktop.swingx.JXDatePicker;
+import org.jdesktop.swingx.JXSearchField;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -35,41 +31,19 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
-import org.jdesktop.swingx.JXDatePicker;
-import org.jdesktop.swingx.JXSearchField;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  *
  * @author SATELLITE
  */
 public class MessageMandatPanel extends JPanel{
-    private DefaultTableModel tableModel;
-    private JTable table;
-    private final JButton nouveau, modifier, supprimer;
-    private final JButton filtre;
-    @Autowired
-    private  MainMenuPanel parentPanel;
-    @Autowired
-    private  LacusSmsService serviceManager;
+    private final DefaultTableModel tableModel;
+    private final JTable table;
+    private final MainMenuPanel parentPanel;
+    private final LacusSmsService serviceManager;
     private final JXDatePicker dateDeb, dateFin;
     private final JFileChooser fc = new JFileChooser();
 
@@ -88,28 +62,23 @@ public class MessageMandatPanel extends JPanel{
         contenu.setLayout(new BorderLayout());
         JPanel bas = new JPanel();
         bas.setLayout(new FlowLayout());
-        Image ajouImg = ImageIO.read(getClass().getResource("/images/Ajouter.png"));
-        Image supprImg = ImageIO.read(getClass().getResource("/images/Cancel2.png"));
-        Image modifImg = ImageIO.read(getClass().getResource("/images/OK.png"));
-        nouveau = new JButton(new ImageIcon(ajouImg));
+        Image ajouImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Ajouter.png")));
+        Image supprImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/Cancel2.png")));
+        Image modifImg = ImageIO.read(Objects.requireNonNull(getClass().getResource("/images/OK.png")));
+        JButton nouveau = new JButton(new ImageIcon(ajouImg));
         nouveau.setToolTipText("Ajouter un nouveau message");
-        supprimer = new JButton(new ImageIcon(supprImg));
+        JButton supprimer = new JButton(new ImageIcon(supprImg));
         supprimer.setToolTipText("Suprimer un message");
-        modifier = new JButton(new ImageIcon(modifImg));
+        JButton modifier = new JButton(new ImageIcon(modifImg));
         modifier.setToolTipText("Modifier un message");
-        filtre = new JButton("Filtrer");
-        nouveau.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                Nouveau nouveau1 = new Nouveau(null);
-                nouveau1.setSize(400, 300);
-                nouveau1.setLocationRelativeTo(null);
-                nouveau1.setModal(true);
-                nouveau1.setResizable(false);
-                nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                nouveau1.setVisible(true);
-            }
+        nouveau.addActionListener(ae -> {
+            Nouveau nouveau1 = new Nouveau(null);
+            nouveau1.setSize(400, 300);
+            nouveau1.setLocationRelativeTo(null);
+            nouveau1.setModal(true);
+            nouveau1.setResizable(false);
+            nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            nouveau1.setVisible(true);
         });
         modifier.addActionListener(new ActionListener() {
             @Override
@@ -120,15 +89,15 @@ public class MessageMandatPanel extends JPanel{
                     Nouveau nouveau1 = null;
                     try {
                         nouveau1 = new Nouveau(serviceManager.getBkEveById(id));
+                        nouveau1.setSize(400, 300);
+                        nouveau1.setLocationRelativeTo(null);
+                        nouveau1.setModal(true);
+                        nouveau1.setResizable(false);
+                        nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                        nouveau1.setVisible(true);
                     } catch (Exception ex) {
                         Logger.getLogger(BkCliPanel.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    nouveau1.setSize(400, 300);
-                    nouveau1.setLocationRelativeTo(null);
-                    nouveau1.setModal(true);
-                    nouveau1.setResizable(false);
-                    nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                    nouveau1.setVisible(true);
                 } else {
                     JOptionPane.showMessageDialog(null, "Aucun élément n'est selectionné");
                 }
@@ -202,20 +171,10 @@ public class MessageMandatPanel extends JPanel{
                     d2 = format.parse(format.format(dateFin.getDate()));
                     tableModel.setNumRows(0);
                     List<MessageMandat> messageList = serviceManager.getMessageMandatFromPeriode(d1, d2);
-                    for (MessageMandat a : messageList) {
-                        tableModel.addRow(new Object[]{
-                            a.getId(),
-                            a.getTitle(),
-                            a.getContent(),
-                            a.getSendDate(),
-                            a.getNumero(),
-                            a.getBkMad().getAd1p(),
-                            a.getBkMad().getAd2p(),
-                            a.getBkMad().getClesec(),
-                            a.getBkMad().getAge()
-                        });
+                    for (MessageMandat mandat : messageList) {
+                        addDataToTable(toUi(mandat));
                     }
-                    
+
                 } catch (Exception ex) {
                     Logger.getLogger(RapportPanel.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -257,8 +216,9 @@ public class MessageMandatPanel extends JPanel{
                                         JOptionPane.showMessageDialog(MessageMandatPanel.this, "Ce fichier n'existe pas");
                                         System.out.println("File is not exists!");
                                     }
-                                } catch (IOException ex) {
-                                } catch (HeadlessException ex) {
+                                } catch (IOException | HeadlessException ex) {
+                                    JOptionPane.showMessageDialog(MessageMandatPanel.this, "Erreur lors de l'ouverture du fichier: " + ex.getMessage());
+                                    Logger.getLogger(RapportPanel.class.getName()).log(Level.SEVERE, null, ex);
                                 }
                             }
                         }
@@ -288,18 +248,7 @@ public class MessageMandatPanel extends JPanel{
                         tableModel.setNumRows(0);
                         List<MessageMandat> messageList = serviceManager.getAllMessageMandats();
                         for (MessageMandat a : messageList) {
-                            tableModel.addRow(new Object[]{
-                                a.getId(),
-                                a.getTitle(),
-                                a.getContent(),
-                                a.getSendDate(),
-                                a.getNumero(),
-                                a.getBkMad().getAd1p(),
-                                a.getBkMad().getAd2p(),
-                                a.getBkMad().getClesec(),
-                                a.getBkMad().getAge()
-                            });
-
+                            addDataToTable(toUi(a));
                         }
                     } catch (Exception ex) {
                         Logger.getLogger(MessageFormatPanel.class.getName()).log(Level.SEVERE, null, ex);
@@ -313,23 +262,11 @@ public class MessageMandatPanel extends JPanel{
 
         table = new JTable(tableModel);
         table.setBackground(Color.WHITE);
-        //table.getColumnModel().getColumn(2).setPreferredWidth(280);
-        //table.removeColumn(table.getColumnModel().getColumn(0));
         contenu.add(BorderLayout.CENTER, new JScrollPane(table));
         add(BorderLayout.CENTER, contenu);
         try {
-            for (MessageMandat a : serviceManager.getAllMessageMandats()) {
-                tableModel.addRow(new Object[]{
-                    a.getId(),
-                    a.getTitle(),
-                    a.getContent(),
-                    a.getSendDate(),
-                    a.getNumero(),
-                    a.getBkMad().getAd1p(),
-                    a.getBkMad().getAd2p(),
-                    a.getBkMad().getClesec(),
-                    a.getBkMad().getAge()
-                });
+            for (MessageMandat mandat : serviceManager.getAllMessageMandats()) {
+                addDataToTable(toUi(mandat));
             }
             numberText.setText(Integer.toString(tableModel.getRowCount()));
         } catch (Exception ex) {
@@ -337,9 +274,36 @@ public class MessageMandatPanel extends JPanel{
         }
     }
 
+    private MessageMandatUI toUi(MessageMandat a) {
+        MessageMandatUI ui = new MessageMandatUI();
+        ui.setId(a.getId());
+        ui.setTitle(a.getTitle());
+        ui.setContent(a.getContent());
+        ui.setSendDate(a.getSendDate());
+        ui.setNumero(a.getNumero());
+        ui.setAd1p("");
+        ui.setAd2p("");
+        ui.setClesec("");
+        ui.setAge("");
+        return ui;
+    }
+
+    private void addDataToTable(MessageMandatUI a) {
+        tableModel.addRow(new Object[] {
+                a.getId(),
+                a.getTitle(),
+                a.getContent(),
+                a.getSendDate(),
+                a.getNumero(),
+                a.getAd1p(),
+                a.getAd2p(),
+                a.getClesec(),
+                a.getAge()
+        });
+    }
+
     private class Nouveau extends JDialog {
 
-        private final JButton okBtn, annulerBtn;
         private final JTextField compteText;
         private final JComboBox<String> etatBox;
         private final JComboBox<BkOpe> bkOpeBox;
@@ -401,6 +365,8 @@ public class MessageMandatPanel extends JPanel{
                 }
                 c1++;
             }
+            JButton okBtn;
+            JButton annulerBtn;
             JPanel buttonBar = ButtonBarFactory.buildOKCancelBar(okBtn = new JButton("Enrégistrer"), annulerBtn = new JButton("Annuler"));
             builder.append(buttonBar, builder.getColumnCount());
             add(BorderLayout.CENTER, builder.getPanel());
@@ -437,13 +403,13 @@ public class MessageMandatPanel extends JPanel{
                 @Override
                 public void actionPerformed(ActionEvent ae) {
                     BkEve a = new BkEve();
-                    if (!compteText.getText().equals("")) {
+                    if (!compteText.getText().isEmpty()) {
                         a.setCompte(compteText.getText());
                     } else {
                         JOptionPane.showMessageDialog(null, "Le compte est obligatoire");
                         return;
                     }
-                    if (!montText.getText().equals("")) {
+                    if (!montText.getText().isEmpty()) {
                         a.setMont(Double.parseDouble(montText.getText()));
                     } else {
                         JOptionPane.showMessageDialog(null, "Le compte est obligatoire");
@@ -480,7 +446,7 @@ public class MessageMandatPanel extends JPanel{
                     }
                     dispose();
                     try {
-                        parentPanel.setContenu(new BkEvePanel());
+                        parentPanel.setContent(new BkEvePanel());
                     } catch (IOException ex) {
                         Logger.getLogger(BkEvePanel.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -490,7 +456,7 @@ public class MessageMandatPanel extends JPanel{
             annulerBtn.addActionListener((ActionEvent ae) -> {
                 dispose();
                 try {
-                    parentPanel.setContenu(new BkEvePanel());
+                    parentPanel.setContent(new BkEvePanel());
                 } catch (IOException ex) {
                     Logger.getLogger(BkEvePanel.class.getName()).log(Level.SEVERE, null, ex);
                 }

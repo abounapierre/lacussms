@@ -6,15 +6,9 @@
 
 package com.abouna.lacussms.entities;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 
 /**
  *
@@ -29,6 +23,8 @@ public class SmsScheduledFormat implements Serializable{
     @ManyToOne
     @JoinColumn(name = "SMS_SCHEDULED_ID")
     private SmsScheduled smsScheduled;
+    @Column(name = "quartz_id")
+    private String quartzId;
     @ManyToOne
     @JoinColumn(name = "SMS_FORMAT_ID")
     private MessageFormat messageFormat;
@@ -58,6 +54,14 @@ public class SmsScheduledFormat implements Serializable{
 
     public void setMessageFormat(MessageFormat messageFormat) {
         this.messageFormat = messageFormat;
+    }
+
+    public String getQuartzId() {
+        return quartzId;
+    }
+
+    public void setQuartzId(String quartzId) {
+        this.quartzId = quartzId;
     }
 
     @Override

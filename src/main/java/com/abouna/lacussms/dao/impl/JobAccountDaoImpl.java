@@ -6,14 +6,13 @@
 
 package com.abouna.lacussms.dao.impl;
 
-import com.abouna.generic.dao.DataAccessException;
 import com.abouna.generic.dao.impl.GenericDao;
 import com.abouna.lacussms.dao.IJobAccountDao;
-import com.abouna.lacussms.dto.BkCliDto;
 import com.abouna.lacussms.entities.JobAccount;
 import com.abouna.lacussms.entities.SmsScheduled;
-import java.util.List;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  *

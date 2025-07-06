@@ -8,6 +8,7 @@ package com.abouna.lacussms.dao;
 
 import com.abouna.generic.dao.IDao;
 import com.abouna.lacussms.entities.SentMail;
+
 import java.util.Date;
 import java.util.List;
 
@@ -16,5 +17,5 @@ import java.util.List;
  * @author SATELLITE
  */
 public interface ISentMailDao extends IDao<SentMail, Integer>{
-    public List<SentMail> getMailByDate(Date d);
+    List<SentMail> getMailByDate(Date d);
 }

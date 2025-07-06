@@ -1,386 +1,120 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.abouna.lacussms.views.tools;
 
-import com.abouna.lacussms.entities.BkCli;
-import com.abouna.lacussms.entities.BkCompCli;
-import com.abouna.lacussms.entities.BkEve;
-import com.abouna.lacussms.entities.BkMad;
-import com.abouna.lacussms.entities.BkOpe;
-import com.abouna.lacussms.entities.MessageFormat;
-import com.abouna.lacussms.entities.OffsetBase;
-import com.abouna.lacussms.entities.SentMail;
-import com.abouna.lacussms.entities.Variable;
+import com.abouna.lacussms.config.ApplicationConfig;
+import com.abouna.lacussms.entities.*;
 import com.abouna.lacussms.service.LacusSmsService;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.HttpURLConnection;
-import java.net.InetAddress;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.stream.Collectors;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import com.abouna.lacussms.views.main.BottomPanel;
+import com.abouna.lacussms.views.main.LogFile;
+import com.abouna.lacussms.views.utils.LogParam;
 import org.apache.commons.net.ntp.NTPUDPClient;
 import org.apache.commons.net.ntp.TimeInfo;
-import org.apache.maven.model.Model;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.apache.poi.hssf.usermodel.HSSFFormulaEvaluator;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DataFormatter;
-import org.apache.poi.ss.usermodel.FormulaEvaluator;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- *
- * @author Administrateur
- */
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.Message.RecipientType;
+import javax.mail.PasswordAuthentication;
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.swing.Timer;
+import java.awt.Color;
+import java.io.*;
+import java.net.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.sql.*;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+
 public class Utils {
+    static final Logger logger = LoggerFactory.getLogger(Utils.class);
 
-    final static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(Utils.class);
+    static LacusSmsService serviceManager;
+    static List<String> listString;
 
-    public static int anneeDate(Date d) {
-        Date maDate;
-        SimpleDateFormat maDateLongue;
-        maDate = new Date();
-        maDateLongue = new SimpleDateFormat("yyyy");
-        return new Integer(maDateLongue.format(maDate));
+    public Utils() {
     }
 
-    public static Date getTimeFromInternet() {
-        logger.info("Test connexion internet");
+    public static Date getTimeFromInternet(String timeServer) {
         try {
-            Date date = null;
-            String TIME_SERVER = "time-a.nist.gov";
+            Date date;
             NTPUDPClient timeClient = new NTPUDPClient();
-            InetAddress inetAddress = InetAddress.getByName(TIME_SERVER);
+            timeClient.setDefaultTimeout(3000);
+            InetAddress inetAddress = InetAddress.getByName(timeServer);
             TimeInfo timeInfo = timeClient.getTime(inetAddress);
             long returnTime = timeInfo.getMessage().getTransmitTimeStamp().getTime();
             date = new Date(returnTime);
             return date;
-        } catch (UnknownHostException ex) {
-            logger.info("probleme de connexion internet");
-            return new Date();
-        } catch (IOException ex) {
-            logger.info("probleme de connexion internet");
+        } catch (Throwable t) {
+            com.abouna.lacussms.views.utils.Logger.error(String.format("problème de récuperation de la date de puis %s", timeServer), t, Utils.class);
             return new Date();
         }
-
     }
 
-    /*public List<String> extractValeur(String url){
-     List<String> urlList = new ArrayList<String>();
-     String r = "";
-     for(int i = 0;i<url.length();i++){
-     char c = url.charAt(i);
-     if(c=='='){
-     while(c!='&'){
-                     
-     }
-                 
-     }  
-     }
-     }*/
+    public static Date getTimeFromInternet() {
+       return getTimeFromInternet("time-a.nist.gov");
+    }
+
+
     public static String moveZero(Double d) {
-        String res = "";
-        int i = 0;
-        while (i != Double.toString(d).length()) {
-            if (Double.toString(d).charAt(i) != '.') {
-                res += Double.toString(d).charAt(i);
-            } else {
-                break;
-            }
-            i++;
-        }
-        return res;
-    }
+        StringBuilder res = new StringBuilder();
 
-    public static List<String> getNumFromExcel(String path) {
-        List<String> list = new ArrayList<String>();
-        FileInputStream fichier = null;
-        try {
-            fichier = new FileInputStream(new File(path));
-            XSSFWorkbook wb = new XSSFWorkbook(fichier);
-            XSSFSheet sheet = wb.getSheetAt(0);
-            for (Row ligne : sheet) {
-                String data = "";
-
-                if (ligne.getCell(0) != null) {
-                    if (ligne.getCell(0).getCellType() == Cell.CELL_TYPE_NUMERIC) {
-                        long c = (long) ligne.getCell(0).getNumericCellValue();
-                        data = Long.toString(c);
-                    } else if (ligne.getCell(0).getCellType() == Cell.CELL_TYPE_STRING) {
-                        data = ligne.getCell(0).getStringCellValue();
-                    }
-                }
-
-                if (data.length() == 8 || data.length() == 11) {
-                    if (!data.startsWith("241")) {
-                        data = "241" + data;
-                    }
-                    list.add(data);
-                } else if (data.length() == 9 || data.length() == 12) {
-                    if (!data.startsWith("237")) {
-                        data = "237" + data;
-                    }
-                    list.add(data);
-                }
-
-            }
-            return list;
-        } catch (FileNotFoundException ex) {
-            return null;
-        } catch (IOException ex) {
-            return null;
+        for(int i = 0; i != Double.toString(d).length() && Double.toString(d).charAt(i) != '.'; ++i) {
+            res.append(Double.toString(d).charAt(i));
         }
 
-    }
-
-    public static String importExcel(String path, String ext, LacusSmsService service) {
-        FileInputStream fichier = null;
-        boolean end = false;
-        try {
-            fichier = new FileInputStream(new File(path));
-            //créer une instance workbook qui fait référence au fichier xlsx
-
-            Workbook wb = WorkbookFactory.create(fichier);
-            DataFormatter objDefaultFormat = new DataFormatter();
-            FormulaEvaluator objFormulaEvaluator = null;
-            if (ext.equals(".xls")) {
-                objFormulaEvaluator = new HSSFFormulaEvaluator((HSSFWorkbook) wb);
-            } else if (ext.equals(".xlsx")) {
-                objFormulaEvaluator = new XSSFFormulaEvaluator((XSSFWorkbook) wb);
-            }
-            int i = 1;
-            Sheet sheet = wb.getSheetAt(0);
-            for (Row ligne : sheet) {//parcourir les lignes
-                try {
-                    if (ligne.getRowNum() != 0) {
-                        if (objFormulaEvaluator != null) {
-                            Cell cellValue = ligne.getCell(0);
-                            objFormulaEvaluator.evaluate(cellValue);
-                            String cellValueStr = objDefaultFormat.formatCellValue(cellValue, objFormulaEvaluator);
-                            BkCli bkCli = new BkCli();
-                            BkCompCli bkCompCli = new BkCompCli();
-                            bkCli.setNom(cellValueStr);
-                            cellValue = ligne.getCell(1);
-                            objFormulaEvaluator.evaluate(cellValue);
-                            cellValueStr = objDefaultFormat.formatCellValue(cellValue, objFormulaEvaluator);
-                            bkCli.setPrenom(cellValueStr.toUpperCase());
-                            cellValue = ligne.getCell(2);
-                            objFormulaEvaluator.evaluate(cellValue);
-                            cellValueStr = objDefaultFormat.formatCellValue(cellValue, objFormulaEvaluator);
-                            String id = "", compte = cellValueStr;
-                            compte = compte.replace(" ", "").replace(".", "").replace(";", "").replace(",", "");
-                            id = compte.length()
-                                    >= 9 ? compte.substring(3, 9) : compte;
-                            bkCli.setCode(id);
-                            cellValue = ligne.getCell(3);
-                            objFormulaEvaluator.evaluate(cellValue);
-                            cellValueStr = objDefaultFormat.formatCellValue(cellValue, objFormulaEvaluator);
-                            long num = 0;
-                            if (cellValueStr.length() == 9) {
-                                num = Long.parseLong("237" + cellValueStr);
-                            } else if (Long.toString(num).length() == 8) {
-                                num = Long.parseLong("241" + Long.toString(num));
-                            }
-                            bkCli.setPhone(num);
-
-                            cellValue = ligne.getCell(4);
-                            objFormulaEvaluator.evaluate(cellValue);
-                            cellValueStr = objDefaultFormat.formatCellValue(cellValue, objFormulaEvaluator);
-                            bkCli.setEmail(cellValueStr);
-                            cellValue = ligne.getCell(5);
-                            objFormulaEvaluator.evaluate(cellValue);
-                            cellValueStr = objDefaultFormat.formatCellValue(cellValue, objFormulaEvaluator);
-                            bkCli.setLangue(cellValueStr);
-                            bkCli.setEnabled(true);
-                            cellValue = ligne.getCell(6);
-                            objFormulaEvaluator.evaluate(cellValue);
-                            cellValueStr = objDefaultFormat.formatCellValue(cellValue, objFormulaEvaluator);
-                            bkCli.setLibelle(cellValueStr);
-
-                            if (service.getBkCliById(id) == null) {
-                                service.enregistrer(bkCli);
-                            }
-                            bkCompCli.setCli(bkCli);
-                            bkCompCli.setNumc(compte.toUpperCase());
-                            bkCompCli.setEnabled(true);
-                            if (service.getBkCompCliById(compte) == null) {
-                                service.enregistrer(bkCompCli);
-                            }
-                            //System.out.println(bkCli.toString());
-                        }
-
-                    }
-
-                    /* if (ligne.getRowNum() != 0) {
-                     BkCli bkCli = new BkCli();
-                     BkCompCli bkCompCli = new BkCompCli();
-                     bkCli.setNom(ligne.getCell(0) == null ? "" : ligne.getCell(0).getStringCellValue().toUpperCase());
-                     bkCli.setPrenom(ligne.getCell(1) == null ? "" : ligne.getCell(1).getStringCellValue().toUpperCase());
-                     String compte = "";
-                     String id = "";
-                     if (ligne.getCell(2).getCellType() == Cell.CELL_TYPE_NUMERIC) {
-                     String vall = Double.toString(ligne.getCell(2).getNumericCellValue());
-                     vall = vall.replace(" ", "");
-                     long c = Long.parseLong(vall);//(long) ligne.getCell(2).getNumericCellValue();
-                     compte = Long.toString(c);
-                     id = Long.toString(c).length()
-                     >= 9 ? Long.toString(c).substring(3, 9) : Long.toString(c);
-                     bkCli.setCode(id);
-                     } else if (ligne.getCell(2).getCellType() == Cell.CELL_TYPE_STRING) {
-                     compte = ligne.getCell(2).getStringCellValue();
-                     } else if (ligne.getCell(2).getCellType() == Cell.CELL_TYPE_STRING) {
-                     bkCli.setCode(id);
-                     String c = ligne.getCell(2).getStringCellValue();
-                     compte = c;
-                     id = c.length()
-                     >= 9 ? c.substring(3, 9) : c;
-                     bkCli.setCode(id);
-                     } else {
-                     String c = ligne.getCell(2).getStringCellValue();
-                     compte = c;
-                     id = c.length()
-                     >= 9 ? c.substring(3, 9) : c;
-                     bkCli.setCode(id);
-                     }
-                     long num = (long) (ligne.getCell(3) == null ? 0 : ligne.getCell(3).getNumericCellValue());
-                     if (Long.toString(num).length() == 9) {
-                     num = Long.parseLong("237" + Long.toString(num));
-                     } else if (Long.toString(num).length() == 8) {
-                     num = Long.parseLong("241" + Long.toString(num));
-                     }
-                     bkCli.setPhone(num);
-                     bkCli.setEmail(ligne.getCell(4) == null ? "" : ligne.getCell(4).getStringCellValue());
-                     bkCli.setLangue(ligne.getCell(5).getStringCellValue());
-                     bkCli.setEnabled(true);
-                     bkCli.setLibelle(ligne.getCell(6).getStringCellValue());
-                     if (service.getBkCliById(id) == null) {
-                     service.enregistrer(bkCli);
-                     }
-                     bkCompCli.setCli(bkCli);
-                     bkCompCli.setNumc(compte.toUpperCase());
-                     bkCompCli.setEnabled(true);
-                     if (service.getBkCompCliById(compte) == null) {
-                     service.enregistrer(bkCompCli);
-                     }
-                     }*/
-                    i++;
-                } catch (NumberFormatException ex) {
-                    System.out.println("Format incorrect nouvelle version " + ex.getMessage());
-                    end = true;
-                }
-            }
-            if (end) {
-                return "KO";
-            } else {
-                return "OK";
-            }
-        } catch (FileNotFoundException ex) {
-            logger.info("Fichier non trouvé");
-            return ex.getMessage();
-        } catch (IOException ex) {
-            logger.info("Erreur lors de l'ouverture du fichier");
-            return ex.getMessage();
-        } catch (InvalidFormatException ex) {
-            logger.info("probleme de format de la cellule");
-            return ex.getMessage();
-        } finally {
-            try {
-                fichier.close();
-            } catch (IOException ex) {
-                logger.info("Erreur lors de la fermeture du fichier");
-                return ex.getMessage();
-            }
-        }
-
-    }
-
-    public static Object getCellValue(Cell cell) {
-        Object o = null;
-        if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-            o = cell.getNumericCellValue();
-        } else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
-            o = cell.getStringCellValue();
-        }
-        return o;
+        return res.toString();
     }
 
     public static boolean isCorrect(String text) {
-        int a = 0, b = 0;
-        for (int i = 0; i < text.length(); i++) {
+        int a = 0;
+        int b = 0;
+
+        for(int i = 0; i < text.length(); ++i) {
             if (text.charAt(i) == '<') {
-                a++;
+                ++a;
             } else if (text.charAt(i) == '>') {
-                b++;
+                ++b;
             }
         }
         return a == b;
     }
 
     public static boolean iscorrect(List<String> variables) {
-        int a = 0, b = variables.size();
+        int a = 0;
+        int b = variables.size();
+
         for (String var : variables) {
-            for (Variable s : Arrays.asList(Variable.values())) {
+
+            for (Variable s : Variable.values()) {
                 if (s.toString().equals(var)) {
-                    a++;
+                    ++a;
                 }
             }
         }
+
         return a == b;
     }
 
     public static List<String> extract(String text) {
-        char c = 0;
-        List<String> list = new ArrayList<String>();
-        for (int i = 0; i < text.length(); i++) {
-            String result = "";
+        List<String> list = new ArrayList<>();
+
+        for(int i = 0; i < text.length(); ++i) {
+            StringBuilder result = new StringBuilder();
             if (text.charAt(i) == '<') {
-                int j = i + 1;
-                while (text.charAt(j) != '>' & j < text.length()) {
-                    result += text.charAt(j);
-                    j++;
+                for(int j = i + 1; text.charAt(j) != '>'; ++j) {
+                    result.append(text.charAt(j));
                 }
-                list.add(result);
+
+                list.add(result.toString());
             }
         }
         return list;
@@ -389,48 +123,69 @@ public class Utils {
     public static String remplacerVariable(BkCli bkCli, BkOpe bkOpe, BkEve bkEve, MessageFormat mf) {
         List<String> list = extract(mf.getContent());
         String text = mf.getContent();
+
         for (String s : list) {
-            if (s.equals("nom")) {
-                text = text.replace("<" + s + ">", bkCli.getNom());
-            } else if (s.equals("pre")) {
-                text = text.replace("<" + s + ">", bkCli.getPrenom());
-            } else if (s.equals("numc")) {
-                text = text.replace("<" + s + ">", bkEve.getCompte());
-            } else if (s.equals("lib")) {
-                text = text.replace("<" + s + ">", bkCli.getLibelle());
-            } else if (s.equals("numt")) {
-                text = text.replace("<" + s + ">", bkCli.getPhone() + "");
-            } else if (s.equals("date")) {
-                text = text.replace("<" + s + ">", bkEve.getDVAB().length() > 10 ? bkEve.getDVAB().substring(0, 10) : bkEve.getDVAB());
-            } else if (s.equals("mont")) {
-                text = text.replace("<" + s + ">", bkEve.getMontant() == null ? moveZero(bkEve.getMont()) : bkEve.getMontant());
-            } else if (s.equals("agence")) {
-                text = text.replace("<" + s + ">", bkEve.getBkAgence() == null ? "" : bkEve.getBkAgence().getNoma());
-            } else if (s.equals("heure")) {
-                text = text.replace("<" + s + ">", getHSAI(bkEve.getHsai()));
+            switch (s) {
+                case "nom":
+                    text = text.replace("<" + s + ">", bkCli.getNom());
+                    break;
+                case "pre":
+                    text = text.replace("<" + s + ">", bkCli.getPrenom());
+                    break;
+                case "numc":
+                    text = text.replace("<" + s + ">", bkEve.getCompte());
+                    break;
+                case "lib":
+                    text = text.replace("<" + s + ">", bkCli.getLibelle());
+                    break;
+                case "numt":
+                    text = text.replace("<" + s + ">", bkCli.getPhone() + "");
+                    break;
+                case "date":
+                    text = text.replace("<" + s + ">", bkEve.getDVAB().length() > 10 ? bkEve.getDVAB().substring(0, 10) : bkEve.getDVAB());
+                    break;
+                case "mont":
+                    text = text.replace("<" + s + ">", bkEve.getMontant() == null ? moveZero(bkEve.getMont()) : bkEve.getMontant());
+                    break;
+                case "agence":
+                    text = text.replace("<" + s + ">", bkEve.getBkAgence() == null ? "" : bkEve.getBkAgence().getNoma());
+                    break;
+                case "heure":
+                    text = text.replace("<" + s + ">", getHSAI(bkEve.getHsai()));
+                    break;
             }
         }
+
         return text;
     }
 
     public static String remplacerVariable(BkMad eve, MessageFormat mf) {
         List<String> list = extract(mf.getContent());
         String text = mf.getContent();
+
         for (String s : list) {
-            if (s.equals("numt1")) {
-                text = text.replace("<" + s + ">", eve.getAd1p());
-            } else if (s.equals("numt2")) {
-                text = text.replace("<" + s + ">", eve.getAd2p());
-            } else if (s.equals("code")) {
-                text = text.replace("<" + s + ">", eve.getClesec());
-            } else if (s.equals("date1")) {
-                text = text.replace("<" + s + ">", eve.getDco().length() > 10 ? eve.getDco().substring(0, 10) : eve.getDco());
-            } else if (s.equals("date2")) {
-                text = text.replace("<" + s + ">", eve.getDbd().length() > 10 ? eve.getDbd().substring(0, 10) : eve.getDbd());
-            } else if (s.equals("mont")) {
-                text = text.replace("<" + s + ">", eve.getMnt());
+            switch (s) {
+                case "numt1":
+                    text = text.replace("<" + s + ">", eve.getAd1p());
+                    break;
+                case "numt2":
+                    text = text.replace("<" + s + ">", eve.getAd2p());
+                    break;
+                case "code":
+                    text = text.replace("<" + s + ">", eve.getClesec());
+                    break;
+                case "date1":
+                    text = text.replace("<" + s + ">", eve.getDco().length() > 10 ? eve.getDco().substring(0, 10) : eve.getDco());
+                    break;
+                case "date2":
+                    text = text.replace("<" + s + ">", eve.getDbd().length() > 10 ? eve.getDbd().substring(0, 10) : eve.getDbd());
+                    break;
+                case "mont":
+                    text = text.replace("<" + s + ">", eve.getMnt());
+                    break;
             }
         }
+
         return text;
     }
 
@@ -438,91 +193,46 @@ public class Utils {
         String result = null;
         if (heure.length() > 8) {
             result = heure.substring(0, 5);
-        } else {
-            if (heure.length() == 4) {
-                result = heure.substring(0, 2) + ":" + heure.substring(2, 4) + "";
-            }
+        } else if (heure.length() == 4) {
+            result = heure.substring(0, 2) + ":" + heure.substring(2, 4);
         }
+
         return result;
     }
 
     public static boolean estUnEntier(String chaine) {
         try {
             Integer.parseInt(chaine);
-        } catch (NumberFormatException e) {
+            return true;
+        } catch (NumberFormatException var2) {
             return false;
         }
-        return true;
     }
 
-    public static boolean sendMail(String msg) {
-        final String username = "lacussms.app@gmail.com";
-        final String password = "@dmin123!";
-
+    public static void sendMail(String msg) {
+        String username = "lacussms.app@gmail.com";
+        String password = "@dmin123!";
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.ssl.enable", "true");
         props.put("mail.smtp.host", "smtp.gmail.com");
-        props.put("mail.smtp.port", "587");
-
-        Session session = Session.getInstance(props,
-                new javax.mail.Authenticator() {
-                    @Override
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(username, password);
-                    }
-                });
+        props.put("mail.smtp.port", "465");
+        Session session = Session.getInstance(props, new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication("lacussms.app@gmail.com", "@dmin123!");
+            }
+        });
 
         try {
-
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress("lacussms.appil@gmail.com"));
-            message.setRecipients(Message.RecipientType.TO,
-                    InternetAddress.parse("eabouna@gmail.com"));
+            message.setRecipients(RecipientType.TO, InternetAddress.parse("eabouna@gmail.com"));
             message.setSubject("Application en cours d'exécution");
-            Date date = new Date();
+            new Date();
             message.setText(msg);
             Transport.send(message);
-            return true;
-
-        } catch (MessagingException e) {
-            //throw new RuntimeException(e);
-            return false;
-        }
-    }
-
-    public static boolean sendMail(String msg, String to, String subject) {
-        final String username = "lacussms.app@gmail.com";
-        final String password = "@dmin123!";
-
-        Properties props = new Properties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", "smtp.gmail.com");
-        props.put("mail.smtp.port", "587");
-
-        Session session = Session.getInstance(props,
-                new javax.mail.Authenticator() {
-                    @Override
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(username, password);
-                    }
-                });
-
-        try {
-
-            Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress("lacussms.appil@gmail.com"));
-            message.setRecipients(Message.RecipientType.TO,
-                    InternetAddress.parse(to));
-            message.setSubject(subject);
-            message.setText(msg);
-            Transport.send(message);
-            return true;
-
-        } catch (MessagingException e) {
-            //throw new RuntimeException(e);
-            return false;
+        } catch (MessagingException var7) {
+            logger.error(var7.getMessage());
         }
     }
 
@@ -530,32 +240,26 @@ public class Utils {
         String code = "KO";
         try {
             URL url = new URL("http://www.google.com");
-            HttpURLConnection conn1 = (HttpURLConnection) url.openConnection();
-            if (conn1.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            HttpURLConnection conn1 = (HttpURLConnection)url.openConnection();
+            if (conn1.getResponseCode() == 200) {
                 code = "OK";
             }
-        } catch (UnknownHostException ex) {
-            return "KO";
-        } catch (MalformedURLException ex) {
-            return "KO";
-        } catch (IOException ex) {
+            return code;
+        } catch (IOException var3) {
             return "KO";
         }
-        return code;
     }
 
     public static void enregistrerMail(LacusSmsService service) {
         Date date = new Date();
+
         String message;
         try {
-            message = "Application tourne correctement,"
-                    + "\n\n Lacus SMS, please CopyRight 2018 SunSoftware Fundation!"
-                    + "\n\n " + "en date du " + date + " depuis " + InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException ex) {
-            message = "Application tourne correctement,"
-                    + "\n\n Lacus SMS, please CopyRight 2018 SunSoftware Fundation!"
-                    + "\n\n " + "en date du " + date + " depuis " + " unknow host";
+            message = "Application tourne correctement,\n\n Lacus SMS, please CopyRight 2018 SunSoftware Fundation!\n\n en date du " + date + " depuis " + InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException var5) {
+            message = "Application tourne correctement,\n\n Lacus SMS, please CopyRight 2018 SunSoftware Fundation!\n\n en date du " + date + " depuis  unknow host";
         }
+
         SentMail sentMail = new SentMail();
         sentMail.setContent(message);
         sentMail.setHeure(date);
@@ -565,112 +269,11 @@ public class Utils {
             sendMail(message);
             service.saveMail(sentMail);
         }
+
     }
 
-    public static void enregistrerMail(LacusSmsService service, String message, String subject, String to) {
-        Date date = new Date();
-
-        SentMail sentMail = new SentMail();
-        sentMail.setContent(message);
-        sentMail.setHeure(date);
-        sentMail.setSentDate(date);
-        String res = testConnexionInternet();
-        if (res.equals("OK")) {
-            sendMail(message, to, subject);
-            service.saveMail(sentMail);
-        }
-    }
-
-    public static void ecrireFichier(File f, String chaine) {
-        //String path = System.getProperty("user.home") + File.separator + ".smile" + File.separator + "logs" + File.separator + "import_log.txt";
-        //File f = new File(path);
-        try {
-            FileWriter fw = new FileWriter(f);
-            fw.write(chaine);
-            fw.write("\r\n");
-            fw.close();
-        } catch (IOException exception) {
-            System.out.println("Erreur lors de la lecture : " + exception.getMessage());
-        }
-    }
-
-    /*RemoteDB remoteDB = serviceManager.getDefaultRemoteDB(true);
-     conn = DriverManager.
-     getConnection(remoteDB.getUrl(),remoteDB.getName(),remoteDB.getPassword());
-     int compteur = serviceManager.getMaxIndexBkEve();
-     if(compteur == 0){
-     PreparedStatement ps = conn.prepareStatement("SELECT max(b.EVE) AS EVE FROM bkeve b");
-     ResultSet rs = ps.executeQuery();
-     while(rs.next()){
-     compteur = Integer.parseInt(rs.getString("EVE"));
-     }
-     }
-     String query = "SELECT b.CLI1,b.ETA,b.NCP1,b.OPE,b.EVE,b.DVAB,b.MBOR,b.AGE,b.HSAI FROM bkeve b WHERE b.EVE > " + compteur + " AND (b.ETA='VA' OR b.ETA='VF')";
-     PreparedStatement ps = conn.prepareStatement(query);
-     ResultSet rs = ps.executeQuery();
-     System.out.println("Exécution ......" + query);
-     while(rs.next()){
-     BkEve eve = new BkEve();
-     BkAgence bkAgence = serviceManager.getBkAgenceById(rs.getString("AGE"));
-     eve.setBkAgence(bkAgence);
-     System.out.println(rs.getString("AGE"));
-     BkCli bkCli = serviceManager.getBkCliById(rs.getString("CLI1"));
-     eve.setCli(bkCli);
-     eve.setCompte(rs.getString("NCP1"));
-     eve.setEtat(rs.getString("ETA"));
-     eve.setHsai(rs.getString("HSAI"));
-     eve.setMont(Double.parseDouble(rs.getString("MBOR")));
-     BkOpe bkOpe = serviceManager.getBkOpeById(rs.getString("OPE"));
-     eve.setOpe(bkOpe);
-     eve.setDVAB(rs.getString("DVAB"));
-     eve.setSent(false);
-     eve.setId(Integer.parseInt(rs.getString("EVE")));
-     serviceManager.enregistrer(eve);
-     System.out.println(eve.toString());
-     }
-     conn.close();*/
-    /*BkTelCli bkTelCli = new BkTelCli();
-     int nbr1 = serviceManager.count(bkTelCli),nbr2=0;
-                                
-     ps = conn.prepareStatement("SELECT COUNT(*) AS NBR FROM bktelcli b ");
-     rs = ps.executeQuery();
-     while(rs.next()){
-     nbr2 = Integer.parseInt(rs.getString("NBR"));
-     }
-     ps = conn.prepareStatement("SELECT b.NUM, b.CLI, b.TYPE FROM bktelcli b WHERE b.CLI='" + rs.getString("CLI1") + "' AND b.TYPE='F'");
-     rs = ps.executeQuery(); 
-                                
-     while(rs.next()){
-     bkTelCli = new BkTelCli();
-     if(bkCli.getPhone() == 0){
-     if(rs.getString("TYPE").contentEquals("F")){
-     bkCli.setPhone(Long.parseLong(rs.getString("NUM")));
-     serviceManager.modifier(bkCli);
-     bkTelCli.setPardefault(true);
-     } 
-     }
-     bkTelCli.setBkCli(bkCli);
-     bkTelCli.setNumTel(Long.parseLong(rs.getString("NUM")));
-     bkTelCli.setTypeNum(rs.getString("TYPE"));
-     serviceManager.enregistrer(bkTelCli);
-     }*/
-    /* DeleteBkEveDialog nouveau1 = null;
-     nouveau1 = new DeleteBkEveDialog(parentPanel, serviceManager);
-     nouveau1.setSize(450, 200);
-     nouveau1.setLocationRelativeTo(null);
-     nouveau1.setModal(true);
-     nouveau1.setResizable(false);
-     nouveau1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-     nouveau1.setVisible(true);*/
     public static Date add(Date d, long a) {
-        Date d2 = new Date(d.getTime() + a * (1000 * 60 * 60 * 24));
-        return d2;
-    }
-
-    public static Calendar dateToCalendar(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        return calendar;
+        return new Date(d.getTime() + a * 86400000L);
     }
 
     public static String day(int i) {
@@ -686,10 +289,9 @@ public class Utils {
             return "Vendredi";
         } else if (i == 7) {
             return "Samedi";
-        } else if (i == 1) {
-            return "Dimanche";
+        } else {
+            return i == 1 ? "Dimanche" : "";
         }
-        return "";
     }
 
     public static boolean exist(String lic, Connection conn) throws SQLException {
@@ -700,67 +302,18 @@ public class Utils {
         return rs.first();
     }
 
-    public static boolean existAndUsed(String lic, Connection conn) throws SQLException {
-        PreparedStatement pstmt = conn.prepareStatement("select * from licence where code=? and used=?");
-        pstmt.setString(1, lic);
-        pstmt.setBoolean(2, true);
-        ResultSet rs = pstmt.executeQuery();
-        return rs.first();
-    }
-
-    public static boolean updateLic(String lic, Connection conn) throws SQLException {
-        System.out.println("Modification distante");
-        PreparedStatement pstmt = conn.prepareStatement("update licence set used=? where code=?");
-        pstmt.setString(2, lic);
-        pstmt.setBoolean(1, true);
-        int r = pstmt.executeUpdate();
-        return r > 0;
-    }
-
     public static Connection getConnection() throws ClassNotFoundException {
         Class.forName("com.mysql.jdbc.Driver");
-        Connection conn = null;
+        Connection conn;
+
         try {
-            conn = DriverManager.
-                    getConnection("jdbc:mysql://mysql-eabouna.alwaysdata.net:3306/eabouna_lacus",
-                            "eabouna", "Lebomo@1989!");
-        } catch (SQLException ex) {
+            conn = DriverManager.getConnection("jdbc:mysql://mysql-eabouna.alwaysdata.net:3306/eabouna_lacus", "eabouna", "Lebomo@1989!");
+            return conn;
+        } catch (SQLException var2) {
             return null;
         }
-        return conn;
     }
 
-    public static boolean createAppDirectory() throws IOException {
-        boolean create = false;
-        if (OSValidator.isWindows()) {
-            String path = System.getenv("APPDATA") + File.separator + "lacus";
-            File file = new File(path);
-            if (file.exists() == false) {
-                file.mkdir();
-                String p = file.getAbsolutePath() + File.separator + "app.txt";
-                file = new File(p);
-                file.createNewFile();
-                ecrire("pid -1");
-                create = true;
-            }
-        }
-        return create;
-    }
-
-    public static boolean verify() throws FileNotFoundException, IOException {
-        String path = System.getenv("APPDATA") + File.separator + "lacus" + File.separator + "app.txt";
-        File file = new File(path);
-        boolean test = false;
-        if (file.exists()) {
-            FileReader fileReader = new FileReader(file);
-            BufferedReader reader = new BufferedReader(fileReader);
-            String text = reader.readLine();
-            if (text.split(" ")[1].equals("1")) {
-                test = true;
-            }
-        }
-        return test;
-    }
 
     public static void ecrire(String ch) throws IOException {
         String fileName = System.getenv("APPDATA") + File.separator + "lacus" + File.separator + "app.txt";
@@ -771,10 +324,260 @@ public class Utils {
         fileWriter.close();
     }
 
-    public static String getAppVersion() throws IOException, XmlPullParserException {
-        MavenXpp3Reader reader = new MavenXpp3Reader();
-        Model model = reader.read(new FileReader("pom.xml"));
-        return model.getVersion();
+
+
+    public static String generateDate() {
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("ddMMyy");
+        String formatDate = sdf.format(date);
+        formatDate = "AB-" + formatDate + "-PI";
+        return AES.encrypt(formatDate, ConstantUtils.SECRET_KEY);
     }
 
+    public static Date getDateSimpleFormat(String format, String value) {
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        try {
+            return sdf.parse(value);
+        } catch (ParseException e) {
+            return null;
+        }
+    }
+
+    public static String hacher(String algorithme, String monMessage) {
+        byte[] digest = null;
+
+        try {
+            MessageDigest sha = MessageDigest.getInstance(algorithme);
+            digest = sha.digest(monMessage.getBytes());
+        } catch (NoSuchAlgorithmException ignored) {
+            return null;
+        }
+
+        assert digest != null;
+        return bytesToHex(digest);
+    }
+
+    public static String bytesToHex(byte[] b) {
+        char[] hexDigits = new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+        StringBuilder buffer = new StringBuilder();
+
+        for (byte value : b) {
+            buffer.append(hexDigits[value >> 4 & 15]);
+            buffer.append(hexDigits[value & 15]);
+        }
+
+        return buffer.toString();
+    }
+
+    public static String getAppVersion() throws IOException, XmlPullParserException {
+        throw new XmlPullParserException("");
+    }
+
+    public static Function<LogParam, Void> printLog = logParam -> {
+        logParam.getTextArea().append(logParam.getLog());
+        return null;
+    };
+
+    Function<LogParam, Void> print = logParam -> {
+        String line;
+        try {
+            if ((line = logParam.getReader().readLine()) != null) {
+                logParam.getTextArea().append(line + "\n");
+            } else {
+                ((Timer) logParam.getEvent().getSource()).stop();
+            }
+        } catch (IOException ex) {
+            //Logger.getLogger(ReadFile.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    };
+
+    public static String getLog() {
+        LogFile logBean = ApplicationConfig.getApplicationContext().getBean(LogFile.class);
+        return logBean.getLog();
+    }
+
+    public static void initDriver() throws ClassNotFoundException {
+        TimeZone timeZone = TimeZone.getTimeZone("GMT");
+        TimeZone.setDefault(timeZone);
+        Class.forName("oracle.jdbc.driver.OracleDriver");
+    }
+
+    public static boolean checkLicence() {
+        return true;
+    }
+
+
+    public static void test() {
+        List<BkEve> list = serviceManager.getBkEveBySendParam(true, listString);
+        NumberFormat formatnum = NumberFormat.getCurrencyInstance();
+        formatnum.setMinimumFractionDigits(0);
+        list.stream().peek((eve) -> logger.info(eve.toString())).forEach((eve) -> {
+            logger.info(" Montant : " + eve.getMont() + " " + Utils.moveZero(eve.getMont()));
+        });
+    }
+
+    public static Connection testConnexion(LacusSmsService serviceManager, String secret) {
+        try {
+            String decryptedString;
+            Utils.initDriver();
+            RemoteDB remoteDB = serviceManager.getDefaultRemoteDB(true);
+            if (remoteDB != null) {
+                logger.debug("URL: {}", remoteDB.getUrl());
+                logger.debug("Username: {}", remoteDB.getName());
+                logger.debug("Password: {}", remoteDB.getPassword());
+                decryptedString = AES.decrypt(remoteDB.getPassword(), secret);
+                return DriverManager.getConnection(remoteDB.getUrl(), remoteDB.getName(), decryptedString);
+            }
+            return null;
+        } catch (ClassNotFoundException | SQLException | NullPointerException ex) {
+            logger.error("problème de connexion bd {}", ex.getMessage());
+            return null;
+        }
+    }
+
+
+    public static void send(String username, String pass, String number, String msg, String sid, int fl, int mt, String ipcl) {
+        try {
+            String postBody = "username=" + URLEncoder.encode(username, "ISO-8859-1") + "&password=" + URLEncoder.encode(pass, "ISO-8859-1") + "&mno=" + URLEncoder.encode(number, "ISO-8859-1") + "&msg=" + URLEncoder.encode(msg, "ISO-8859-1") + "&Sid=" + URLEncoder.encode(sid, "ISO-8859-1") + "&fl=" + URLEncoder.encode("" + fl, "ISO-8859-1") + "&mt=" + URLEncoder.encode("" + mt, "ISO-8859-1") + "&ipcl=" + URLEncoder.encode(ipcl, "ISO-8859-1");
+            String link = "https://1s2u.com/sms/sendsms/sendsms.asp?" + postBody;
+            URL url = new URL(link);
+            HttpURLConnection conn1 = (HttpURLConnection)url.openConnection();
+            logger.info(postBody);
+            conn1.setRequestMethod("POST");
+            conn1.setDoOutput(true);
+            OutputStreamWriter wr = new OutputStreamWriter(conn1.getOutputStream());
+            wr.write(postBody);
+            wr.flush();
+            wr.close();
+            conn1.connect();
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn1.getInputStream()));
+            StringBuilder results = new StringBuilder();
+
+            String oneline;
+            while((oneline = br.readLine()) != null) {
+                results.append(oneline);
+            }
+
+            br.close();
+            logger.info(URLDecoder.decode(results.toString(), "ISO-8859-1"));
+        } catch (IOException var16) {
+            logger.error(var16.getMessage() + var16.getCause());
+        }
+
+    }
+
+
+    public static String send(String urlText, String number, String msg) {
+        String res = "";
+        String rCode;
+
+        try {
+            String link = urlText.replace("<num>", URLEncoder.encode(number, "UTF-8")).replace("<msg>", URLEncoder.encode(msg, "UTF-8"));
+            int i = 0;
+
+            String r;
+            for(r = ""; link.charAt(i) != '?'; ++i) {
+                r = r + link.charAt(i);
+            }
+
+            String r1 = link.replace(r + "?", "");
+            URL url = new URL(r + "?");
+            HttpURLConnection conn1 = (HttpURLConnection)url.openConnection();
+            logger.info(r + "?" + r1);
+            conn1.setRequestMethod("POST");
+            conn1.setReadTimeout(5000);
+            conn1.setDoOutput(true);
+            OutputStreamWriter wr = new OutputStreamWriter(conn1.getOutputStream());
+            wr.write(r1);
+            wr.flush();
+            wr.close();
+            conn1.connect();
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn1.getInputStream()));
+            StringBuilder results = new StringBuilder();
+            BottomPanel.settextLabel("Récupération du résultat...", Color.black);
+
+            String oneline;
+            while((oneline = br.readLine()) != null) {
+                results.append(oneline);
+            }
+
+            br.close();
+            logger.info(URLDecoder.decode(results.toString(), "UTF-8"));
+            res = URLDecoder.decode(results.toString(), "UTF-8");
+            rCode = "OK";
+            return rCode;
+        } catch (IOException var15) {
+            logger.error(var15.getMessage() + var15.getCause());
+            return null;
+        }
+    }
+
+    public static void send2(String urlText, String number, String msg) {
+        String res = "";
+        String rCode = "KO";
+
+        try {
+            String link = urlText.replace("<num>", URLEncoder.encode(number, "UTF-8")).replace("<msg>", URLEncoder.encode(msg, "UTF-8"));
+            URL url = new URL(link);
+            HttpURLConnection conn1 = (HttpURLConnection)url.openConnection();
+            logger.info(link);
+            conn1.setRequestMethod("POST");
+            conn1.setDoOutput(true);
+            OutputStreamWriter wr = new OutputStreamWriter(conn1.getOutputStream());
+            Throwable var9 = null;
+
+            try {
+                wr.write(urlText);
+                wr.flush();
+            } catch (Throwable var19) {
+                var9 = var19;
+                throw var19;
+            } finally {
+                if (var9 != null) {
+                    try {
+                        wr.close();
+                    } catch (Throwable var18) {
+                        var9.addSuppressed(var18);
+                    }
+                } else {
+                    wr.close();
+                }
+
+            }
+
+            conn1.connect();
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn1.getInputStream()));
+            StringBuilder results = new StringBuilder();
+            msg = "Récupération du résultat...";
+            logger.info(msg);
+            BottomPanel.settextLabel(msg, Color.black);
+
+            String oneline;
+            while((oneline = br.readLine()) != null) {
+                results.append(oneline);
+            }
+
+            br.close();
+            logger.info(URLDecoder.decode(results.toString(), "UTF-8"));
+            res = URLDecoder.decode(results.toString(), "UTF-8");
+            rCode = "OK";
+        } catch (IOException var21) {
+            logger.error("{} {}", var21.getMessage(), var21.getCause());
+        }
+    }
+
+
+
+    public static String testPhone(String num) {
+        String res = null;
+        if (Utils.estUnEntier(num)) {
+            if (num.length() == 8) {
+                res = "241" + num;
+            } else if (num.length() == 9) {
+                res = "237" + num;
+            }
+        }
+        return res;
+    }
 }

@@ -9,10 +9,11 @@ package com.abouna.lacussms.dao;
 import com.abouna.generic.dao.IDao;
 import com.abouna.lacussms.entities.BkOpe;
 
+import java.util.Optional;
+
 /**
  *
  * @author SATELLITE
  */
 public interface IBkOpeDao extends IDao<BkOpe, String>{
-    
 }

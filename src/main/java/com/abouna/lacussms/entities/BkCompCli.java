@@ -6,11 +6,11 @@
 
 package com.abouna.lacussms.entities;
 
-import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.io.Serializable;
 
 /**
  *
@@ -24,6 +24,15 @@ public class BkCompCli implements Serializable{
     @ManyToOne
     private BkCli cli;
     private boolean enabled;
+
+    public BkCompCli() {
+    }
+
+    public BkCompCli(String numc, BkCli cli, boolean enabled) {
+        this.numc = numc;
+        this.cli = cli;
+        this.enabled = enabled;
+    }
 
     public String getNumc() {
         return numc;

@@ -5,14 +5,13 @@
  */
 package com.abouna.lacussms.views.main;
 
+import com.abouna.lacussms.main.MainFrame;
 import com.abouna.lacussms.service.LacusSmsService;
 import com.abouna.lacussms.views.LoginPane;
-import java.awt.Color;
-import java.awt.GridBagLayout;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import java.awt.*;
 
 /**
  *
@@ -20,7 +19,7 @@ import javax.swing.border.EmptyBorder;
  */
 public class LoginFrame {
 
-    public LoginFrame(LacusSmsService service,MainFrame mainFrame) {
+    public LoginFrame(LacusSmsService service, MainFrame mainFrame) {
         JDialog frame = new JDialog();
         frame.setTitle("Login");
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);

@@ -9,14 +9,15 @@ package com.abouna.lacussms.dao.impl;
 import com.abouna.generic.dao.impl.GenericDao;
 import com.abouna.lacussms.dao.IMessageDao;
 import com.abouna.lacussms.entities.Message;
-import com.abouna.lacussms.entities.Message_;
-import java.util.Date;
-import java.util.List;
+import org.springframework.stereotype.Repository;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import org.springframework.stereotype.Repository;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 /**
  *
@@ -30,8 +31,8 @@ public class MessageDaoImpl extends GenericDao<Message, Integer> implements IMes
          CriteriaBuilder builder =  getManager().getCriteriaBuilder();
         CriteriaQuery<Message> cq = builder.createQuery(Message.class);
         Root<Message> msgRoot = cq.from(Message.class);
-        cq.where(builder.and(builder.greaterThanOrEqualTo(msgRoot.get(Message_.sendDate), d1),
-                builder.lessThanOrEqualTo(msgRoot.get(Message_.sendDate), d2)));
+        cq.where(builder.and(builder.greaterThanOrEqualTo(msgRoot.get("sendDate"), d1),
+                builder.lessThanOrEqualTo(msgRoot.get("sendDate"), d2)));
         cq.select(msgRoot);
         return getManager().createQuery(cq).getResultList();
     }
@@ -40,9 +41,17 @@ public class MessageDaoImpl extends GenericDao<Message, Integer> implements IMes
     public int supprimerTout() {
         CriteriaBuilder builder = getManager().getCriteriaBuilder();
         CriteriaDelete<Message> cq = builder.createCriteriaDelete(Message.class);
-        Root<Message> root = cq.from(Message.class);
-        int result = em.createQuery(cq).executeUpdate();
-        return result;
+        return getManager().createQuery(cq).executeUpdate();
     }
-    
+
+    @Override
+    public Optional<Message> getMessageByEveId(Integer eveId) {
+        CriteriaBuilder builder =  getManager().getCriteriaBuilder();
+        CriteriaQuery<Message> cq = builder.createQuery(Message.class);
+        Root<Message> msgRoot = cq.from(Message.class);
+        cq.where(builder.equal(msgRoot.get("bkEve").get("id"), eveId));
+        cq.select(msgRoot);
+        return getManager().createQuery(cq).getResultList().stream().findFirst();
+    }
+
 }

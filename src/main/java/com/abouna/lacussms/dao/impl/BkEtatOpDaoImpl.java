@@ -8,12 +8,12 @@ package com.abouna.lacussms.dao.impl;
 import com.abouna.generic.dao.impl.GenericDao;
 import com.abouna.lacussms.dao.IBkEtatOpDao;
 import com.abouna.lacussms.entities.BkEtatOp;
-import com.abouna.lacussms.entities.BkEtatOp_;
-import java.util.List;
+import org.springframework.stereotype.Repository;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 
 /**
  *
@@ -27,7 +27,7 @@ public class BkEtatOpDaoImpl extends GenericDao<BkEtatOp, Integer> implements IB
         CriteriaBuilder builder =  getManager().getCriteriaBuilder();
         CriteriaQuery<BkEtatOp> cq = builder.createQuery(BkEtatOp.class);
         Root<BkEtatOp> etatRoot = cq.from(BkEtatOp.class);
-        cq.where(builder.equal(etatRoot.get(BkEtatOp_.actif), actif));
+        cq.where(builder.equal(etatRoot.get("actif"), actif));
         cq.select(etatRoot);
         return getManager().createQuery(cq).getResultList();
     }

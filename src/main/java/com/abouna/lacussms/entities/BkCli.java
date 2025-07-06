@@ -6,11 +6,9 @@
 
 package com.abouna.lacussms.entities;
 
+import javax.persistence.*;
 import java.io.Serializable;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Table;
+import java.util.Objects;
 
 /**
  *
@@ -25,11 +23,13 @@ public class BkCli implements Serializable {
     private String nom;
     private String prenom;
     private String libelle;
-    @JoinColumn(nullable = true)
+    @Column(name = "phone")
     private long phone = 0;
     private String email;
     private boolean enabled;
     private String langue;
+
+    private String ddn;
 
     public BkCli() {
     }
@@ -39,6 +39,18 @@ public class BkCli implements Serializable {
         this.nom = nom;
         this.prenom = prenom;
         this.libelle = libelle;
+    }
+
+    public BkCli(String code, String nom, String prenom, String libelle, long phone, String email, boolean enabled, String langue, String ddn) {
+        this.code = code;
+        this.nom = nom;
+        this.prenom = prenom;
+        this.libelle = libelle;
+        this.phone = phone;
+        this.email = email;
+        this.enabled = enabled;
+        this.langue = langue;
+        this.ddn = ddn;
     }
 
     public boolean isEnabled() {
@@ -105,6 +117,14 @@ public class BkCli implements Serializable {
         this.langue = langue;
     }
 
+    public String getDdn() {
+        return ddn;
+    }
+
+    public void setDdn(String ddn) {
+        this.ddn = ddn;
+    }
+
     @Override
     public int hashCode() {
         int hash = 5;
@@ -121,10 +141,7 @@ public class BkCli implements Serializable {
             return false;
         }
         final BkCli other = (BkCli) obj;
-        if ((this.code == null) ? (other.code != null) : !this.code.equals(other.code)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.code, other.code);
     }
 
     @Override

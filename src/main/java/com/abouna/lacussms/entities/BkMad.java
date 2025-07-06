@@ -6,12 +6,14 @@
 
 package com.abouna.lacussms.entities;
 
-import java.io.Serializable;
-import java.util.Date;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  *
@@ -28,8 +30,10 @@ public class BkMad implements Serializable{
     private String ad2p;
     private String dbd;
     @ManyToOne
+    @JoinColumn(name = "ope")
     private BkOpe ope;
     @ManyToOne
+    @JoinColumn(name = "age")
     private BkAgence age;
     private String mnt;
     @Temporal(javax.persistence.TemporalType.DATE)
@@ -39,6 +43,9 @@ public class BkMad implements Serializable{
     private boolean sent;
     private String clesec;
     private int traite;
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    @Column(name = "creation_date")
+    private Date creationDate;
 
     public int getTraite() {
         return traite;
@@ -158,5 +165,13 @@ public class BkMad implements Serializable{
 
     public void setDateRetrait(Date dateRetrait) {
         this.dateRetrait = dateRetrait;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
     }
 }

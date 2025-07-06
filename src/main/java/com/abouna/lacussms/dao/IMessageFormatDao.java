@@ -9,6 +9,7 @@ package com.abouna.lacussms.dao;
 import com.abouna.generic.dao.IDao;
 import com.abouna.lacussms.entities.BkOpe;
 import com.abouna.lacussms.entities.MessageFormat;
+
 import java.util.List;
 
 /**
@@ -16,6 +17,6 @@ import java.util.List;
  * @author SATELLITE
  */
 public interface IMessageFormatDao extends IDao<MessageFormat, Integer>{
-   public List<MessageFormat> getMessageFormatByOpe(BkOpe bkOpe);
-   public MessageFormat getMessageFormatByOpe(BkOpe bkOpe,String langue);
+   List<MessageFormat> getMessageFormatByOpe(BkOpe bkOpe);
+   MessageFormat getMessageFormatByOpe(BkOpe bkOpe, String langue);
 }
